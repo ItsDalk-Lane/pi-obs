@@ -1,0 +1,9 @@
+{
+  "id": "pi-web",
+  "name": "Pi Web",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Embed the Pi Web interface (pi coding agent) as a local process, with files, terminals and subagents in their own tabs.",
+  "author": "Its_D",
+  "isDesktopOnly": true
+}

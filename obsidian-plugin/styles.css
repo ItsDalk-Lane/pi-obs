@@ -1,0 +1,39 @@
+.pi-web-embed {
+  padding: 0 !important;
+  height: 100%;
+}
+
+.pi-web-embed iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: var(--background-primary);
+}
+
+.pi-web-connecting {
+  padding: 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.pi-web-offline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 100%;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.pi-web-offline p {
+  margin: 0;
+}
+
+.pi-web-offline button {
+  margin-top: 10px;
+}
