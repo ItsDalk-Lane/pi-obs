@@ -24,9 +24,11 @@ export function SystemPromptPanel({ loading, prompt, translate }: Props) {
       </div>
 
       <style>{`
+        /* The panel that hosts this one (.pi-web-toppanel) is the scroller: the
+           content only sets a floor, so a short prompt leaves the panel short
+           and a long one scrolls in the host, one bar and one bar only. */
         .system-prompt-panel {
           display: flex;
-          height: min(600px, 75dvh);
           min-height: 220px;
           flex-direction: column;
           background: var(--bg-panel);
@@ -34,8 +36,7 @@ export function SystemPromptPanel({ loading, prompt, translate }: Props) {
         }
         .system-prompt-scroll {
           min-height: 0;
-          flex: 1;
-          overflow: auto;
+          flex: 1 0 auto;
           padding: 12px 16px;
         }
         .system-prompt-text {

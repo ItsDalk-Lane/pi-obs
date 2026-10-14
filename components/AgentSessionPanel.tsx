@@ -5,11 +5,11 @@ import { useI18n } from "@/hooks/useI18n";
 import type { SessionInfo, SubagentSessionStatus } from "@/lib/types";
 
 interface Props {
-  rootSession: SessionInfo;
   subagents: SessionInfo[];
   selectedSessionId: string;
   runningSessionIds: ReadonlySet<string>;
-  onSelectSession: (session: SessionInfo) => void;
+  /** Opens a subagent's transcript; the main agent has no row of its own. */
+  onSelectSubagent: (session: SessionInfo) => void;
 }
 
 function sessionTitle(session: SessionInfo): string {
@@ -69,13 +69,11 @@ export function StatusIcon({ status }: { status: SubagentSessionStatus }) {
 
 function AgentRow({
   session,
-  main,
   selected,
   running,
   onSelect,
 }: {
   session: SessionInfo;
-  main?: boolean;
   selected: boolean;
   running: boolean;
   onSelect: () => void;
@@ -83,10 +81,6 @@ function AgentRow({
   const { locale, t } = useI18n();
   const relation = session.relation?.kind === "subagent" ? session.relation : null;
   const status: SubagentSessionStatus = running ? "running" : relation?.status ?? "completed";
-  const primary = main ? t("agentSwitcher.main") : relation?.description || sessionTitle(session);
-  const secondary = main
-    ? sessionTitle(session)
-    : `${relation?.profile ?? t("agentSwitcher.subagent")} · ${formatRelativeTime(session.modified, locale)}`;
 
   return (
     <button
@@ -117,40 +111,28 @@ function AgentRow({
         if (!selected) event.currentTarget.style.background = "transparent";
       }}
     >
-      <span style={{ width: 28, height: 28, display: "grid", placeItems: "center", color: main ? "var(--text-muted)" : "var(--accent)" }}>
-        {main ? (
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" />
-          </svg>
-        ) : (
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="5" y="7" width="14" height="11" rx="2" /><path d="M9 11h.01M15 11h.01M9 15h6M12 7V4M10 4h4" />
-          </svg>
-        )}
+      <span style={{ width: 28, height: 28, display: "grid", placeItems: "center", color: "var(--accent)" }}>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="5" y="7" width="14" height="11" rx="2" /><path d="M9 11h.01M15 11h.01M9 15h6M12 7V4M10 4h4" />
+        </svg>
       </span>
       <span style={{ minWidth: 0 }}>
-        <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12, fontWeight: selected ? 600 : 500 }} title={primary}>
-          {primary}
+        <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12, fontWeight: selected ? 600 : 500 }} title={relation?.description || sessionTitle(session)}>
+          {relation?.description || sessionTitle(session)}
         </span>
-        <span style={{ display: "block", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-dim)", fontSize: 11 }} title={secondary}>
-          {secondary}
+        <span style={{ display: "block", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-dim)", fontSize: 11 }} title={relation?.profile ?? t("agentSwitcher.subagent")}>
+          {`${relation?.profile ?? t("agentSwitcher.subagent")} · ${formatRelativeTime(session.modified, locale)}`}
         </span>
       </span>
-      <span style={{ display: "flex", alignItems: "center", gap: 6, color: main && !running ? "var(--text-dim)" : statusColor(status), fontSize: 11, whiteSpace: "nowrap" }}>
-        {main && !running ? (
-          selected ? t("agentSwitcher.current") : null
-        ) : (
-          <>
-            <StatusIcon status={status} />
-            <span>{t(`agentSwitcher.status.${status}`)}</span>
-          </>
-        )}
+      <span style={{ display: "flex", alignItems: "center", gap: 6, color: statusColor(status), fontSize: 11, whiteSpace: "nowrap" }}>
+        <StatusIcon status={status} />
+        <span>{t(`agentSwitcher.status.${status}`)}</span>
       </span>
     </button>
   );
 }
 
-export function AgentSessionPanel({ rootSession, subagents, selectedSessionId, runningSessionIds, onSelectSession }: Props) {
+export function AgentSessionPanel({ subagents, selectedSessionId, runningSessionIds, onSelectSubagent }: Props) {
   const { t } = useI18n();
   const [query, setQuery] = useState("");
   const sortedSubagents = useMemo(() => [...subagents].sort((a, b) => {
@@ -212,20 +194,13 @@ export function AgentSessionPanel({ rootSession, subagents, selectedSessionId, r
           </div>
         )}
         <div style={{ maxHeight: "min(58dvh, 480px)", overflowY: "auto" }}>
-          <AgentRow
-            session={rootSession}
-            main
-            selected={rootSession.id === selectedSessionId}
-            running={runningSessionIds.has(rootSession.id)}
-            onSelect={() => onSelectSession(rootSession)}
-          />
           {visibleSubagents.map((session) => (
             <AgentRow
               key={session.id}
               session={session}
               selected={session.id === selectedSessionId}
               running={runningSessionIds.has(session.id)}
-              onSelect={() => onSelectSession(session)}
+              onSelect={() => onSelectSubagent(session)}
             />
           ))}
           {visibleSubagents.length === 0 && (

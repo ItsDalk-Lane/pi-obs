@@ -84,7 +84,6 @@ type AutoNameStatus =
   | { kind: "error"; message: string };
 
 const TOP_BAR_ICON_BUTTON_SIZE = 36;
-const AGENT_PANEL_WIDTH = 420;
 // pi's built-in tools that never change a file; any other tool may (#1144).
 const READ_ONLY_TOOL_NAMES = new Set(PRESET_READ_ONLY);
 const TOOL_END_REFRESH_MS = 1000;
@@ -554,14 +553,6 @@ export function AppShell() {
     if (!dropdownOpen || !topBarRef.current) return;
     const update = () => {
       const topBarRect = topBarRef.current!.getBoundingClientRect();
-      if (activeTopPanel === "agents") {
-        setTopPanelPos({
-          bottom: window.innerHeight - topBarRect.top,
-          left: topBarRect.left,
-          width: Math.min(AGENT_PANEL_WIDTH, topBarRect.width),
-        });
-        return;
-      }
       setTopPanelPos({ bottom: window.innerHeight - topBarRect.top, left: topBarRect.left, width: topBarRect.width });
     };
     update();
@@ -890,6 +881,12 @@ export function AppShell() {
   }, [activeCwd, changeFileWorkspace, invalidateWorkspaceRestore, newSessionCwd, router, selectedSession, restoreWorkspaceContext]);
 
   const handleSelectSession = useCallback((session: SessionInfo, isRestore = false, entryId?: string, blockIndex?: number, options?: SelectSessionOptions) => {
+    /** The pick is done with the list: step the panel that showed it aside (the
+        drawer on a phone, the dropdown window on the desktop). */
+    const closeSessionList = () => {
+      if (!isMobile) desktopSidebarOpenRef.current = false;
+      setSidebarOpen(false);
+    };
     setSearchTarget(entryId ? { sessionId: session.id, entryId, blockIndex } : null);
     invalidateWorkspaceRestore();
     const activeDraftKey = activeNewSessionDraftKeyRef.current;
@@ -913,7 +910,7 @@ export function AppShell() {
       const sameProject =
         workspaceKeyOf(selectedSession) === workspaceKeyOf(session);
       if (selectedSession.id === session.id && sameProject) {
-        if (isMobile) setSidebarOpen(false);
+        if (!options?.keepSidebarOpen) closeSessionList();
         return;
       }
     }
@@ -928,9 +925,9 @@ export function AppShell() {
     setSystemTools(null);
     setSystemInfoLoading(false);
     setInitialSessionRestored(true);
-    // On mobile, collapse the overlay drawer so the chat is revealed after pick
-    // (unless the sidebar still has something to show: a fork's row and toast).
-    if (isMobile && !isRestore && !options?.keepSidebarOpen) setSidebarOpen(false);
+    // Picking a session is done with the list: the panel that showed it steps
+    // aside, unless the caller keeps it (a fork's row and toast stay in view).
+    if (!isRestore && !options?.keepSidebarOpen) closeSessionList();
     if (isRestore) {
       // Suppress the redundant sessionKey bump that would come from the
       // onCwdChange effect firing after setSelectedCwd in the sidebar
@@ -2417,17 +2414,26 @@ export function AppShell() {
               bottom: topPanelPos.bottom,
               left: topPanelPos.left,
               width: topPanelPos.width,
-              maxHeight: `calc(100dvh - ${topPanelPos.bottom}px)`,
+              // The panel is the only thing that scrolls, and it stops short of
+              // the window's top edge.
+              maxHeight: `calc(100dvh - ${topPanelPos.bottom}px - 12px)`,
               overflowY: "auto",
               zIndex: 500,
             }}>
               {activeTopPanel === "agents" && activeSessionFamily && selectedSession && (
                 <AgentSessionPanel
-                  rootSession={activeSessionFamily.root}
                   subagents={activeSessionFamily.subagents}
                   selectedSessionId={selectedSession.id}
                   runningSessionIds={runningSessionIds}
-                  onSelectSession={handleSelectSession}
+                  // A subagent opens its transcript, not the main chat.
+                  onSelectSubagent={(session) => {
+                    const relation = session.relation?.kind === "subagent" ? session.relation : null;
+                    handleOpenSubagentTab(
+                      session.id,
+                      relation?.description || relation?.profile || session.name || session.id.slice(0, 12),
+                    );
+                    setActiveTopPanel(null);
+                  }}
                 />
               )}
               {activeTopPanel === "system" && (

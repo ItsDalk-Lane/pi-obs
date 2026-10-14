@@ -1538,7 +1538,8 @@
 }
 
 /* The page scrolls across the dialog's full width, so its scrollbar sits at the
-   dialog's edge; only the content keeps a readable column. */
+   dialog's edge; the content is one readable column, centred in the dialog so
+   the empty space falls evenly on both sides. */
 .settings-general {
   width: 100%;
   height: 100%;
@@ -1547,7 +1548,9 @@
 }
 
 .settings-general > * {
-  max-width: none;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .settings-general-section {

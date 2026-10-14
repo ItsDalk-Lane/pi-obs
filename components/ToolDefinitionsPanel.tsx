@@ -212,10 +212,11 @@ export function ToolDefinitionsPanel({ loading, tools, translate }: Props) {
       </section>
 
       <style>{`
+        /* The host panel (.pi-web-toppanel) scrolls: the content only sets a
+           floor, so the panel is as tall as what it shows, one bar and one. */
         .tool-definitions-panel {
           display: grid;
           grid-template-columns: clamp(112px, 26%, 220px) minmax(0, 1fr);
-          height: min(600px, 75dvh);
           min-height: 240px;
           overflow: hidden;
           background: var(--bg-panel);
@@ -235,8 +236,7 @@ export function ToolDefinitionsPanel({ loading, tools, translate }: Props) {
         .tool-definitions-list,
         .tool-definition-scroll {
           min-height: 0;
-          flex: 1;
-          overflow: auto;
+          flex: 1 0 auto;
         }
         .tool-definitions-item {
           display: flex;
