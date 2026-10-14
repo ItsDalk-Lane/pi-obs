@@ -20,7 +20,7 @@ The web UI itself is unchanged in behavior: same session files, same models, sam
 obsidian-plugin/
   manifest.json      plugin metadata (id `pi-web`, desktop-only, Obsidian >= 1.5.0)
   main.ts            the plugin: views, server lifecycle, settings tab
-  main.js            esbuild output (git-ignored)
+  main.js            esbuild output (git-ignored, but published)
   styles.css         iframe sizing, the connecting and offline states
   esbuild.config.mjs bundle: main.ts + ../lib/file-icon-names.ts -> main.js
   package.json       plugin-only devDependencies (obsidian, esbuild, typescript)
@@ -28,20 +28,33 @@ obsidian-plugin/
 
 `lib/file-icon-names.ts` lives on the **web** side of the fork and the plugin imports it. That file is pure data and functions — no JSX, no React — so esbuild can bundle the same mapping into `main.js` and the two icon tables cannot drift apart.
 
-## Building and Installing
-
-The plugin has no build step of its own beyond esbuild. From the repository root:
+## Building
 
 ```bash
 npm install
 npm run build                       # the Next.js production build the server serves
-
-cd obsidian-plugin
-npm install
-npm run build                       # tsc --noEmit, then esbuild -> main.js
+npm run build:plugin                # tsc --noEmit + esbuild -> obsidian-plugin/main.js
 ```
 
-Then copy `main.js`, `manifest.json` and `styles.css` into the vault's plugin folder:
+`npm run build:plugin` is shorthand for `npm --prefix obsidian-plugin run build`; run it after changing `main.ts`, `manifest.json`, `styles.css` or anything `main.js` bundles in. `npm run release` runs it for you.
+
+The three distributable files are `main.js`, `manifest.json` and `styles.css`. `main.js` is git-ignored — it is built, not committed — but it **is** published: it is listed in `package.json` `files` so it ships inside the npm tarball.
+
+## Installing
+
+### With BRAT
+
+1. Install **BRAT** from the community plugins browser.
+2. **Settings → BRAT → Add Beta Plugin**, paste `ItsDalk-Lane/pi-obs`.
+3. Enable **Pi Web** under **Settings → Community plugins**.
+
+BRAT reads the repository's GitHub releases, not the npm package. It expects `main.js`, `manifest.json` and `styles.css` as release assets; the `obsidian-plugin/` subdirectory is fine because BRAT reads the release, not the source tree.
+
+**The release tag, the release name and `version` in `manifest.json` must all be identical.** Obsidian rejects a release whose three disagree, and BRAT warns and overrides when they do not. See [release.md](./release.md).
+
+### Manually
+
+Copy the three files into the vault's plugin folder. The folder name must match the `id` in `manifest.json`:
 
 ```text
 <vault>/.obsidian/plugins/pi-web/
@@ -50,9 +63,20 @@ Then copy `main.js`, `manifest.json` and `styles.css` into the vault's plugin fo
   styles.css
 ```
 
-`main.js` is git-ignored, so it is produced locally rather than committed. Enable the plugin under **Settings → Community plugins**. The ribbon shows a bot icon, and the command palette has **Pi Web: Open Pi Web**.
+Then enable it under **Settings → Community plugins**. The ribbon shows a bot icon, and the command palette has **Pi Web: Open Pi Web**.
 
 Obsidian loads plugins only in the desktop app, which is why `manifest.json` sets `isDesktopOnly: true`.
+
+## Versioning
+
+The plugin has its own version line, independent of the npm package:
+
+| Where | Field | Currently |
+| --- | --- | --- |
+| `obsidian-plugin/manifest.json` | `version` | `0.1.0` |
+| `package.json` | `version` | `0.12.1` |
+
+Users update the plugin through BRAT and the server through npm, and the two rarely move together. Bump the plugin's `version` for any change under `obsidian-plugin/`; bump the package's for anything in the web UI. Release notes should say which one a release carries.
 
 ## Settings
 
@@ -119,14 +143,18 @@ Obsidian draws an icon on a 100×100 canvas while these SVGs are drawn on 16×16
 
 ## Publishing
 
-`pi-obs` is the package name this fork publishes to npm (see `bin` in `package.json`). Once it is published, both of the plugin's install modes work:
+Two artifacts come out of this repository, on independent version lines:
 
-- **Pi Web directory empty** — the plugin runs `npm install pi-obs` into its own folder on first enable; the user installs nothing by hand.
-- **Pi Web directory pointing at a checkout of this repository** (<https://github.com/ItsDalk-Lane/pi-obs>) — development mode, with hot reload.
+| Artifact | Where it goes | Version lives in |
+| --- | --- | --- |
+| The server (`pi-obs`) | npm | `package.json` `version` |
+| The plugin (`pi-web`) | GitHub Release assets on `ItsDalk-Lane/pi-obs` | `obsidian-plugin/manifest.json` `version` |
 
-See [release.md](./release.md) for the process. That checklist was written upstream for `@agegr/pi-web` and GitHub Releases on `agegr/pi-web`; its `--repo` flags now name this repository, so it can be followed as written.
+`npm run release` builds both — the Next.js production build and `npm run build:plugin` — and publishes the npm package with the plugin's three files inside it. The GitHub Release is created separately, because it carries the plugin assets BRAT downloads; see [release.md](./release.md).
 
-**Before the first publish**, push the code — the repository is currently empty:
+The plugin is distributed through BRAT rather than the Obsidian community store. That has one concrete consequence: the official listing requires `manifest.json` at the **repository root**, and this repository keeps it under `obsidian-plugin/`. Submitting to the community list would mean moving the plugin's files to the root; BRAT has no such requirement.
+
+**Before the first push**, the code needs to reach the remote — the repository is currently empty:
 
 ```bash
 git remote add origin https://github.com/ItsDalk-Lane/pi-obs.git

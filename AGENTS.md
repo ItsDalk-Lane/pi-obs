@@ -13,10 +13,10 @@
 npm run dev   # port 30141
 ```
 
-The Obsidian plugin builds separately:
+The Obsidian plugin builds separately, and its version is independent of `package.json`:
 
 ```bash
-cd obsidian-plugin && npm install && npm run build   # tsc --noEmit, then esbuild -> main.js
+npm run build:plugin      # tsc --noEmit + esbuild -> obsidian-plugin/main.js
 ```
 
 Typecheck: `node_modules/.bin/tsc --noEmit` · Lint: `npm run lint`

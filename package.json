@@ -32,6 +32,10 @@
     "!.next/**/*.js.map",
     "public",
     "next.config.ts",
+    "obsidian-plugin/main.js",
+    "obsidian-plugin/manifest.json",
+    "obsidian-plugin/styles.css",
+    "!obsidian-plugin/package.json",
     "package.json"
   ],
   "scripts": {
@@ -45,7 +49,8 @@
     "test:terminal": "node e2e/terminal.mjs",
     "test:e2e": "node e2e/run.mjs",
     "test": "node --experimental-strip-types --test \"app/**/*.test.mjs\" \"components/**/*.test.mjs\" \"hooks/**/*.test.mjs\" \"lib/**/*.test.mjs\" \"public/**/*.test.mjs\"",
-    "release": "npm version patch --no-git-tag-version && npm run build && npm publish --access public"
+    "build:plugin": "npm --prefix obsidian-plugin run build",
+    "release": "npm version patch --no-git-tag-version && npm run build && npm run build:plugin && npm publish --access public"
   },
   "dependencies": {
     "@earendil-works/pi-agent-core": "1.2.0",

@@ -571,8 +571,10 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const stacked = !isMobile && filesPlacement === "below";
   // The desktop windows are the same dropdown the top panels use: fixed above
   // the composer toolbar, as wide as it, as tall as their content up to the top
-  // of the viewport, scrolling inside.
-  const dropdownStyle: CSSProperties | undefined = !stacked && dropdownRect ? {
+  // of the viewport, scrolling inside. Only the panel its own button opened
+  // becomes the dropdown -- where the file browser lives under the sessions
+  // instead of in a tab of its own, its section stays a section.
+  const dropdownStyle: CSSProperties | undefined = dropdownRect ? {
     position: "fixed",
     bottom: dropdownRect.bottom,
     left: dropdownRect.left,
@@ -584,6 +586,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     borderRadius: 10,
     boxShadow: "0 10px 28px rgba(0, 0, 0, 0.10)",
   } : undefined;
+  const sessionsDropdownStyle = sessionsWindowOpen ? dropdownStyle : undefined;
+  const filesDropdownStyle = floatingFilesOpen ? dropdownStyle : undefined;
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("sessions");
   const [filesCollapsed, setFilesCollapsed] = useState(false);
   const sessionsTabRef = useRef<HTMLButtonElement>(null);
@@ -2691,7 +2695,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         // Floating window (desktop): shown whatever the tab/placement says.
         hidden={!stacked && sidebarTab !== "sessions" && !sessionsWindowOpen}
         className="sidebar-panel sidebar-sessions-panel"
-        style={dropdownStyle}
+        style={sessionsDropdownStyle}
         onScrollCapture={rememberScroll}
       >
         {/* Floating window (desktop): a title bar to close it with — the
@@ -2808,7 +2812,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         // the [hidden] attribute would otherwise pin it display:none !important.
         hidden={!stacked && sidebarTab !== "files" && !floatingFilesOpen}
         className="sidebar-panel sidebar-files-panel"
-        style={dropdownStyle}
+        style={filesDropdownStyle}
         onScrollCapture={rememberScroll}
         onTransitionEnd={(event) => { if (event.target === event.currentTarget && event.propertyName === "height") endFilesFold(); }}
       >

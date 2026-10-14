@@ -20,7 +20,7 @@ Web 界面的行为本身没有变化：会话文件、模型、配置完全共�
 obsidian-plugin/
   manifest.json      插件元数据（id `pi-web`，仅桌面端，要求 Obsidian >= 1.5.0）
   main.ts            插件本体：视图、服务生命周期、设置面板
-  main.js            esbuild 产物（已 git 忽略）
+  main.js            esbuild 产物（已 git 忽略，但会随 npm 包发布）
   styles.css         iframe 尺寸、连接中与断线状态
   esbuild.config.mjs 打包：main.ts + ../lib/file-icon-names.ts -> main.js
   package.json       仅插件自身的 devDependencies（obsidian、esbuild、typescript）
@@ -28,20 +28,35 @@ obsidian-plugin/
 
 `lib/file-icon-names.ts` 位于分支的**Web 侧**，插件直接import 它。该文件是纯数据和函数 —— 没有 JSX、没有 React —— 所以 esbuild 可以把同一份映射打进 `main.js`，两侧的图标表不会各自漂移。
 
-## 构建与安装
-
-插件除了 esbuild 没有额外构建步骤。在仓库根目录：
+## 构建
 
 ```bash
 npm install
-npm run build                       # 服务要用的 Next.js 生产构建
-
-cd obsidian-plugin
-npm install
-npm run build                       # 先 tsc --noEmit，再 esbuild -> main.js
+npm run build         # 服务要用的 Next.js 生产构建
+npm run build:plugin  # tsc --noEmit + esbuild -> obsidian-plugin/main.js
 ```
 
-然后把 `main.js`、`manifest.json`、`styles.css` 复制到库（vault）的插件目录：
+`npm run build:plugin` 等价于 `npm --prefix obsidian-plugin run build`。改动 `main.ts`、`manifest.json`、`styles.css`，或任何会被打进 `main.js` 的文件之后，都要重跑它。`npm run release` 会自动执行。
+
+可分发的文件是三个：`main.js`、`manifest.json`、`styles.css`。`main.js` 已被 git 忽略 —— 它是构建出来的而非提交上去的 —— 但**会随包发布**：它列在 `package.json` 的 `files` 里，打进 npm tarball。
+
+## 安装
+
+### 用 BRAT
+
+1. 从社区插件浏览器安装 **BRAT**。
+2. **设置 → BRAT → Add Beta Plugin**，粘贴 `ItsDalk-Lane/pi-obs`。
+3. 在**设置 → 第三方插件**中启用 **Pi Web**。
+
+BRAT 读的是仓库的 GitHub Release，不是 npm 包。它需要 `main.js`、`manifest.json`、`styles.css`
+作为 release 附件；放在 `obsidian-plugin/` 子目录没问题，因为 BRAT 读的是 release，不是源码树。
+
+**release tag、release 名称、`manifest.json` 里的 `version` 三者必须完全一致。** 三者不一致时
+Obsidian 会拒绝安装，BRAT 会警告并强制以 tag 为准。见 [release.md](./release.md)。
+
+### 手动安装
+
+把三个文件复制到库（vault）的插件目录，目录名必须与 `manifest.json` 里的 `id` 一致：
 
 ```text
 <vault>/.obsidian/plugins/pi-web/
@@ -50,9 +65,21 @@ npm run build                       # 先 tsc --noEmit，再 esbuild -> main.js
   styles.css
 ```
 
-`main.js` 已被 git 忽略，因此它在本地生成而不是提交进仓库。在**设置 → 第三方插件**中启用。侧边栏功能区会出现一个机器人图标，命令面板里是 **Pi Web: Open Pi Web**。
+然后在**设置 → 第三方插件**中启用。侧边栏功能区会出现一个机器人图标，命令面板里是 **Pi Web: Open Pi Web**。
 
 Obsidian 只在桌面应用里加载插件，所以 `manifest.json` 设了 `isDesktopOnly: true`。
+
+## 版本策略
+
+插件有**自己独立的版本线**，与 npm 包互不牵连：
+
+| 位置 | 字段 | 当前值 |
+| --- | --- | --- |
+| `obsidian-plugin/manifest.json` | `version` | `0.1.0` |
+| `package.json` | `version` | `0.12.1` |
+
+用户通过 BRAT 更新插件、通过 npm 更新服务，两者很少同时变动。改动 `obsidian-plugin/` 下的文件
+就bump 插件版本，改动 Web 界面就bump 包版本。发布说明里要写清这次发布带的是哪一个。
 
 ## 设置
 
@@ -119,13 +146,19 @@ Obsidian 在 100×100 的画布上画图标，而这些 SVG 是按 16×16 画的
 
 ## 发布
 
-`pi-obs` 是本分支要发布到 npm 的包名（`package.json` 的 `bin` 声明）。发布后，插件的两种安装方式都可用：
+本仓库产出**两个产物**，版本线互相独立：
 
-- **Pi Web directory留空** —— 插件在启用时自动 `npm install pi-obs` 到自己的目录，用户无需手动装任何东西。
-- **Pi Web directory 指向本仓库的 clone**（<https://github.com/ItsDalk-Lane/pi-obs>）—— 开发模式，改代码即时热更新。
+| 产物 | 发布到哪里 | 版本字段 |
+| --- | --- | --- |
+| 服务（`pi-obs`） | npm | `package.json`的 `version` |
+| 插件（`pi-web`） | `ItsDalk-Lane/pi-obs` 的 GitHub Release 附件 | `obsidian-plugin/manifest.json` 的 `version` |
 
-发布流程见 [release.md](./release.md)。该清单原本是上游针对 `@agegr/pi-web` 和 `agegr/pi-web` Release
-写的，其中的 `--repo` 已改成本仓库 `ItsDalk-Lane/pi-obs`，可以照着跑。
+`npm run release` 会构建两者 —— Next.js 生产构建和 `npm run build:plugin` —— 并把插件的三个文件
+打进 npm 包一起发布。GitHub Release 要单独创建，因为它承载 BRAT 下载的插件附件，见 [release.md](./release.md)。
+
+插件走 BRAT 分发，不进 Obsidian 官方社区列表。这有一个具体后果：官方列表要求 `manifest.json` 放在
+**仓库根目录**，而本仓库把它放在 `obsidian-plugin/` 下。要提交进社区列表就得把插件文件移到根目录；
+BRAT 没有这个要求。
 
 **首次发布前**需要先推一次代码，仓库目前是空的：
 

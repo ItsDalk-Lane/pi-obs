@@ -17,10 +17,16 @@
 > Upstream references are kept where the step genuinely targets upstream (for example the demo page
 > it hosts). Those are not release targets.
 
-This repo publishes two artifacts for each release:
+This repo publishes **two artifacts on two independent version lines**:
 
-- npm package: `pi-obs`
-- GitHub Release: `ItsDalk-Lane/pi-obs`
+| Artifact | Goes to | Version field |
+| --- | --- | --- |
+| The server, `pi-obs` | npm | `package.json` `version` |
+| The Obsidian plugin, `pi-web` | GitHub Release assets (BRAT downloads these) | `obsidian-plugin/manifest.json` `version` |
+
+A release need not bump both. Decide up front which one it carries and say so in the notes. The
+plugin's build output is inside the npm tarball as well, but **BRAT never reads npm** — the GitHub
+Release assets are what BRAT installs, so step 6 is mandatory whenever the plugin changed.
 
 Use this checklist from a clean `main` checkout.
 
@@ -34,7 +40,8 @@ git log --oneline --decorate -5
 git rev-list --left-right --count main...origin/main
 gh auth status
 npm whoami
-node -e "const p=require('./package.json'); console.log(p.version)"
+node -e "const p=require('./package.json'); console.log('package:', p.version)"
+node -e "const m=require('./obsidian-plugin/manifest.json'); console.log('plugin: ', m.version)"
 lsof -nP -iTCP:30141 -sTCP:LISTEN
 ls .next/server/route-cache
 ```
@@ -46,6 +53,7 @@ Expected:
 - `main` and `origin/main` are aligned (`0	0`).
 - GitHub is authenticated as an account that can push and create releases.
 - npm is authenticated as an account that can publish `pi-obs`.
+- The two version numbers print. They are independent lines and need not match — but note which one this release bumps.
 - No dev server is listening on 30141: the production build rewrites `.next/` and breaks a running `npm run dev`. Stop it first.
 - `.next/server/route-cache/` does not exist. An e2e run in `start` mode writes it (`next start` does, the build does not), and it would be published. Delete it if present.
 
@@ -184,15 +192,37 @@ Prepared from commits in `v<previous>..v<version>`.
 
 ## 6. Create or Update the GitHub Release
 
-Create a new release:
+**This step is what ships the Obsidian plugin.** BRAT installs from the release assets, never from
+npm and never from the source tree, so a release without the three files attached is invisible to
+BRAT users.
+
+Build the plugin first (it is git-ignored, so it exists only locally):
 
 ```bash
-gh release create v<version> \
+npm run build:plugin
+```
+
+Then confirm the plugin's `manifest.json` version equals the tag you are about to use. Obsidian
+requires the release tag, the release name and the manifest version to be identical; BRAT warns and
+overrides when they disagree:
+
+```bash
+node -e "console.log(require('./obsidian-plugin/manifest.json').version)"
+```
+
+Create a new release, attaching the plugin's three distributable files:
+
+```bash
+gh release create v<plugin-version> \
   --repo ItsDalk-Lane/pi-obs \
   --verify-tag \
-  --title "v<version>" \
-  --notes-file "$NOTES"
+  --title "v<plugin-version>" \
+  --notes-file "$NOTES" \
+  obsidian-plugin/main.js obsidian-plugin/manifest.json obsidian-plugin/styles.css
 ```
+
+Use the **plugin's** version in the tag when the release carries the plugin. If it carries only a
+server release, use the package version and attach no plugin files.
 
 If the release already exists and only the notes need updating:
 
@@ -230,6 +260,8 @@ git ls-remote --tags origin
 Expected:
 
 - GitHub Release exists and is not a draft unless intentionally published as one.
+- If it carries the plugin: the assets list shows `main.js`, `manifest.json` and `styles.css`, and
+  the release tag matches `manifest.json`'s `version`.
 - npm exact version resolves and `latest` points at it (allow a few minutes, see step 2).
 - `git ls-remote --tags origin` shows no tag you did not mean to publish.
 - `main` is aligned with `origin/main`.
@@ -247,5 +279,10 @@ One-time cleanup, only needed for the first release of `pi-obs`:
 - Confirm the Obsidian plugin installs from the registry: with **Pi Web directory** empty, enable the
   plugin in a vault and check that `npm install pi-obs` succeeds into the plugin's `pi-web-app`
   folder. This is the path most users will take, and it cannot be tested before the first publish.
-- `docs/obsidian.md` and the Chinese version document the icon scaling and the `postMessage`
-  contract; re-verify them against the served build if the panel pages changed in this release.
+- Install through **BRAT** in a scratch vault and confirm all three functions work: the main view
+  loads, a file opens in its own tab, a terminal opens in its own tab. BRAT reads the GitHub
+  Release, so this validates the release assets rather than the npm package — it is the only check
+  that covers the path most plugin users take.
+- If you later want the plugin in the **Obsidian community store** rather than BRAT-only, move
+  `manifest.json`, `main.js` and `styles.css` to the repository root: the listing's validator reads
+  the root, and it rejects `author` values that are not the repository owner.
