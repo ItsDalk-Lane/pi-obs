@@ -14,7 +14,7 @@ const { POST } = await jiti.import("./route.ts");
 const { projectIdentityKey } = await jiti.import("../../../../lib/project-identity.ts");
 
 test("validated cwd responses include server-resolved project identity", async (t) => {
-  const cwd = await mkdtemp(path.join(os.tmpdir(), "pi-web-cwd-validate-"));
+  const cwd = await mkdtemp(path.join(os.tmpdir(), "pi-obs-cwd-validate-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
 
   const response = await POST(new Request("http://localhost/api/cwd/validate", {

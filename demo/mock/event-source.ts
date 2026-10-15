@@ -1,6 +1,6 @@
 /**
  * In-page stand-in for EventSource. Every stream the UI opens goes to a
- * Pi Web /api route, so the demo replaces the global constructor and lets the
+ * Pi Obs /api route, so the demo replaces the global constructor and lets the
  * mock handlers push events into the returned object.
  */
 

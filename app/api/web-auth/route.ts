@@ -12,8 +12,8 @@ import {
   isValidWebPassword,
   isValidWebSessionToken,
   isWebPasswordEnabled,
-  PI_WEB_SESSION_COOKIE,
-  PI_WEB_SESSION_MAX_AGE,
+  PI_OBS_SESSION_COOKIE,
+  PI_OBS_SESSION_MAX_AGE,
 } from "@/lib/web-auth";
 
 export const dynamic = "force-dynamic";
@@ -38,7 +38,7 @@ function tooManyAttempts(retryAfterMs: number): NextResponse {
 
 function clearSessionCookie(response: NextResponse, request: Request): void {
   response.cookies.set({
-    name: PI_WEB_SESSION_COOKIE,
+    name: PI_OBS_SESSION_COOKIE,
     value: "",
     httpOnly: true,
     sameSite: "lax",
@@ -53,11 +53,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Untrusted API request" }, { status: 403 });
   }
 
-  const password = process.env.PI_WEB_PASSWORD;
+  const password = process.env.PI_OBS_PASSWORD;
   const enabled = isWebPasswordEnabled(password);
   const authenticated = !enabled
     || isValidBasicAuthorization(request.headers.get("authorization"), password)
-    || isValidWebSessionToken(request.cookies.get(PI_WEB_SESSION_COOKIE)?.value, password);
+    || isValidWebSessionToken(request.cookies.get(PI_OBS_SESSION_COOKIE)?.value, password);
   return NextResponse.json(
     { enabled, authenticated },
     { headers: { "Cache-Control": "no-store" } },
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Content-Type must be application/json" }, { status: 415 });
   }
 
-  const password = process.env.PI_WEB_PASSWORD;
+  const password = process.env.PI_OBS_PASSWORD;
   if (!isWebPasswordEnabled(password)) {
     return NextResponse.json({ error: "Password authentication is disabled" }, { status: 404 });
   }
@@ -95,13 +95,13 @@ export async function POST(request: NextRequest) {
   recordAuthSuccess();
   const response = NextResponse.json({ ok: true });
   response.cookies.set({
-    name: PI_WEB_SESSION_COOKIE,
+    name: PI_OBS_SESSION_COOKIE,
     value: createWebSessionToken(password),
     httpOnly: true,
     sameSite: "lax",
     secure: isSecureRequest(request),
     path: "/",
-    maxAge: PI_WEB_SESSION_MAX_AGE,
+    maxAge: PI_OBS_SESSION_MAX_AGE,
   });
   return response;
 }

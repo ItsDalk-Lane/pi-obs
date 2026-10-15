@@ -32,7 +32,7 @@ import { mayReadProjectConfigNow } from "./project-trust";
 
 export { canonicalJson };
 
-// Pi Web decides which MCP servers a session connects (ADR 0006). The SDK's
+// Pi Obs decides which MCP servers a session connects (ADR 0006). The SDK's
 // MCP extension is created with a `loadConfig` that returns no servers; this
 // host reads `mcp.json` itself and hands the servers it wants to the extension
 // through `pi.registerMcpServer()`:
@@ -46,12 +46,12 @@ export { canonicalJson };
 //   servers with `direct` tools still connecting, and Stop ends that wait;
 //   other servers connect in the background, and the SDK's extension waits
 //   for them when a codemode script or `tool_search` needs them.
-// - A host that has not prompted for PI_WEB_MCP_IDLE_MS unregisters its servers.
+// - A host that has not prompted for PI_OBS_MCP_IDLE_MS unregisters its servers.
 // - Project trust is read fresh on every sync too, never taken from the
 //   wrapper (see desiredServers()).
 //
 // The extension does not report connection state, so the host watches the
-// transports it creates through the factory pi-web gives it. A transport exists
+// transports it creates through the factory pi-obs gives it. A transport exists
 // only once the extension has assigned the server's connection, which is what
 // makes unregistering safe: before that, the extension's removal finds no
 // connection to close, then connects the server anyway and loses it. What the
@@ -59,7 +59,7 @@ export { canonicalJson };
 // stops it registering one — goes to the status store (`lib/mcp-status.ts`)
 // for Settings › MCP, keyed by the entry as its file holds it.
 
-export const MCP_HOST_EXTENSION_NAME = "pi-web-mcp-host";
+export const MCP_HOST_EXTENSION_NAME = "pi-obs-mcp-host";
 
 const DEFAULT_MCP_IDLE_MS = 10 * 60 * 1000;
 const PROMPT_WAIT_MS = 10_000;
@@ -74,15 +74,15 @@ const REPLACE_WAIT_MS = 5_000;
 const LIST_METHODS = new Set(["tools/list"]);
 
 /**
- * PI_WEB_MCP_IDLE_MS: how long a session's MCP servers stay connected after its
+ * PI_OBS_MCP_IDLE_MS: how long a session's MCP servers stay connected after its
  * last run. Unset or blank is 10 minutes, `0` keeps them until the session
  * closes, and invalid values fall back to the default with a warning.
  */
-export function resolveMcpIdleMs(rawValue: string | undefined = process.env.PI_WEB_MCP_IDLE_MS): number {
+export function resolveMcpIdleMs(rawValue: string | undefined = process.env.PI_OBS_MCP_IDLE_MS): number {
   if (rawValue !== undefined && rawValue.trim() !== "") {
     const parsed = Number(rawValue);
     if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 2_147_483_647) return parsed;
-    console.warn(`[pi-web] invalid PI_WEB_MCP_IDLE_MS "${rawValue}", falling back to 10 minutes`);
+    console.warn(`[pi-obs] invalid PI_OBS_MCP_IDLE_MS "${rawValue}", falling back to 10 minutes`);
   }
   return DEFAULT_MCP_IDLE_MS;
 }
@@ -96,7 +96,7 @@ function errorMessage(error: unknown): string {
 }
 
 // Hot reload re-evaluates this module; globalThis keeps one log line per error per process.
-const CONFIG_ERRORS_LOGGED_KEY: symbol = Symbol.for("pi-web:mcp-config-errors-logged");
+const CONFIG_ERRORS_LOGGED_KEY: symbol = Symbol.for("pi-obs:mcp-config-errors-logged");
 const CONFIG_ERRORS_LOGGED_MAX = 200;
 /** How many of `loadMcpConfig().errors` one sync logs; well below what the set holds. */
 const CONFIG_ERRORS_LOGGED_PER_SYNC = 20;
@@ -113,7 +113,7 @@ function logConfigErrorOnce(message: string): void {
   // would otherwise log every one of them again at each sync.
   if (logged.size >= CONFIG_ERRORS_LOGGED_MAX) logged.delete(logged.values().next().value as string);
   logged.add(message);
-  console.warn(`[pi-web] MCP config: ${message}`);
+  console.warn(`[pi-obs] MCP config: ${message}`);
 }
 
 /**
@@ -283,7 +283,7 @@ function errorName(error: unknown): string | undefined {
  * up (`McpOAuthAuthorizationRequiredError`), or an OAuth server still answered
  * 401 (`McpAuthRequiredError`). A server with an `Authorization` header gets
  * no auth provider, and its 401 is a failure. Told by name: neither class is
- * among the SDK modules Pi Web loads, and a second module copy would defeat
+ * among the SDK modules Pi Obs loads, and a second module copy would defeat
  * `instanceof` anyway.
  */
 function asksForSignIn(error: unknown, usesOAuth: boolean): boolean {
@@ -600,11 +600,11 @@ class HostInstance {
     if (!count) return false;
     if (count > 1) this.abandoned.set(key, count - 1);
     else this.abandoned.delete(key);
-    console.warn(`[pi-web] MCP server "${entry.name}" was unregistered before its connection opened; its transport is refused`);
+    console.warn(`[pi-obs] MCP server "${entry.name}" was unregistered before its connection opened; its transport is refused`);
     return true;
   }
 
-  /** The factory could not build a transport (a PI_WEB_PASSWORD reference, a failing `!command`). */
+  /** The factory could not build a transport (a PI_OBS_PASSWORD reference, a failing `!command`). */
   transportFailed(attempt: ConnectAttempt, entry: McpServerEntry, error: unknown): void {
     attempt.current = undefined;
     const redact = createTestRedactor(entry.config, [], { isCommandConfigValue: this.isCommandValue });
@@ -851,7 +851,7 @@ class HostInstance {
   private enqueue(operation: () => Promise<void>): Promise<void> {
     const run = this.queue.then(operation);
     this.queue = run.catch((error: unknown) => {
-      console.error("[pi-web] MCP host operation failed:", errorMessage(error));
+      console.error("[pi-obs] MCP host operation failed:", errorMessage(error));
     });
     return this.queue;
   }
@@ -979,7 +979,7 @@ class HostInstance {
     try {
       this.pi.unregisterMcpServer(name);
     } catch (error) {
-      console.error(`[pi-web] cannot unregister MCP server "${name}":`, errorMessage(error));
+      console.error(`[pi-obs] cannot unregister MCP server "${name}":`, errorMessage(error));
     }
   }
 
@@ -1059,7 +1059,7 @@ export class McpHost {
       const host = this.current;
       const attempt = host?.attemptFor(entry);
       if (!attempt && host?.refuseAbandoned(entry)) {
-        throw new Error(`MCP server "${entry.name}" was removed before it connected, so Pi Web did not start it`);
+        throw new Error(`MCP server "${entry.name}" was removed before it connected, so Pi Obs did not start it`);
       }
       let transport: ReturnType<McpTransportFactory>;
       try {
@@ -1078,7 +1078,7 @@ export class McpHost {
    * For a wrapper that starts closing: the host lets go of what it reported
    * before extensions hear `session_shutdown`, whose handlers run in order and
    * whose MCP connection closes have no upper bound. The wrapper disposes the
-   * SDK session after `PI_WEB_SHUTDOWN_DEADLINE_MS` either way, and nothing
+   * SDK session after `PI_OBS_SHUTDOWN_DEADLINE_MS` either way, and nothing
    * else would reach the host then.
    */
   dispose(): void {

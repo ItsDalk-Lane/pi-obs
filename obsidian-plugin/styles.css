@@ -1,9 +1,9 @@
-.pi-web-embed {
+.pi-obs-embed {
   padding: 0 !important;
   height: 100%;
 }
 
-.pi-web-embed iframe {
+.pi-obs-embed iframe {
   width: 100%;
   height: 100%;
   border: none;
@@ -11,13 +11,13 @@
   background: var(--background-primary);
 }
 
-.pi-web-connecting {
+.pi-obs-connecting {
   padding: 16px;
   color: var(--text-muted);
   font-size: 13px;
 }
 
-.pi-web-offline {
+.pi-obs-offline {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,10 +30,176 @@
   text-align: center;
 }
 
-.pi-web-offline p {
+.pi-obs-offline p {
   margin: 0;
 }
 
-.pi-web-offline button {
+.pi-obs-offline button {
   margin-top: 10px;
+}
+
+/* ===== settings page ================================================
+   Cards on top (live server status, then the npm package), preferences
+   below. Accents follow the brand palette -- orange #d97757, green
+   #788c5d, mid gray #b0aea5 -- over Obsidian's own surface variables,
+   so the page stays at home in both themes. */
+
+.pi-obs-settings > h2 {
+  font-family: Poppins, Arial, var(--font-interface);
+  letter-spacing: 0.02em;
+  margin-bottom: 10px;
+}
+
+.pi-obs-card {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  background: var(--background-secondary);
+  padding: 12px 14px;
+  margin: 0 0 12px;
+}
+
+.pi-obs-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  margin-bottom: 8px;
+}
+
+.pi-obs-card-head:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.pi-obs-card-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.pi-obs-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.pi-obs-dot-running {
+  background: #788c5d;
+  box-shadow: 0 0 0 3px rgba(120, 140, 93, 0.18);
+}
+
+.pi-obs-dot-stopped {
+  background: #b0aea5;
+}
+
+.pi-obs-dot-starting {
+  background: #d97757;
+  animation: pi-obs-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pi-obs-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.pi-obs-state {
+  font-weight: 600;
+  font-family: Poppins, Arial, var(--font-interface);
+}
+
+.pi-obs-version {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+/* A label + value row; the value copies on click. */
+.pi-obs-kv {
+  display: flex;
+  gap: 10px;
+  padding: 2px 0;
+  font-size: var(--font-ui-small);
+}
+
+.pi-obs-kv-k {
+  width: 34px;
+  flex: none;
+  color: var(--text-muted);
+}
+
+.pi-obs-kv-v {
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  word-break: break-all;
+  cursor: pointer;
+}
+
+.pi-obs-kv-v:hover {
+  color: var(--text-accent);
+}
+
+.pi-obs-kv-v:active {
+  opacity: 0.6;
+}
+
+/* The package card's small helper line (install path, checking, busy). */
+.pi-obs-note {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  margin-top: 2px;
+  word-break: break-all;
+}
+
+.pi-obs-copy {
+  cursor: pointer;
+}
+
+.pi-obs-copy:hover {
+  color: var(--text-accent);
+}
+
+.pi-obs-copy:active {
+  opacity: 0.6;
+}
+
+.pi-obs-section-label {
+  margin: 16px 0 2px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  letter-spacing: 0.08em;
+}
+
+/* Primary actions inside the settings page wear the brand orange. */
+.pi-obs-settings button.mod-cta {
+  background: #d97757;
+}
+
+.pi-obs-settings button.mod-cta:hover {
+  background: #c4654a;
+}
+
+/* The install modal's two scope options. */
+.pi-obs-install-option {
+  cursor: pointer;
+  padding: 10px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.pi-obs-install-option:hover {
+  background: var(--background-modifier-hover);
+}
+
+.pi-obs-install-name {
+  font-weight: 600;
+}
+
+.pi-obs-install-desc {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  margin-top: 2px;
 }

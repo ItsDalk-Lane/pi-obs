@@ -317,7 +317,7 @@ export function EnabledModelsProviderSwitchNote({
 /**
  * State for the "refresh catalog" button.
  *
- * pi's built-in model lists are frozen at the SDK version pi-web pins, so a
+ * pi's built-in model lists are frozen at the SDK version pi-obs pins, so a
  * model a provider shipped after that release only appears once the pi.dev
  * catalog overlay has been fetched — see `lib/model-catalog-refresh.ts` (#914).
  * The button is the whole feature: nothing refreshes catalogs on its own.

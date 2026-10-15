@@ -47,9 +47,9 @@ function isRecord(value: unknown): value is RawEntry {
 const INDEX_FORMAT_VERSION = 1;
 
 declare global {
-	var __piWebScanIndex: Map<string, IndexEntry> | undefined;
-	var __piWebScanIndexLoaded: boolean | undefined;
-	var __piWebScanIndexSaveQueued: boolean | undefined;
+	var __piObsScanIndex: Map<string, IndexEntry> | undefined;
+	var __piObsScanIndexLoaded: boolean | undefined;
+	var __piObsScanIndexSaveQueued: boolean | undefined;
 }
 
 function parseLine(line: string): RawEntry | null {
@@ -284,17 +284,17 @@ async function runPool<T>(items: T[], worker: (item: T) => Promise<void>) {
 }
 
 function getIndex(): Map<string, IndexEntry> {
-	if (!globalThis.__piWebScanIndex) globalThis.__piWebScanIndex = new Map();
-	return globalThis.__piWebScanIndex;
+	if (!globalThis.__piObsScanIndex) globalThis.__piObsScanIndex = new Map();
+	return globalThis.__piObsScanIndex;
 }
 
 function indexFilePath(): string {
-	return join(getAgentDir(), "pi-web-session-index.json");
+	return join(getAgentDir(), "pi-obs-session-index.json");
 }
 
 function loadPersistedIndex(): void {
-	if (globalThis.__piWebScanIndexLoaded) return;
-	globalThis.__piWebScanIndexLoaded = true;
+	if (globalThis.__piObsScanIndexLoaded) return;
+	globalThis.__piObsScanIndexLoaded = true;
 	const path = indexFilePath();
 	if (!existsSync(path)) return;
 	try {
@@ -340,10 +340,10 @@ function loadPersistedIndex(): void {
 }
 
 function queueIndexPersist(): void {
-	if (globalThis.__piWebScanIndexSaveQueued) return;
-	globalThis.__piWebScanIndexSaveQueued = true;
+	if (globalThis.__piObsScanIndexSaveQueued) return;
+	globalThis.__piObsScanIndexSaveQueued = true;
 	queueMicrotask(() => {
-		globalThis.__piWebScanIndexSaveQueued = undefined;
+		globalThis.__piObsScanIndexSaveQueued = undefined;
 		try {
 			const entries: Record<string, IndexEntry> = {};
 			for (const [pathKey, entry] of getIndex()) entries[pathKey] = entry;
@@ -452,9 +452,9 @@ export async function listSessionsIncremental(
 
 /** Test seam: drop all in-memory index state. */
 export function resetSessionScanIndexForTests(): void {
-	globalThis.__piWebScanIndex = undefined;
-	globalThis.__piWebScanIndexLoaded = undefined;
-	globalThis.__piWebScanIndexSaveQueued = undefined;
+	globalThis.__piObsScanIndex = undefined;
+	globalThis.__piObsScanIndexLoaded = undefined;
+	globalThis.__piObsScanIndexSaveQueued = undefined;
 	globalThis.__piSessionMembership = undefined;
 	globalThis.__piSessionMembershipCheck = undefined;
 }

@@ -81,7 +81,7 @@ export async function buildSession(
     const result = tool.result;
     if (typeof result === "object" && "readFile" in result) {
       // Scripted reads happen before the scripted edits, so show the original text.
-      const content = root.endsWith("/pi-web")
+      const content = root.endsWith("/pi-obs")
         ? ((await originalText(result.readFile).catch(() => null)) ?? await readProjectText(`${root}/${result.readFile}`).catch(() => null))
         : await readProjectText(`${root}/${result.readFile}`).catch(() => null);
       if (content === null) return { args: tool.args, text: `ENOENT: no such file or directory, open '${root}/${result.readFile}'`, isError: true };
@@ -167,7 +167,7 @@ export async function buildSession(
         break;
       case "tools":
         clock += 200;
-        push({ type: "custom", customType: "pi-web:tool-selection", data: { version: 1, tools: step.tools } } as never);
+        push({ type: "custom", customType: "pi-obs:tool-selection", data: { version: 1, tools: step.tools } } as never);
         break;
       case "user": {
         clock += (step.gapMinutes ?? 0.6) * 60_000;

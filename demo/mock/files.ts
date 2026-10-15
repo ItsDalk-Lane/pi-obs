@@ -1,5 +1,5 @@
 /**
- * Virtual filesystem for the demo projects. The Pi Web project is backed by
+ * Virtual filesystem for the demo projects. The Pi Obs project is backed by
  * the repository snapshot in public/demo-files (see scripts/prepare-demo-files.mjs);
  * the scratch project lives entirely in memory. Session "tool runs" add
  * overrides on top so the explorer, viewer and Git panel tell one story.
@@ -251,7 +251,7 @@ export function textChunk(text: string, offset: number) {
 }
 
 /**
- * Map a Pi Web `/api/files/...?type=read|download` URL for a binary project
+ * Map a Pi Obs `/api/files/...?type=read|download` URL for a binary project
  * file to its static snapshot, for <img>/<audio>/<iframe> elements and download
  * links that never go through fetch(). Text files keep the API URL for reads;
  * downloads of in-memory files become data URLs, since GitHub Pages has no

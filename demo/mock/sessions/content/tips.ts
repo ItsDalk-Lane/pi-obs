@@ -60,7 +60,7 @@ export const tipsSession: SessionScript = {
       tokensBefore: 186_420,
       summary: {
         en: `## Goal
-Get familiar with the pi-web repository and its recent history.
+Get familiar with the pi-obs repository and its recent history.
 
 ## Progress
 - Reviewed the last five commits: v0.9.2 release, faster session loading (#940), minimap tool-call counts (#939), "Refresh catalog" in the Models panel (#938), leaner production install (#948).
@@ -69,7 +69,7 @@ Get familiar with the pi-web repository and its recent history.
 ## Next steps
 - Learn the composer shortcuts and commands.`,
         zh: `## 目标
-熟悉 pi-web 仓库及其最近的提交历史。
+熟悉 pi-obs 仓库及其最近的提交历史。
 
 ## 进展
 - 回顾了最近五次提交：v0.9.2 发布、会话加载提速（#940）、小地图工具调用计数（#939）、模型面板「刷新模型目录」（#938）、精简生产环境安装（#948）。
@@ -114,7 +114,7 @@ Get familiar with the pi-web repository and its recent history.
 - **Settings → General → Chat** can show *Ask here* / *Ask in new chat* actions when you select text in a reply.
 - **Settings → General** has themes (Light, Dark, Mist, Rose, Pine or System), languages, chat width and font size.
 - The search button above the session list searches **all** conversations; the strip on the right of the chat is a minimap for long sessions.
-- On a phone, add Pi Web to the home screen and turn on push notifications to hear when a long run finishes.`,
+- On a phone, add Pi Obs to the home screen and turn on push notifications to hear when a long run finishes.`,
             zh: `速查表：
 
 | 输入 | 效果 |
@@ -135,7 +135,7 @@ Get familiar with the pi-web repository and its recent history.
 - **设置 → 常规 → 对话** 中可以开启选中文字后的「在当前对话询问 / 在新对话询问」操作。
 - **设置 → 常规** 中可以切换主题（浅色、深色、雾青、蔷薇、松夜或跟随系统）、语言、聊天宽度和字号。
 - 会话列表上方的搜索按钮可以搜索 **所有** 对话；聊天区右侧的细条是长会话的小地图。
-- 在手机上可以把 Pi Web 添加到主屏幕并开启推送通知，长任务完成时就会收到提醒。`,
+- 在手机上可以把 Pi Obs 添加到主屏幕并开启推送通知，长任务完成时就会收到提醒。`,
           },
         },
       ],

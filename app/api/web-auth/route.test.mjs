@@ -3,7 +3,7 @@ import test, { after, before, beforeEach } from "node:test";
 import { createJiti } from "jiti";
 import { NextRequest } from "next/server.js";
 
-const originalPassword = process.env.PI_WEB_PASSWORD;
+const originalPassword = process.env.PI_OBS_PASSWORD;
 const jiti = createJiti(import.meta.url, {
   alias: { "@": process.cwd() },
   interopDefault: true,
@@ -12,12 +12,12 @@ const jiti = createJiti(import.meta.url, {
 const { GET, POST, DELETE } = await jiti.import("./route.ts");
 const { recordAuthSuccess } = await import("../../../lib/auth-throttle.ts");
 
-before(() => { process.env.PI_WEB_PASSWORD = "correct horse battery staple"; });
+before(() => { process.env.PI_OBS_PASSWORD = "correct horse battery staple"; });
 beforeEach(() => { recordAuthSuccess(); });
 after(() => {
   recordAuthSuccess();
-  if (originalPassword === undefined) delete process.env.PI_WEB_PASSWORD;
-  else process.env.PI_WEB_PASSWORD = originalPassword;
+  if (originalPassword === undefined) delete process.env.PI_OBS_PASSWORD;
+  else process.env.PI_OBS_PASSWORD = originalPassword;
 });
 
 function request(method, body, headers = {}) {
@@ -44,7 +44,7 @@ test("logs in with one password and reports the signed session", async () => {
   response = await POST(request("POST", { password: "correct horse battery staple" }));
   assert.equal(response.status, 200);
   const cookie = response.headers.get("set-cookie");
-  assert.match(cookie, /^pi_web_session=v1\./);
+  assert.match(cookie, /^pi_obs_session=v1\./);
   assert.match(cookie, /HttpOnly/i);
   assert.match(cookie, /SameSite=Lax/i);
   assert.match(cookie, /Path=\//i);
@@ -72,7 +72,7 @@ test("blocks further attempts after a failure, even with the right password", as
 test("logout clears the session cookie", async () => {
   const response = await DELETE(request("DELETE"));
   assert.equal(response.status, 200);
-  assert.match(response.headers.get("set-cookie"), /pi_web_session=;/);
+  assert.match(response.headers.get("set-cookie"), /pi_obs_session=;/);
   assert.match(response.headers.get("set-cookie"), /Max-Age=0/i);
 });
 

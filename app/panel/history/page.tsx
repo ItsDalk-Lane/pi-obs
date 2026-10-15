@@ -37,7 +37,7 @@ function HistoryPanel() {
   }, [sessionId]);
 
   useEffect(() => {
-    document.title = sessionId ? "Full history — Pi Web" : "Pi Web";
+    document.title = sessionId ? "Full history — Pi Obs" : "Pi Obs";
   }, [sessionId]);
 
   if (!sessionId) {

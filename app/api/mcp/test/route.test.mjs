@@ -10,14 +10,14 @@ import { createJiti } from "jiti";
 
 // POST /api/mcp/test starts processes and reads mcp-auth.json, so every case
 // runs against a PI_CODING_AGENT_DIR in a temporary folder, never ~/.pi/agent.
-const root = realpathSync(await mkdtemp(join(tmpdir(), "pi-web-mcp-test-route-")));
+const root = realpathSync(await mkdtemp(join(tmpdir(), "pi-obs-mcp-test-route-")));
 const agentDir = join(root, "agent");
 const cwd = join(root, "project");
 const outside = join(root, "outside");
 const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
-const previousDisable = process.env.PI_WEB_DISABLE_MCP;
+const previousDisable = process.env.PI_OBS_DISABLE_MCP;
 process.env.PI_CODING_AGENT_DIR = agentDir;
-delete process.env.PI_WEB_DISABLE_MCP;
+delete process.env.PI_OBS_DISABLE_MCP;
 await mkdir(agentDir, { recursive: true });
 await mkdir(join(cwd, ".pi"), { recursive: true });
 await mkdir(outside, { recursive: true });
@@ -32,8 +32,8 @@ allowFileRoot(cwd);
 after(async () => {
   if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
   else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
-  if (previousDisable === undefined) delete process.env.PI_WEB_DISABLE_MCP;
-  else process.env.PI_WEB_DISABLE_MCP = previousDisable;
+  if (previousDisable === undefined) delete process.env.PI_OBS_DISABLE_MCP;
+  else process.env.PI_OBS_DISABLE_MCP = previousDisable;
   await rm(root, { recursive: true, force: true });
 });
 
@@ -47,15 +47,15 @@ const SECRET = "literal-header-secret-value";
 
 const fixture = (env = {}) => ({ command: process.execPath, args: [FIXTURE], env });
 const globalServers = {
-  lint: fixture({ PI_WEB_FIXTURE_ENV_FILE: envFile }),
+  lint: fixture({ PI_OBS_FIXTURE_ENV_FILE: envFile }),
   docs: { url: "http://127.0.0.1:9/mcp", headers: { Authorization: `Bearer ${SECRET}` } },
-  pw: { url: "https://pw.example.com/mcp", headers: { Authorization: "Bearer ${PI_WEB_PASSWORD}" } },
+  pw: { url: "https://pw.example.com/mcp", headers: { Authorization: "Bearer ${PI_OBS_PASSWORD}" } },
   sse: { type: "sse", url: "https://old.example.com/sse" },
   junk: "not an object",
 };
 
 beforeEach(async () => {
-  delete process.env.PI_WEB_DISABLE_MCP;
+  delete process.env.PI_OBS_DISABLE_MCP;
   clearMcpStatuses();
   await writeFile(globalPath, `${JSON.stringify({ mcpServers: globalServers }, null, 2)}\n`);
   await writeFile(projectPath, `${JSON.stringify({ mcpServers: { repo: fixture({ TOKEN: `!touch ${marker} && echo ok` }) } }, null, 2)}\n`);
@@ -89,7 +89,7 @@ function setEnvFor(t, name, value) {
 
 test("a global server is tested from its file and answers with what it found", async (t) => {
   // Set, so the check below fails if the transport ever hands the child the whole environment.
-  setEnvFor(t, "PI_WEB_PASSWORD", "web-password");
+  setEnvFor(t, "PI_OBS_PASSWORD", "web-password");
   // Without a project the server starts in the home folder: a temporary one, never the developer's.
   const home = join(root, "home");
   await mkdir(home, { recursive: true });
@@ -108,7 +108,7 @@ test("a global server is tested from its file and answers with what it found", a
   assert.equal(body.configKey, listed.configKey);
   assert.equal(listed.status.origin, "test");
   assert.equal(listed.status.state, "connected");
-  assert.ok(!JSON.parse(readFileSync(envFile, "utf8")).includes("PI_WEB_PASSWORD"));
+  assert.ok(!JSON.parse(readFileSync(envFile, "utf8")).includes("PI_OBS_PASSWORD"));
 });
 
 test("with a project, a global stdio server runs in it, and the project must be an allowed folder", async () => {
@@ -141,7 +141,7 @@ test("requests from another page, not sent as JSON, or naming no server are refu
 test("an untrusted project's server is never started; a trusted one's is", async () => {
   assert.deepEqual(await post({ scope: "project", name: "repo", cwd }), {
     status: 403,
-    body: { error: "The project is not trusted, so Pi Web does not start its MCP servers", reason: "project-untrusted" },
+    body: { error: "The project is not trusted, so Pi Obs does not start its MCP servers", reason: "project-untrusted" },
   });
   store.set(cwd, false);
   assert.equal((await post({ scope: "project", name: "repo", cwd })).status, 403);
@@ -158,18 +158,18 @@ test("an untrusted project's server is never started; a trusted one's is", async
 });
 
 test("MCP off on the server refuses every test", async () => {
-  process.env.PI_WEB_DISABLE_MCP = "1";
+  process.env.PI_OBS_DISABLE_MCP = "1";
   assert.deepEqual(await post({ scope: "global", name: "lint" }), {
     status: 409,
-    body: { error: "PI_WEB_DISABLE_MCP is set, so Pi Web connects no MCP server", reason: "mcp-off" },
+    body: { error: "PI_OBS_DISABLE_MCP is set, so Pi Obs connects no MCP server", reason: "mcp-off" },
   });
   assert.equal((await get()).find((server) => server.name === "lint").status, undefined, "nothing was tested");
 });
 
-test("an entry Pi Web would not connect is refused before anything runs", async () => {
+test("an entry Pi Obs would not connect is refused before anything runs", async () => {
   assert.deepEqual(await post({ scope: "global", name: "pw" }), {
     status: 409,
-    body: { error: "\"pw\" references PI_WEB_PASSWORD, so Pi Web does not connect it", reason: "web-password", name: "pw" },
+    body: { error: "\"pw\" references PI_OBS_PASSWORD, so Pi Obs does not connect it", reason: "web-password", name: "pw" },
   });
   const invalid = await post({ scope: "global", name: "sse" });
   assert.equal(invalid.status, 409);

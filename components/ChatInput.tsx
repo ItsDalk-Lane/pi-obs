@@ -102,6 +102,13 @@ interface Props {
   onAttachFiles?: (files: File[]) => void;
   /** Extra control shown beside the model selector (the fresh composer's project picker). */
   contextBar?: React.ReactNode;
+  /**
+   * The desktop toolbar docked above the composer (new session, history, files,
+   * Settings). It renders inside the input shell, between the transient notices
+   * and the main input, so everything transient stays above the whole composer
+   * block instead of splitting the toolbar from the input it belongs to.
+   */
+  composerToolbar?: React.ReactNode;
 }
 
 export interface ChatInputHandle {
@@ -665,6 +672,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
   cwd,
   onAttachFiles,
   contextBar,
+  composerToolbar,
   compact = false,
 }: Props, ref) {
   const { t } = useI18n();
@@ -1894,6 +1902,18 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* The composer toolbar (new session / history / files / Settings) docks
+            directly above the input, below every transient notice. Rendered here
+            instead of as ChatWindow's sibling so the notices never end up
+            between the toolbar and the input it belongs to. The host wrapper
+            (padding + max-width) used to live in ChatWindow; the fieldset
+            already provides both, so only the 4px gap to the input is kept. */}
+        {!compact && composerToolbar && (
+          <div className="composer-toolbar-host" style={{ marginBottom: 4 }}>
+            {composerToolbar}
           </div>
         )}
 

@@ -2,7 +2,7 @@ import type { SessionManager } from "@earendil-works/pi-coding-agent";
 import { PRESET_FULL } from "./tool-presets";
 import type { SessionEntry } from "./types";
 
-export const TOOL_SELECTION_TYPE = "pi-web:tool-selection";
+export const TOOL_SELECTION_TYPE = "pi-obs:tool-selection";
 
 export interface SessionToolSelectionData {
   version: 1;

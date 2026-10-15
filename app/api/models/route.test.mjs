@@ -12,7 +12,7 @@ const execFileAsync = promisify(execFile);
 
 // Real paths: `inferRemovedWorktree()` resolves the repo it infers, and the temp folder
 // is a link on macOS.
-const root = realpathSync(await mkdtemp(join(tmpdir(), "pi-web-models-worktree-")));
+const root = realpathSync(await mkdtemp(join(tmpdir(), "pi-obs-models-worktree-")));
 const agentDir = join(root, "agent");
 const repo = join(root, "repo");
 const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
@@ -65,7 +65,7 @@ async function models(cwd) {
 
 test("a removed worktree is listed from the repo it branched from", async () => {
   // A finished subagent run: its worktree is gone, its session still names it as the cwd.
-  const removed = join(`${repo}-worktrees`, "pi-web-agent-abc");
+  const removed = join(`${repo}-worktrees`, "pi-obs-agent-abc");
 
   const fromRemoved = await models(removed);
   const fromRepo = await models(repo);
@@ -80,7 +80,7 @@ test("a removed worktree is listed from the repo it branched from", async () => 
 test("the repo a removed worktree falls back to is authorized as any other cwd", async () => {
   // A repo no session and no `allowFileRoot()` ever named.
   const unknown = await initRepo("unknown");
-  const denied = await models(join(`${unknown}-worktrees`, "pi-web-agent-abc"));
+  const denied = await models(join(`${unknown}-worktrees`, "pi-obs-agent-abc"));
   assert.equal(denied.status, 403);
   assert.deepEqual(denied.body, { error: "Access denied" });
 

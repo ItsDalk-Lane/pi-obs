@@ -16,9 +16,9 @@ const path = require("path");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const fs = require("fs");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { getHelpText, parseCommandLine } = require("./pi-web-options");
+const { getHelpText, parseCommandLine } = require("./pi-obs-options");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { getNextNodeArgs } = require("./pi-web-node-args");
+const { getNextNodeArgs } = require("./pi-obs-node-args");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { wireChildProcessLifecycle } = require("./process-lifecycle");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -28,7 +28,7 @@ const { openInBrowser } = require("./browser-opener");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { createRunRecordTracker, getOpenUrl, getRunDir } = require("./run-records");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { getPackageVersion, runCommand } = require("./pi-web-commands");
+const { getPackageVersion, runCommand } = require("./pi-obs-commands");
 
 let launchOptions;
 try {
@@ -89,7 +89,7 @@ function startServer({ port, hostname, openBrowser }) {
   }
 
   const loopbackHostnames = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
-  const passwordEnabled = Boolean(process.env.PI_WEB_PASSWORD);
+  const passwordEnabled = Boolean(process.env.PI_OBS_PASSWORD);
 
   if (!fs.existsSync(nextDir)) {
     console.error("Build artifacts not found. Please report this issue.");
@@ -107,11 +107,11 @@ function startServer({ port, hostname, openBrowser }) {
   if (!loopbackHostnames.has(hostname)) {
     if (passwordEnabled) {
       console.warn(
-        `Warning: pi-web is listening on ${hostname} with password authentication over HTTP. Use HTTPS or a trusted VPN to protect the password in transit.`,
+        `Warning: pi-obs is listening on ${hostname} with password authentication over HTTP. Use HTTPS or a trusted VPN to protect the password in transit.`,
       );
     } else {
       console.warn(
-        `Warning: pi-web is listening on ${hostname} without authentication. Only use this on a trusted network.`,
+        `Warning: pi-obs is listening on ${hostname} without authentication. Only use this on a trusted network.`,
       );
     }
   }
@@ -124,7 +124,7 @@ function startServer({ port, hostname, openBrowser }) {
   const child = spawn(process.execPath, getNextNodeArgs(nextBin, nextArgs), {
     cwd: pkgDir,
     stdio: ["inherit", "pipe", "inherit"],
-    env: { ...process.env, PI_WEB_HOSTNAME: hostname },
+    env: { ...process.env, PI_OBS_HOSTNAME: hostname },
   });
   wireChildProcessLifecycle(child);
 

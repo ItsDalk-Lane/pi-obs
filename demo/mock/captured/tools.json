@@ -56,7 +56,7 @@
    "You can inspect PI_* environment variables for current model and session details."
   ],
   "sourceInfo": {
-   "path": "<inline:pi-web-project-command-environment>",
+   "path": "<inline:pi-obs-project-command-environment>",
    "source": "inline",
    "scope": "temporary",
    "origin": "top-level"
@@ -331,7 +331,7 @@
    "Do not duplicate work already delegated to a running subagent."
   ],
   "sourceInfo": {
-   "path": "<inline:pi-web-subagents>",
+   "path": "<inline:pi-obs-subagents>",
    "source": "inline",
    "scope": "temporary",
    "origin": "top-level"
@@ -358,7 +358,7 @@
    }
   },
   "sourceInfo": {
-   "path": "<inline:pi-web-subagents>",
+   "path": "<inline:pi-obs-subagents>",
    "source": "inline",
    "scope": "temporary",
    "origin": "top-level"
@@ -386,7 +386,7 @@
    }
   },
   "sourceInfo": {
-   "path": "<inline:pi-web-subagents>",
+   "path": "<inline:pi-obs-subagents>",
    "source": "inline",
    "scope": "temporary",
    "origin": "top-level"

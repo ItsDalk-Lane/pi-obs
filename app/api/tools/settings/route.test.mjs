@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { createJiti } from "jiti";
 
-const agentDir = await mkdtemp(path.join(os.tmpdir(), "pi-web-tool-settings-route-"));
+const agentDir = await mkdtemp(path.join(os.tmpdir(), "pi-obs-tool-settings-route-"));
 const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
 process.env.PI_CODING_AGENT_DIR = agentDir;
 test.after(async () => {

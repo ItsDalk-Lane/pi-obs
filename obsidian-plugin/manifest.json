@@ -1,9 +1,9 @@
 {
-  "id": "pi-web",
-  "name": "Pi Web",
+  "id": "pi-obs",
+  "name": "Pi Obs",
   "version": "0.1.0",
   "minAppVersion": "1.5.0",
-  "description": "Embed the Pi Web interface (pi coding agent) as a local process, with files, terminals and subagents in their own tabs.",
+  "description": "以本地进程方式嵌入 Pi Obs 界面（pi 编程智能体），文件、终端与子代理各占独立标签页。",
   "author": "ItsDalk-Lane",
   "authorUrl": "https://github.com/ItsDalk-Lane",
   "isDesktopOnly": true

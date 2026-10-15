@@ -1,5 +1,5 @@
 /**
- * Links that open one session of this Pi Web, and the click rule that keeps
+ * Links that open one session of this Pi Obs, and the click rule that keeps
  * an ordinary click inside the page.
  *
  * `?session=<id>` alone, resolved against the page the link sits on: the

@@ -42,14 +42,14 @@ function stateFilePath(): string {
 /**
  * VAPID subject must be a valid `mailto:` or `https:` URL. Apple's push
  * service rejects requests whose subject is not a syntactically valid URL
- * (e.g. the previously used `mailto:pi-web@localhost`, which Apple answers
+ * (e.g. the previously used `mailto:pi-obs@localhost`, which Apple answers
  * with 403 BadJwtToken), so default to the project homepage and let operators
- * override it via PI_WEB_PUSH_SUBJECT.
+ * override it via PI_OBS_PUSH_SUBJECT.
  */
 export function vapidSubject(): string {
-  const configured = process.env.PI_WEB_PUSH_SUBJECT?.trim();
+  const configured = process.env.PI_OBS_PUSH_SUBJECT?.trim();
   if (configured) return configured;
-  return "https://github.com/agegr/pi-web";
+  return "https://github.com/ItsDalk-Lane/pi-obs";
 }
 
 // Ask the push service to deliver immediately. Lower urgencies let idle
@@ -163,14 +163,14 @@ export function createWebPushNotifier(environment: WebPushEnvironment): WebPushN
 }
 
 declare global {
-  var __piWebPushNotifier: Promise<WebPushNotifier> | undefined;
+  var __piObsPushNotifier: Promise<WebPushNotifier> | undefined;
 }
 
 function getNotifier(): Promise<WebPushNotifier> {
-  if (!globalThis.__piWebPushNotifier) {
-    globalThis.__piWebPushNotifier = Promise.resolve().then(() => createWebPushNotifier(getDefaultEnvironment()));
+  if (!globalThis.__piObsPushNotifier) {
+    globalThis.__piObsPushNotifier = Promise.resolve().then(() => createWebPushNotifier(getDefaultEnvironment()));
   }
-  return globalThis.__piWebPushNotifier;
+  return globalThis.__piObsPushNotifier;
 }
 
 export function getVapidPublicKey(): Promise<string> {

@@ -14,7 +14,7 @@ import {
   type ToolDefinition,
 } from "@earendil-works/pi-coding-agent";
 import { McpHost, type McpHostOptions } from "./mcp-host";
-import { createPiWebMcpTransportFactory } from "./mcp-transport";
+import { createPiObsMcpTransportFactory } from "./mcp-transport";
 import { loadPiSdkInternals, type PiSdkInternals, type PiSdkInternalsResult } from "./pi-sdk-internals";
 import { mayReadProjectConfigNow } from "./project-trust";
 import { PROJECT_SETTINGS_MAX_BYTES, readRegularFileText } from "./regular-file";
@@ -27,7 +27,7 @@ import { PROJECT_SETTINGS_MAX_BYTES, readRegularFileText } from "./regular-file"
 // a local model server, not a feature of the session. Chat-only sessions load
 // none of them; a subagent only what its profile turns on.
 
-export const MCP_DISABLE_VARIABLE = "PI_WEB_DISABLE_MCP";
+export const MCP_DISABLE_VARIABLE = "PI_OBS_DISABLE_MCP";
 
 export type BuiltinFeatureStatus = { available: true } | { available: false; reason: string };
 
@@ -88,7 +88,7 @@ function resultText(result: { content?: readonly { type: string; text?: string }
  * its worker thread exactly as a session runs it. The worker and the wasm file
  * are resolved from the SDK's own files at run time, which a bundled or
  * relocated install can break; when that happens the tool would fail every
- * call, so pi-web does not offer it.
+ * call, so pi-obs does not offer it.
  */
 export async function runCodemodeSelfTest(options: CodemodeSelfTestOptions = {}): Promise<BuiltinFeatureStatus> {
   const timeoutMs = options.timeoutMs ?? SELF_TEST_TIMEOUT_MS;
@@ -105,7 +105,7 @@ export async function runCodemodeSelfTest(options: CodemodeSelfTestOptions = {})
     const run = (async () => {
       const definition = await (options.createDefinition ?? sdkCodemodeDefinition)();
       // Without a session context the script reaches no tools, store, or models.
-      return await definition.execute("pi-web-self-test", { code: SELF_TEST_SCRIPT }, controller.signal, undefined, undefined as never);
+      return await definition.execute("pi-obs-self-test", { code: SELF_TEST_SCRIPT }, controller.signal, undefined, undefined as never);
     })();
     // A run that settles after the timeout must not surface as an unhandled rejection.
     run.catch(() => {});
@@ -126,13 +126,13 @@ export async function runCodemodeSelfTest(options: CodemodeSelfTestOptions = {})
 }
 
 // Hot reload re-evaluates this module; globalThis keeps one self-test per process.
-const CODEMODE_SANDBOX_KEY: symbol = Symbol.for("pi-web.codemodeSandbox");
+const CODEMODE_SANDBOX_KEY: symbol = Symbol.for("pi-obs.codemodeSandbox");
 
 /** The sandbox self-test, run once per server process on the first normal session. */
 export function checkCodemodeSandbox(): Promise<BuiltinFeatureStatus> {
   const store = globalThis as Record<symbol, Promise<BuiltinFeatureStatus> | undefined>;
   return store[CODEMODE_SANDBOX_KEY] ??= runCodemodeSelfTest().then((status) => {
-    if (!status.available) console.warn(`[pi-web] Code mode is off: ${status.reason}`);
+    if (!status.available) console.warn(`[pi-obs] Code mode is off: ${status.reason}`);
     return status;
   });
 }
@@ -175,7 +175,7 @@ export function mcpRuntimeFromInternals(
   return { available: true, internals };
 }
 
-const MCP_WARNED_KEY: symbol = Symbol.for("pi-web.mcpOffWarned");
+const MCP_WARNED_KEY: symbol = Symbol.for("pi-obs.mcpOffWarned");
 
 async function loadMcpRuntime(): Promise<McpRuntimeResult> {
   const runtime = mcpRuntimeFromInternals(await loadPiSdkInternals());
@@ -183,13 +183,13 @@ async function loadMcpRuntime(): Promise<McpRuntimeResult> {
   // The operator's switch is deliberate and needs no warning; a failed adapter does.
   if (!runtime.available && !isMcpDisabledByOperator() && store[MCP_WARNED_KEY] !== runtime.reason) {
     store[MCP_WARNED_KEY] = runtime.reason;
-    console.warn(`[pi-web] MCP is off: ${runtime.reason}`);
+    console.warn(`[pi-obs] MCP is off: ${runtime.reason}`);
   }
   return runtime;
 }
 
 /**
- * `loadConfig` for the SDK's MCP extension. Pi Web decides which servers a
+ * `loadConfig` for the SDK's MCP extension. Pi Obs decides which servers a
  * session connects and registers them itself, so the extension connects none
  * on `session_start`, and its startup wait, which ignores Stop, never arms.
  * The file-level `autoEnableCodemode` still comes from `mcp.json`, as in the
@@ -356,7 +356,7 @@ function createMcpBuiltins(
     mcpHost?: Pick<McpHostOptions, "idleMs" | "promptWaitMs">;
     gate?: (name: BuiltinExtensionName, factory: ExtensionFactory) => ExtensionFactory;
   },
-): PiWebBuiltinExtensions {
+): PiObsBuiltinExtensions {
   const gate = options.gate ?? ((_name, factory) => factory);
   const mcpHost = mcp.available
     ? new McpHost({
@@ -373,7 +373,7 @@ function createMcpBuiltins(
       mcp.available && mcpHost
         ? createMcpExtension({
             loadConfig: createMcpExtensionConfigLoader(mcp.internals, options.agentDir),
-            createTransport: mcpHost.wrapTransportFactory(createPiWebMcpTransportFactory(mcp.internals)),
+            createTransport: mcpHost.wrapTransportFactory(createPiObsMcpTransportFactory(mcp.internals)),
             // The host already waited, and Stop ends its wait. The extension's own wait for
             // servers with `direct` tools, at a session's first prompt, ignores Stop.
             startupWaitMs: 0,
@@ -431,7 +431,7 @@ export async function createSubagentMcpExtensions(options: {
   codemode: boolean;
   /** Timing overrides for tests. */
   mcpHost?: Pick<McpHostOptions, "idleMs" | "promptWaitMs">;
-}): Promise<PiWebBuiltinExtensions> {
+}): Promise<PiObsBuiltinExtensions> {
   return createMcpBuiltins(await loadMcpRuntime(), {
     agentDir: options.agentDir,
     codemodeAvailable: () => options.codemode,
@@ -447,13 +447,13 @@ export async function createSubagentMcpExtensions(options: {
   });
 }
 
-export interface PiWebBuiltinExtensionsOptions {
+export interface PiObsBuiltinExtensionsOptions {
   agentDir: string;
   /** Timing overrides for tests. */
   mcpHost?: Pick<McpHostOptions, "idleMs" | "promptWaitMs">;
 }
 
-export interface PiWebBuiltinExtensions {
+export interface PiObsBuiltinExtensions {
   /** For the resource loader's `extensionFactories`, in the CLI's order, then the MCP host. */
   extensions: InlineExtension[];
   /** Decides which MCP servers the session connects; undefined while MCP is off. */
@@ -461,9 +461,9 @@ export interface PiWebBuiltinExtensions {
 }
 
 /** The built-in extensions of a normal session and the host that feeds the MCP one. */
-export async function createPiWebBuiltinExtensions(
-  options: PiWebBuiltinExtensionsOptions,
-): Promise<PiWebBuiltinExtensions> {
+export async function createPiObsBuiltinExtensions(
+  options: PiObsBuiltinExtensionsOptions,
+): Promise<PiObsBuiltinExtensions> {
   const [sandbox, mcp] = await Promise.all([checkCodemodeSandbox(), loadMcpRuntime()]);
   const { extensions, mcpHost } = createMcpBuiltins(mcp, {
     agentDir: options.agentDir,

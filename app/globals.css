@@ -1592,101 +1592,7 @@ pre, code {
   }
 }
 
-/* The empty new-session page's header above the composer (ChatWindow), on
-   the composer's left edge: the brand (the logo, "Pi Web" and its versions
-   line), then the project and worktree row (NewSessionContextBar) right
-   above the composer card. Nothing on the right. */
-.new-session-hero-inner {
-  margin: 0 auto;
-}
-
-.new-session-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  margin-bottom: 20px;
-}
-
-.new-session-logo {
-  flex: none;
-  width: 40px;
-  height: 40px;
-}
-
-.new-session-brand-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  font-family: var(--font-mono);
-}
-
-.new-session-brand-name {
-  color: var(--text);
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.15;
-  white-space: nowrap;
-}
-
-/* "web v<app> → v<latest> ↗ · pi v<pi>", on one line: where it is narrow,
-   pi's version gives way (its ellipsis); the version in use and the update
-   link are never cut. */
-.new-session-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  color: var(--text-dim);
-  font-size: 11px;
-  line-height: 1.4;
-  white-space: nowrap;
-}
-
-.new-session-meta > * {
-  flex: none;
-}
-
-.new-session-meta > .new-session-meta-pi {
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Its box shows on hover and focus; the negative margins keep it off the
-   line's layout, and on a coarse pointer they grow the tap target the same
-   way. */
-.new-session-update {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin: -3px -4px;
-  padding: 3px 4px;
-  border-radius: 5px;
-  color: var(--accent);
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.12s;
-}
-
-.new-session-update:hover,
-.new-session-update:focus-visible {
-  background: var(--bg-hover);
-}
-
-/* The ring inside the box, clear of the "→" and "·" beside it. */
-.new-session-update:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-}
-
-.new-session-update svg {
-  flex: none;
-}
-
-/* The project and worktree, inline beside the model selector in a fresh
+/* The project and worktree row (NewSessionContextBar), inline in a fresh
    composer's control row. It carried a bottom and a negative left margin while
    it was a row of its own under the brand: inside the control row that margin
    box is what `align-items: center` centers, so the picker sat 3px high. */
@@ -1696,30 +1602,6 @@ pre, code {
   align-items: center;
   min-width: 0;
   min-height: 28px;
-}
-
-@media (max-width: 640px) {
-  .new-session-brand {
-    margin-bottom: 16px;
-  }
-
-  .new-session-logo {
-    width: 32px;
-    height: 32px;
-  }
-
-  .new-session-brand-name {
-    font-size: 20px;
-  }
-}
-
-@media (pointer: coarse) {
-  .new-session-update {
-    margin-top: -8px;
-    margin-bottom: -8px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
 }
 
 /* The project and worktree picker (ProjectWorktreePicker). The files' (the
@@ -2605,17 +2487,17 @@ span.token.table {
 @media (min-width: 641px) {
   /* The row's own actions moved to the composer toolbar; the row collapses to
      nothing. Its panel dropdown stays: it is position: fixed. */
-  .pi-web-topbar {
+  .pi-obs-topbar {
     height: 0 !important;
     min-height: 0 !important;
     padding: 0 !important;
     border-bottom: none !important;
     overflow: visible !important;
   }
-  .pi-web-topbar > *:not(.pi-web-toppanel) {
+  .pi-obs-topbar > *:not(.pi-obs-toppanel) {
     display: none !important;
   }
-  .pi-web-topbar-host {
+  .pi-obs-topbar-host {
     background: transparent !important;
   }
 }

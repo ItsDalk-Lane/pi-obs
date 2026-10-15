@@ -10,7 +10,7 @@ tooltip (see "Chrome is a tooltip").
 pi narrows the model selector with the global `enabledModels` setting, a
 whitelist of `--models` patterns: minimatch globs against `provider/modelId`,
 fuzzy matching for non-glob patterns, and an optional `:thinkingLevel` suffix.
-pi-web already *read* it (`lib/model-scope.ts`) but offered no way to change it,
+pi-obs already *read* it (`lib/model-scope.ts`) but offered no way to change it,
 so a user had to drop to the TUI's `/scoped-models` or hand-edit
 `~/.pi/agent/settings.json`.
 
@@ -18,7 +18,7 @@ so a user had to drop to the TUI's `/scoped-models` or hand-edit
 enabled) and, on Ctrl+S, writes back **the fully expanded list of model ids it
 can currently see**, or removes the key when everything is enabled.
 
-Two properties of that approach make it wrong for pi-web:
+Two properties of that approach make it wrong for pi-obs:
 
 1. `ModelRuntime.getAvailable()` only returns models of providers with
    configured auth. Rewriting the whole list while the user is signed out of a
@@ -147,9 +147,9 @@ key and the counts never shrink.
 ## Consequences
 
 - `/scoped-models` and the panel stay compatible both ways. The TUI reads the
-  globs pi-web writes; pi-web reads (and minimally edits) the expanded lists the
+  globs pi-obs writes; pi-obs reads (and minimally edits) the expanded lists the
   TUI writes. Pressing Ctrl+S in the TUI still flattens globs — that is the
-  TUI's behavior, not something pi-web can prevent.
+  TUI's behavior, not something pi-obs can prevent.
 - Writes go to the global settings file only, like the TUI. When a project
   `.pi/settings.json` sets `enabledModels` it replaces the global array
   entirely, so the API reports `scope: "project"`, refuses writes, and the panel
@@ -162,7 +162,7 @@ key and the counts never shrink.
 - Running sessions keep the `scopedModels` they were created with; new sessions
   and the selector pick up the change after `invalidateModelsCache()` and the
   refresh `AppShell` triggers when the settings panel closes.
-- pi-web never *creates* a `:thinkingLevel` pin. It preserves the ones it finds
+- pi-obs never *creates* a `:thinkingLevel` pin. It preserves the ones it finds
   and shows them as a read-only badge.
 - The switches live inside the models.json editor, so a save under them changes
   what they describe. Saving re-reads the view, and the section takes a `custom`

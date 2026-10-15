@@ -18,11 +18,11 @@ Web 界面的行为本身没有变化：会话文件、模型、配置完全共�
 
 ```text
 obsidian-plugin/
-  manifest.json      插件元数据（id `pi-web`，仅桌面端，要求 Obsidian >= 1.5.0）
-  main.ts            插件本体：视图、服务生命周期、设置面板
+  manifest.json      插件元数据（id `pi-obs`，仅桌面端，要求 Obsidian >= 1.5.0）
+  main.ts            插件本体：视图、服务生命周期、两个设置标签页（通用 + 服务器）
   main.js            esbuild 产物（已 git 忽略，但会随 npm 包发布）
   styles.css         iframe 尺寸、连接中与断线状态
-  esbuild.config.mjs 打包：main.ts + ../lib/file-icon-names.ts -> main.js
+  esbuild.config.mjs 打包：main.ts + ../lib/{file-icon-names,app-update,pi-obs-server}.ts -> main.js
   package.json       仅插件自身的 devDependencies（obsidian、esbuild、typescript）
 ```
 
@@ -46,7 +46,7 @@ npm run build:plugin  # tsc --noEmit + esbuild -> obsidian-plugin/main.js
 
 1. 从社区插件浏览器安装 **BRAT**。
 2. **设置 → BRAT → Add Beta Plugin**，粘贴 `ItsDalk-Lane/pi-obs`。
-3. 在**设置 → 第三方插件**中启用 **Pi Web**。
+3. 在**设置 → 第三方插件**中启用 **Pi Obs**。
 
 BRAT 读的是仓库的 GitHub Release，不是 npm 包。它需要 `main.js`、`manifest.json`、`styles.css`
 作为 release 附件；放在 `obsidian-plugin/` 子目录没问题，因为 BRAT 读的是 release，不是源码树。
@@ -59,13 +59,13 @@ Obsidian 会拒绝安装，BRAT 会警告并强制以 tag 为准。见 [release.
 把三个文件复制到库（vault）的插件目录，目录名必须与 `manifest.json` 里的 `id` 一致：
 
 ```text
-<vault>/.obsidian/plugins/pi-web/
+<vault>/.obsidian/plugins/pi-obs/
   main.js
   manifest.json
   styles.css
 ```
 
-然后在**设置 → 第三方插件**中启用。侧边栏功能区会出现一个机器人图标，命令面板里是 **Pi Web: Open Pi Web**。
+然后在**设置 → 第三方插件**中启用。侧边栏功能区会出现一个机器人图标，命令面板里是 **Pi Obs: Open Pi Obs**。
 
 Obsidian 只在桌面应用里加载插件，所以 `manifest.json` 设了 `isDesktopOnly: true`。
 
@@ -76,33 +76,47 @@ Obsidian 只在桌面应用里加载插件，所以 `manifest.json` 设了 `isDe
 | 位置 | 字段 | 当前值 |
 | --- | --- | --- |
 | `obsidian-plugin/manifest.json` | `version` | `0.1.0` |
-| `package.json` | `version` | `0.12.1` |
+| `package.json` | `version` | `0.1.0` |
 
-用户通过 BRAT 更新插件、通过 npm 更新服务，两者很少同时变动。改动 `obsidian-plugin/` 下的文件
-就bump 插件版本，改动 Web 界面就bump 包版本。发布说明里要写清这次发布带的是哪一个。
+用户通过 BRAT 更新插件、通过 npm 更新服务，两者很少同时变动。**未经用户明确要求，不得改动任何版本号**——两条版本线现在都由用户掌握。
 
 ## 设置
 
-**设置 → Pi Web**。
+**设置 → Pi Obs** 只有一个页面：顶部是实时服务器状态卡片，其下是 npm 包卡片，再往下是偏好设置。检测在打开页面时进行一次，之后由状态卡片的「刷新」按钮手动触发——不再定时轮询。卡片中显示的每一项——地址、端口、模式、进程 pid、包的安装路径——点击即可复制。
+
+### 服务器状态（卡片）
+
+状态圆点加文字（运行中 / 启动中… / 未运行）、若干值行，以及只出现当前状态允许的按钮：运行中 →「刷新」「停止」；启动中 →「刷新」和禁用的「启动中…」；未运行 → 只有「启动」。「启动」按当前运行模式在后台拉起服务器，最长等 5 分钟。「停止」会结束监听该端口的东西，不论是谁启动的：先结束插件自己的进程，再结束在那里找到的 node/next 进程；两者都不是的监听者不动，只作提示。
+
+### npm 包（卡片）
+
+左侧是 `pi-obs` 和版本号（有更新时显示 `v0.1.0 → v0.1.1`），下方小字是安装路径（点击复制）；右侧只出现当前状态允许的操作——未安装：「安装」；已安装且有新版本：「更新」「卸载」；已安装且是最新：「卸载」。「安装」弹出对话框选择安装位置：插件目录（`<插件目录>/pi-obs-app`）或 npm 全局目录。「更新」「卸载」作用于实际存在的那一份安装。`pi-obs` 尚未发布时 `npm view` 查不到，因此不显示「更新」，只有「卸载」。
+
+### 偏好设置
 
 | 设置项 | 默认值 | 含义 |
 | --- | --- | --- |
-| Pi Web directory | *(空)* | 要运行的代码目录。启动命令在**该目录**里执行，这是开发模式：指向一个 clone，改代码即时热更新。 |
-| Start command | `npm run dev` | 启动服务的 shell 命令。仅在设置了目录时读取。 |
-| Pi Web package | `pi-obs` | 安装到插件目录里的 npm 包。仅在未设置目录时读取。 |
-| Port | `30141` | 服务监听端口，必须与启动命令或插件传入的端口一致。 |
-| Start Pi Web automatically | 开 | 视图打开而端口无响应时，自动（首次）安装并启动服务。 |
-| Panel placement | New tab | 文件、终端、子智能体、完整历史面板打开的位置：主区域的新标签页，或右侧栏的标签页。 |
+| 运行模式 | npm 包（推荐） | 服务的两种提供方式，互斥；切换时会先停止正在运行的服务器。「本地目录（开发调试）」供开发 Web 界面时使用，固定以 `npm run dev` 启动——没有启动命令配置项。切换时页面不变、所有配置项都保留，只有状态卡片重新检测。 |
+| 启动目录 | *(空)* | 始终显示；本地模式使用：在其中运行 `npm run dev` 的源码检出目录。 |
+| 端口 | `30141` | 服务监听端口。 |
+| 退出时停止服务器 | 开 | 卸载时结束服务器（关闭 Obsidian 或禁用插件）。也会结束外部启动的那个；关闭则只结束插件自己启动的进程。 |
+| 面板位置 | New tab | 文件、终端、子智能体、完整历史面板打开的位置：主区域的新标签页，或右侧栏的标签页。 |
 
 ### 服务的两种提供方式
 
-**设置了目录** — 插件在该目录里执行启动命令，等待端口响应最多90 秒。改 Web 界面代码时用这个。
+启动是**手动**的：用状态卡片的「启动」按钮，等待端口应答最长 5 分钟。打开视图不会启动或安装任何东西——端口无应答时，视图显示离线提示（「打开设置」「重试」），并且主视图始终只有一个。
 
-**目录为空** — 插件在启用时把 `packageName` 安装到 `<插件目录>/pi-web-app`，并用 `node …/bin/pi-web.js -p <端口> --no-open` 启动。插件目录之外不留任何东西，删掉插件目录就连服务一起删掉。首次安装要拉 `next` 和 `node-pty`，所以这里的等待上限是 300 秒。
+**启动时自动恢复。** 退出 Obsidian 总会结束插件拉起的服务器；如果退出时它在运行，下次插件加载会按当时的运行模式再次启动（本地 → 启动目录，npm → 已安装的包）。手动「停止」或服务崩溃会清除该标记，这两种情况不会恢复。启动时若端口已有人应答，则不再启动。
+
+**运行模式 = 本地目录（开发调试）** — 插件在「启动目录」里执行 `npm run dev`。改 Web 界面代码时用这个。
+
+**运行模式 = npm 包（推荐）** — 插件启动已安装的 `pi-obs` 包：优先插件目录里那份（`<插件目录>/pi-obs-app`），否则全局那份。启动的前提是已经安装——启动本身不做任何安装，安装由 npm 包卡片的「安装」按钮完成，安装位置由弹窗选择。启动命令是推导出来的，不提供配置：`node "<安装目录>/node_modules/pi-obs/bin/pi-obs.js" -p <端口> --no-open`（插件目录）或 `pi-obs -p <端口>`（全局）。
+
+两种模式都不会自行做全局安装。
 
 ##嵌入模式
 
-插件用 `?embed=1` 加载界面。该标记以 `pi-web:embed-mode` 为键写入 `sessionStorage`，以便客户端路由跳转后仍然保留；`components/AppShell.tsx` 每次挂载都会读取它。
+插件用 `?embed=1` 加载界面。该标记以 `pi-obs:embed-mode` 为键写入 `sessionStorage`，以便客户端路由跳转后仍然保留；`components/AppShell.tsx` 每次挂载都会读取它。
 
 嵌入期间，凡是原本会在 Web 界面右侧面板里打开的东西，都改为**交给 Obsidian，请求一个独立页面**：
 
@@ -116,7 +130,7 @@ Obsidian 只在桌面应用里加载插件，所以 `manifest.json` 设了 `isDe
 请求是向父窗口发的一条 `postMessage`：
 
 ```js
-{ source: "pi-web", type: "open-panel", panel: "file", url: "http://127.0.0.1:30141/panel/file?path=…" }
+{ source: "pi-obs", type: "open-panel", panel: "file", url: "http://127.0.0.1:30141/panel/file?path=…" }
 ```
 
 `lib/embed-mode.ts` 刻意把 URL 拼成绝对路径：插件的文档是 `app://obsidian.md`，相对 URL 会按这个协议解析，iframe 只会得到一片空白。
@@ -134,15 +148,15 @@ Obsidian 只在桌面应用里加载插件，所以 `manifest.json` 设了 `isDe
 
 ## 面板标签页图标
 
-插件直接复用 Web 界面自己的图稿。`lib/file-icon-names.ts` 把文件名映射到 Catppuccin 图标名；插件从运行中的服务取 `/icons/catppuccin/<latte|mocha>/<name>.svg`，以 `pi-web-cat-<name>` 为 id 注册，Obsidian 深色主题选 `mocha`，浅色选 `latte`。
+插件直接复用 Web 界面自己的图稿。`lib/file-icon-names.ts` 把文件名映射到 Catppuccin 图标名；插件从运行中的服务取 `/icons/catppuccin/<latte|mocha>/<name>.svg`，以 `pi-obs-cat-<name>` 为 id 注册，Obsidian 深色主题选 `mocha`，浅色选 `latte`。
 
 Obsidian 在 100×100 的画布上画图标，而这些 SVG 是按 16×16 画的。原样注册只占画布的 16% —— 在标签页尺寸下就是一个小点。插件改为把内部标记包进 `<g transform="scale(6.25)" stroke-width="1">`。终端、子智能体、完整历史面板用 Obsidian 内置的 `terminal`、`bot`、`history` 图标。
 
 ## 失败行为
 
-- **打开视图时服务未运行** — 显示重试按钮，绝不给一个空白 frame。工作区在重启期间被恢复就会走到这条路径。
+- **打开视图时服务未运行** — 显示离线提示（「打开设置」「重试」），绝不给一个空白 frame，也不会自行启动服务器。主视图始终只有一个；工作区恢复留下的多余视图会在布局就绪时被移除。
 - **会话中途服务挂掉** — 在端口重新应答之前不会重建 iframe。
-- **停用插件** — 卸载时结束它自己启动的进程树（Windows 用 `taskkill /T /F`，其他平台用 `kill`）。用户手工启动的服务不受影响。
+- **停用插件** — 卸载时结束服务器。开着「退出时停止服务器」（默认）时，会停掉监听该端口的服务，包括用户手工启动的；关掉时只结束插件自己启动的进程树（Windows 用 `taskkill /T /F`，其他平台用 `kill`）。
 
 ## 发布
 
@@ -151,7 +165,7 @@ Obsidian 在 100×100 的画布上画图标，而这些 SVG 是按 16×16 画的
 | 产物 | 发布到哪里 | 版本字段 |
 | --- | --- | --- |
 | 服务（`pi-obs`） | npm | `package.json`的 `version` |
-| 插件（`pi-web`） | `ItsDalk-Lane/pi-obs` 的 GitHub Release 附件 | `obsidian-plugin/manifest.json` 的 `version` |
+| 插件（`pi-obs`） | `ItsDalk-Lane/pi-obs` 的 GitHub Release 附件 | `obsidian-plugin/manifest.json` 的 `version` |
 
 `npm run release` 会构建两者 —— Next.js 生产构建和 `npm run build:plugin` —— 并把插件的三个文件
 打进 npm 包一起发布。GitHub Release 要单独创建，因为它承载 BRAT 下载的插件附件，见 [release.md](./release.md)。

@@ -113,26 +113,26 @@ async function runUpdate({
     return 1;
   }
   if (!isNewerStableVersion(latest, currentVersion)) {
-    log(`pi-web ${currentVersion} is up to date.`);
+    log(`pi-obs ${currentVersion} is up to date.`);
     return 0;
   }
-  log(`pi-web ${latest} is available (installed: ${currentVersion}).`);
+  log(`pi-obs ${latest} is available (installed: ${currentVersion}).`);
   if (check) return 0;
 
   // A running `next start` has .next/ open; never replace it underneath.
   const running = await listRecords();
   if (running.length > 0) {
-    error(`pi-web is running:\n${running.map(formatRecord).join("\n")}\nRun \`pi-obs stop\` first, then update.`);
+    error(`pi-obs is running:\n${running.map(formatRecord).join("\n")}\nRun \`pi-obs stop\` first, then update.`);
     return 1;
   }
 
   const kind = getInstallKind({ pkgDir, npmRoot: getNpmRoot(), realpath });
   if (kind === "npx") {
-    error("This pi-web runs from the npx cache. Run `npx pi-obs@latest` instead.");
+    error("This pi-obs runs from the npx cache. Run `npx pi-obs@latest` instead.");
     return 1;
   }
   if (kind !== "global") {
-    error(`This pi-web is not a global npm install. Update it yourself, for example: ${MANUAL_COMMAND}`);
+    error(`This pi-obs is not a global npm install. Update it yourself, for example: ${MANUAL_COMMAND}`);
     return 1;
   }
 

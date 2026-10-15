@@ -46,11 +46,11 @@ try {
       assert.equal(await page.locator("html").evaluate((root) => getComputedStyle(root).colorScheme), theme === "dark" || theme === "pine" ? "dark" : "light");
     };
     await openSettings();
-    for (const [index, theme] of themes.entries()) {
-      const radio = page.getByRole("radio", { name: labels[index], exact: true });
-      await radio.locator("..").click();
+    const themeSelect = page.getByRole("combobox", { name: "Appearance", exact: true });
+    for (const theme of themes) {
+      await themeSelect.selectOption(theme);
       await expectTheme(theme === "auto" ? "light" : theme);
-      assert.equal(await radio.isChecked(), true);
+      assert.equal(await themeSelect.inputValue(), theme);
       assert.equal(await page.evaluate(() => localStorage.getItem("pi-theme")), theme);
       const colors = await page.locator("html").evaluate((root) => {
         const style = getComputedStyle(root);
@@ -64,28 +64,21 @@ try {
       for (const background of ["accent", "accent-hover"]) {
         assert.ok(contrast(colors["accent-contrast"], colors[background]) >= 4.5, `${theme}: button contrast`);
       }
-      assert.equal(await page.locator(".settings-theme-option").evaluateAll((options) => options.every((option) => {
-        const label = option.querySelector(".settings-theme-option-label");
-        const box = option.getBoundingClientRect();
-        const text = label.getBoundingClientRect();
-        return option.scrollWidth <= option.clientWidth && text.right <= box.right && text.bottom <= box.bottom;
-      })), true, `Theme labels must fit at ${width}px`);
+      const box = await themeSelect.boundingBox();
+      assert.ok(box && box.x >= 0 && box.x + box.width <= width, `Theme select must fit at ${width}px`);
       await page.screenshot({ path: `${artifacts}/${theme}-${width}.png`, animations: "disabled" });
       await page.reload();
       await expectTheme(theme === "auto" ? "light" : theme);
       await openSettings();
-      assert.equal(await radio.isChecked(), true, "Selection must survive refresh");
+      assert.equal(await themeSelect.inputValue(), theme, "Selection must survive refresh");
     }
     await page.emulateMedia({ colorScheme: "dark" });
     await expectTheme("dark");
-    await page.getByRole("radio", { name: "Pine", exact: true }).locator("..").click();
+    await themeSelect.selectOption("pine");
     await page.emulateMedia({ colorScheme: "light" });
     await expectTheme("pine");
-    const light = page.getByRole("radio", { name: "Light", exact: true });
-    await light.focus();
-    await light.press("ArrowRight");
+    await themeSelect.selectOption("dark");
     await expectTheme("dark");
-    assert.equal(await page.getByRole("radio", { name: "Dark", exact: true }).isChecked(), true);
     await page.keyboard.press("Escape");
     await page.reload();
     await expectTheme("dark");

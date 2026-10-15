@@ -1,5 +1,5 @@
 /**
- * Model catalog as a real Pi Web install reports it for this demo setup:
+ * Model catalog as a real Pi Obs install reports it for this demo setup:
  * ChatGPT Plus/Pro (Codex) signed in with OAuth, DeepSeek with an API key and
  * a custom "Claude Gateway" provider from models.json. Captured from
  * GET /api/models and friends against the pi SDK, see mock/captured/.

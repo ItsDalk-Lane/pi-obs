@@ -1,4 +1,4 @@
-# Pi Web — Obsidian adaptation fork
+# Pi Obs — Obsidian adaptation fork
 
 [中文文档](./README.zh-CN.md) | [日本語](./README.ja.md) | [Русский](./README.ru.md)
 
@@ -13,15 +13,15 @@
 >
 > Everything not marked below is identical to upstream.
 
-Local browser UI for the [pi coding agent](https://github.com/earendil-works/pi). Pi Web uses the same local configuration and session files as pi, so you can browse and resume conversations, run agent turns, configure models and resources, and inspect project files from a browser.
+Local browser UI for the [pi coding agent](https://github.com/earendil-works/pi). Pi Obs uses the same local configuration and session files as pi, so you can browse and resume conversations, run agent turns, configure models and resources, and inspect project files from a browser.
 
 **To use it in Obsidian**: see the [Obsidian plugin document](./docs/obsidian.md). It covers building and installing the plugin, every setting, and how embed mode and the panel routes behave.
 
 > The rest of this file is upstream documentation.
 
-**[Try the interactive demo →](https://agegr.github.io/pi-web/)** The real Pi Web UI runs entirely in your browser, with sample sessions, files and models. There is nothing to install; replies are pre-written and no model is called.
+**[Try the interactive demo →](https://agegr.github.io/pi-obs/)** The real Pi Obs UI runs entirely in your browser, with sample sessions, files and models. There is nothing to install; replies are pre-written and no model is called.
 
-![Pi Web displaying a pi session with structured Markdown, tool calls, and project navigation](https://raw.githubusercontent.com/agegr/pi-web/main/docs/screenshot2.png)
+![Pi Obs displaying a pi session with structured Markdown, tool calls, and project navigation](https://raw.githubusercontent.com/agegr/pi-web/main/docs/screenshot2.png)
 
 ## How This Fork Differs from Upstream
 
@@ -42,8 +42,8 @@ Session files, models and configuration are shared on both sides; interface beha
 - **Two ways to branch**: **New session** creates an independent session file from an earlier message; **Edit from here** creates a branch inside the current session.
 - **Project file tools**: browse and upload files, inspect Git diffs, and preview source, Markdown, images, audio, PDFs, and DOCX files with automatic refresh.
 - **Git worktrees**: switch checkouts from the sidebar while keeping sessions from the same repository grouped together.
-- **Web-based configuration**: manage provider login and API keys, models, model tests, plugin packages, and skills without leaving Pi Web.
-- **English, Simplified Chinese, and Traditional Chinese UI**: Pi Web follows the browser language initially and provides a language switcher in the top bar.
+- **Web-based configuration**: manage provider login and API keys, models, model tests, plugin packages, and skills without leaving Pi Obs.
+- **English, Simplified Chinese, and Traditional Chinese UI**: Pi Obs follows the browser language initially and provides a language switcher in the top bar.
 
 ## Quick Start
 
@@ -52,13 +52,13 @@ Session files, models and configuration are shared on both sides; interface beha
 > The command name is `pi-obs` (see `bin` in `package.json`). To use the upstream release instead,
 > see [docs/release.md](./docs/release.md).
 
-Pi Web requires Node.js 22.19.0 or newer. Check your version with `node --version`, then run:
+Pi Obs requires Node.js 22.19.0 or newer. Check your version with `node --version`, then run:
 
 ```bash
 npx pi-obs@latest
 ```
 
-The CLI opens a browser after the server is ready. If it does not, open [http://127.0.0.1:30141](http://127.0.0.1:30141). Pi Web listens only on `127.0.0.1` by default.
+The CLI opens a browser after the server is ready. If it does not, open [http://127.0.0.1:30141](http://127.0.0.1:30141). Pi Obs listens only on `127.0.0.1` by default.
 
 If no model provider is configured yet, open the **Models** panel to sign in or add an API key.
 
@@ -83,22 +83,22 @@ To update, run `pi-obs stop`, then `pi-obs update` (or run the same install comm
 
 ## Configuration
 
-For port and hostname, command-line options override the corresponding environment variables. Either `--no-open` or `PI_WEB_NO_OPEN=1` disables automatic browser opening. Run `pi-obs --help` (or `-h`) to print startup options and exit without starting the server. Unknown options exit with an error.
+For port and hostname, command-line options override the corresponding environment variables. Either `--no-open` or `PI_OBS_NO_OPEN=1` disables automatic browser opening. Run `pi-obs --help` (or `-h`) to print startup options and exit without starting the server. Unknown options exit with an error.
 
 | Option or environment variable | Purpose | Default |
 | --- | --- | --- |
 | `--help`, `-h` | Print startup options and exit | — |
 | `--port <port>`, `-p <port>`, or `PORT` | Server port | `30141` |
-| `--hostname <host>`, `-H <host>`, or `PI_WEB_HOSTNAME` | Bind hostname | `127.0.0.1` |
-| `--no-open` or `PI_WEB_NO_OPEN=1` | Do not open a browser automatically | Browser opens |
-| `PI_WEB_APP_NAME` | PWA manifest `name` and `short_name`; surrounding whitespace is trimmed, empty values use the default | `Pi Web` |
-| `PI_WEB_SKIP_VERSION_CHECK=1` | Disable Pi Web update checks | Unset |
-| `PI_WEB_ALLOWED_HOSTS` | Additional exact proxy or custom hostnames, comma-separated | Unset |
-| `PI_WEB_PASSWORD` | Enable browser password login; API clients may use Basic Auth with username `pi` | Authentication disabled |
-| `PI_WEB_IDLE_TIMEOUT_MS` | Session idle timeout in milliseconds, up to `2147483647`; `0` disables idle shutdown; invalid or out-of-range values use the default | `600000` (10 min) |
-| `PI_WEB_SHUTDOWN_DEADLINE_MS` | How long extensions get to handle `session_shutdown` before a closing session is disposed anyway, in milliseconds up to `2147483647`; `0`, invalid or out-of-range values use the default | `5000` (5 s) |
+| `--hostname <host>`, `-H <host>`, or `PI_OBS_HOSTNAME` | Bind hostname | `127.0.0.1` |
+| `--no-open` or `PI_OBS_NO_OPEN=1` | Do not open a browser automatically | Browser opens |
+| `PI_OBS_APP_NAME` | PWA manifest `name` and `short_name`; surrounding whitespace is trimmed, empty values use the default | `Pi Obs` |
+| `PI_OBS_SKIP_VERSION_CHECK=1` | Disable Pi Obs update checks | Unset |
+| `PI_OBS_ALLOWED_HOSTS` | Additional exact proxy or custom hostnames, comma-separated | Unset |
+| `PI_OBS_PASSWORD` | Enable browser password login; API clients may use Basic Auth with username `pi` | Authentication disabled |
+| `PI_OBS_IDLE_TIMEOUT_MS` | Session idle timeout in milliseconds, up to `2147483647`; `0` disables idle shutdown; invalid or out-of-range values use the default | `600000` (10 min) |
+| `PI_OBS_SHUTDOWN_DEADLINE_MS` | How long extensions get to handle `session_shutdown` before a closing session is disposed anyway, in milliseconds up to `2147483647`; `0`, invalid or out-of-range values use the default | `5000` (5 s) |
 
-Set `PI_WEB_APP_NAME` before starting the server (for example, `PI_WEB_APP_NAME='Work Pi' pi-obs`). After changing it, restart the server to serve the new manifest; no rebuild is required. Updates to the name of an already installed PWA are managed by the browser and are not guaranteed to appear immediately. This does not change the page title or icons.
+Set `PI_OBS_APP_NAME` before starting the server (for example, `PI_OBS_APP_NAME='Work Pi' pi-obs`). After changing it, restart the server to serve the new manifest; no rebuild is required. Updates to the name of an already installed PWA are managed by the browser and are not guaranteed to appear immediately. This does not change the page title or icons.
 
 For example:
 
@@ -112,10 +112,10 @@ pi-obs -p 8080 -H 0.0.0.0 --no-open
 Binding to a non-loopback address exposes an agent that can execute high-privilege actions. On a trusted LAN, require a long random password:
 
 ```bash
-PI_WEB_PASSWORD='a-long-random-password' pi-obs --hostname 0.0.0.0
+PI_OBS_PASSWORD='a-long-random-password' pi-obs --hostname 0.0.0.0
 ```
 
-Password authentication does not encrypt the connection. Do not expose Pi Web over plain HTTP to the internet; use HTTPS through a trusted reverse proxy or a trusted VPN. If a reverse proxy sends an external hostname, add that exact name to `PI_WEB_ALLOWED_HOSTS`. This allow-list does not change the address Pi Web binds to.
+Password authentication does not encrypt the connection. Do not expose Pi Obs over plain HTTP to the internet; use HTTPS through a trusted reverse proxy or a trusted VPN. If a reverse proxy sends an external hostname, add that exact name to `PI_OBS_ALLOWED_HOSTS`. This allow-list does not change the address Pi Obs binds to.
 
 ### HTTP Proxy
 
@@ -141,21 +141,21 @@ npx pi-obs@latest
 
 ## Notes
 
-- **Agent data**: Pi Web reads pi data from `~/.pi/agent` by default, including session files under `sessions/<encoded-cwd>/<timestamp>_<uuid>.jsonl`. Set `PI_CODING_AGENT_DIR` to use another pi agent directory.
-- **Filesystem access**: Pi Web must be able to read the agent data directory and the working directories recorded by its sessions. Run Pi Web in the same filesystem environment as pi when sharing existing sessions.
+- **Agent data**: Pi Obs reads pi data from `~/.pi/agent` by default, including session files under `sessions/<encoded-cwd>/<timestamp>_<uuid>.jsonl`. Set `PI_CODING_AGENT_DIR` to use another pi agent directory.
+- **Filesystem access**: Pi Obs must be able to read the agent data directory and the working directories recorded by its sessions. Run Pi Obs in the same filesystem environment as pi when sharing existing sessions.
 - **Shared configuration**: the Models panel uses pi's model, settings, and credential storage, so changes are visible to both interfaces.
-- **File access boundary**: the file browser is limited to working directories selected in Pi Web and project or session roots it already knows about; it is not a general filesystem browser.
-- **Git worktrees**: see [Worktrees in Pi Web](./docs/worktrees.md) for switcher visibility, worktree creation, and removal behavior.
+- **File access boundary**: the file browser is limited to working directories selected in Pi Obs and project or session roots it already knows about; it is not a general filesystem browser.
+- **Git worktrees**: see [Worktrees in Pi Obs](./docs/worktrees.md) for switcher visibility, worktree creation, and removal behavior.
 
 ### Downstream Session Context Menu
 
 Electron wrappers and other downstream integrations can provide a session-row
 context menu without patching `SessionSidebar`. Listen for the cancelable
-`pi-web:session-row-contextmenu` browser event and call `preventDefault()`
+`pi-obs:session-row-contextmenu` browser event and call `preventDefault()`
 synchronously when the integration will handle it:
 
 ```js
-window.addEventListener("pi-web:session-row-contextmenu", (event) => {
+window.addEventListener("pi-obs:session-row-contextmenu", (event) => {
   event.preventDefault();
   const { id, path, cwd, name, clientX, clientY, refresh } = event.detail;
 
@@ -167,7 +167,7 @@ window.addEventListener("pi-web:session-row-contextmenu", (event) => {
 
 The detail object contains `id`, `path`, `cwd`, optional `name`, pointer
 coordinates, and a `refresh()` callback for actions that change the session
-list. If no listener cancels the extension event, Pi Web opens its built-in
+list. If no listener cancels the extension event, Pi Obs opens its built-in
 session menu (pin, rename, fork, mark read or unread, archive, open in new
 tab, delete) at the pointer instead of the browser's native context menu.
 The row's `⋯` button always opens the built-in menu and does not dispatch the

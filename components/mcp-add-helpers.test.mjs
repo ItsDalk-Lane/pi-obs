@@ -384,8 +384,8 @@ test("a variable box opens with a name pi accepts: an env value's own, or one ma
   assert.equal(mcpSuggestedVariableName("env.9", "x"), undefined);
   assert.equal(mcpSuggestedVariableName("url", "x"), undefined);
   // Never the variable Add refuses.
-  assert.equal(mcpSuggestedVariableName("env.PI_WEB_PASSWORD", "x"), undefined);
-  assert.equal(mcpSuggestedVariableName("headers.X-Password", "pi-web"), undefined);
+  assert.equal(mcpSuggestedVariableName("env.PI_OBS_PASSWORD", "x"), undefined);
+  assert.equal(mcpSuggestedVariableName("headers.X-Password", "pi-obs"), undefined);
   for (const [label, server] of [["env.A", "x"], ["headers.Authorization", "a b"], ["headers.-", "z"], ["oauth.clientSecret", "é"]]) {
     const name = mcpSuggestedVariableName(label, server);
     assert.ok(name === undefined || /^[A-Za-z_][A-Za-z0-9_]*$/.test(name), `${label} ${server}: ${name}`);
@@ -436,7 +436,7 @@ test("Add waits, with a reason, for a free valid name, the values, and a scope i
   const text = JSON.stringify({ servers: { gh: { type: "http", url: "https://api.example.com/mcp", headers: { Authorization: "Bearer ${input:pat}" } } }, inputs: [{ id: "pat", type: "promptString", password: true, description: "GitHub PAT" }] });
   assert.deepEqual(analyse({ text }).submitBlock, { kind: "fields", fields: ["pat"] });
   assert.deepEqual(analyse({ text: "nothing to see | here" }).submitBlock, { kind: "nothing" });
-  const password = analyse({ text: JSON.stringify({ mcpServers: { pw: { url: "https://pw/mcp", headers: { A: "${PI_WEB_PASSWORD}" } } } }), rawPi: true });
+  const password = analyse({ text: JSON.stringify({ mcpServers: { pw: { url: "https://pw/mcp", headers: { A: "${PI_OBS_PASSWORD}" } } } }), rawPi: true });
   assert.deepEqual(password.submitBlock, { kind: "web-password" });
   const broken = analyse({ text: "npx x" }, overview({ files: [{ ...globalFile, problems: [{ reason: "unparsable", error: "x" }] }, projectFile] }));
   assert.deepEqual(broken.submitBlock, { kind: "scope", block: { kind: "file-problem", path: globalFile.path, reason: "unparsable" } });

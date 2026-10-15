@@ -337,7 +337,7 @@ const AUTHORIZATION_HEADER = /^(?:proxy-)?authorization$/i;
  * made from the server's (`docs` with `Authorization` → `DOCS_TOKEN`,
  * `X-Api-Key` → `DOCS_API_KEY`, `DOCS_CLIENT_SECRET`). Only a valid variable
  * name, or undefined, so the box it fills never opens on a refusal; never
- * PI_WEB_PASSWORD, which Add refuses.
+ * PI_OBS_PASSWORD, which Add refuses.
  */
 export function mcpSuggestedVariableName(label: string, serverName: string): string | undefined {
   const name = suggestedVariableName(label, serverName);
@@ -596,7 +596,7 @@ function namesIn(data: Pick<McpResponse, "servers">, scope: McpScope): string[] 
   return data.servers.filter((server) => server.scope === scope).map((server) => server.name);
 }
 
-/** Whether a value references PI_WEB_PASSWORD, which the route refuses as the transport would: the transport's own rule. */
+/** Whether a value references PI_OBS_PASSWORD, which the route refuses as the transport would: the transport's own rule. */
 function referencesWebPassword(config: McpServerConfig): boolean {
   return findWebPasswordField(config, { isCommandConfigValue, getConfigValueEnvVarNames: configValueEnvVarNames }) !== undefined;
 }

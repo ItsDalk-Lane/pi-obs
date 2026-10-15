@@ -1,12 +1,12 @@
 # Make Chat only a persisted resource policy
 
-Pi Web treats an explicitly empty tool selection as **Chat only**, not merely as
+Pi Obs treats an explicitly empty tool selection as **Chat only**, not merely as
 an AgentSession whose active tool array happens to be empty.
 
 For a normal session, Chat only loads no extensions, skills, prompt templates,
 themes, or Pi base system prompt. Its exact system prompt is the ordered content
 of the context files discovered by Pi's default loader, including global and
-project `AGENTS.md`, `AGENTS.override.md`, and `CLAUDE.md` files. Pi Web does not
+project `AGENTS.md`, `AGENTS.override.md`, and `CLAUDE.md` files. Pi Obs does not
 add its own prefix, suffix, or current-working-directory text.
 
 For a subagent whose resolved profile has no tools and has both resource-loading
@@ -15,7 +15,7 @@ themes, context files, or Pi base system prompt. Its exact system prompt is the
 profile system prompt. If parent context inheritance is enabled, that context is
 included with the delegated user task instead of being appended to the system
 prompt. A profile may opt into skills or extensions independently. Extension
-tools are activated alongside the profile's built-in tools except for Pi Web's
+tools are activated alongside the profile's built-in tools except for Pi Obs's
 reserved subagent-control tools, which remain excluded to prevent nested Agent
 dispatch.
 
@@ -24,12 +24,12 @@ in the delegated user task. This is input preparation, not a subagent tool: it
 does not change the active tool list or the exact Chat-only system prompt.
 
 Pi's native session format does not persist the active tool selection. Normal
-sessions therefore append versioned `pi-web:tool-selection` custom entries:
+sessions therefore append versioned `pi-obs:tool-selection` custom entries:
 
 ```json
 {
   "type": "custom",
-  "customType": "pi-web:tool-selection",
+  "customType": "pi-obs:tool-selection",
   "data": { "version": 1, "tools": [] }
 }
 ```

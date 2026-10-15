@@ -1,6 +1,6 @@
 name: Demo
 
-# Builds the static Pi Web demo in demo/ and publishes it to GitHub Pages.
+# Builds the static Pi Obs demo in demo/ and publishes it to GitHub Pages.
 # Pull requests that touch the demo only build it.
 
 on:

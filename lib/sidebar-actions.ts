@@ -7,8 +7,10 @@
  * everywhere: while the family runs and from the archive too. Open in new tab
  * only navigates (a browser tab loads the session's link): it is offered
  * everywhere a saved session is, after the actions that manage the session and
- * before Delete. Never first: a menu's first item takes focus when it opens,
- * so Enter right after opening would leave the tab. Also the requests behind
+ * before Delete. Full history opens the session's exported HTML (an Obsidian
+ * panel in embed mode) and travels with it for the same reason. Never first: a
+ * menu's first item takes focus when it opens, so Enter right after opening
+ * would leave the tab. Also the requests behind
  * a project group's "Delete all sessions", with `fetch` passed in.
  */
 
@@ -17,6 +19,7 @@ import type { SessionUiStateRequest } from "./session-ui-state-shared";
 
 export type SessionMenuActionId =
   | "open-new-tab"
+  | "full-history"
   | "pin"
   | "unpin"
   | "rename"
@@ -43,6 +46,7 @@ export function sessionMenuEntries(
 ): SessionMenuEntry[] {
   if (status.transient) return [];
   const openNewTab: SessionMenuEntry = { kind: "action", id: "open-new-tab", shortcut: "T" };
+  const fullHistory: SessionMenuEntry = { kind: "action", id: "full-history", shortcut: "H" };
   if (context === "archive") {
     return [
       { kind: "action", id: "unarchive", shortcut: "A" },
@@ -50,6 +54,7 @@ export function sessionMenuEntries(
       { kind: "action", id: "rename", shortcut: "R" },
       { kind: "action", id: "fork", shortcut: "F" },
       openNewTab,
+      fullHistory,
       { kind: "separator" },
       { kind: "action", id: "delete", shortcut: "D" },
     ];
@@ -64,6 +69,7 @@ export function sessionMenuEntries(
       ? { kind: "action", id: "archive", shortcut: "A", disabledReason: "running" }
       : { kind: "action", id: "archive", shortcut: "A" },
     openNewTab,
+    fullHistory,
     { kind: "separator" },
     { kind: "action", id: "delete", shortcut: "D" },
   ];

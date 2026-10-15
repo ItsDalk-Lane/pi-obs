@@ -9,7 +9,7 @@ export const SETTINGS_SECTION_VALUES = [
 export type SettingsSection = (typeof SETTINGS_SECTION_VALUES)[number];
 export type SettingsDetailSection = Exclude<SettingsSection, "general">;
 
-const STORAGE_KEY = "pi-web:settings-navigation";
+const STORAGE_KEY = "pi-obs:settings-navigation";
 const PROJECT_SECTIONS = new Set<SettingsSection>(["skills", "agents", "plugins"]);
 
 interface StorageLike {

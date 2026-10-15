@@ -1,7 +1,7 @@
 {
-  "name": "pi-web-obsidian-plugin",
+  "name": "pi-obs-obsidian-plugin",
   "version": "0.1.0",
-  "description": "Embed the Pi Web interface (pi coding agent) in Obsidian",
+  "description": "Embed the Pi Obs interface (pi coding agent) in Obsidian",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",

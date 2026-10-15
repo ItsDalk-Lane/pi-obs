@@ -8,15 +8,15 @@ import test, { after } from "node:test";
 import { ProjectTrustStore } from "@earendil-works/pi-coding-agent";
 import { createJiti } from "jiti";
 
-const root = realpathSync(await mkdtemp(join(tmpdir(), "pi-web-mcp-route-")));
+const root = realpathSync(await mkdtemp(join(tmpdir(), "pi-obs-mcp-route-")));
 const agentDir = join(root, "agent");
 const workspace = join(root, "workspace");
 const cwd = join(workspace, "project");
 const outside = join(root, "outside");
 const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
-const previousDisable = process.env.PI_WEB_DISABLE_MCP;
+const previousDisable = process.env.PI_OBS_DISABLE_MCP;
 process.env.PI_CODING_AGENT_DIR = agentDir;
-delete process.env.PI_WEB_DISABLE_MCP;
+delete process.env.PI_OBS_DISABLE_MCP;
 await mkdir(agentDir, { recursive: true });
 await mkdir(join(cwd, ".pi"), { recursive: true });
 await mkdir(outside, { recursive: true });
@@ -29,8 +29,8 @@ allowFileRoot(cwd);
 after(async () => {
   if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
   else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
-  if (previousDisable === undefined) delete process.env.PI_WEB_DISABLE_MCP;
-  else process.env.PI_WEB_DISABLE_MCP = previousDisable;
+  if (previousDisable === undefined) delete process.env.PI_OBS_DISABLE_MCP;
+  else process.env.PI_OBS_DISABLE_MCP = previousDisable;
   await rm(root, { recursive: true, force: true });
 });
 
@@ -122,16 +122,16 @@ test("a cwd outside the allowed folders, relative, with .., or not a folder is r
   assert.deepEqual(await get(forCwd(projectPath)), { status: 400, body: { error: "cwd must be a directory", reason: "cwd-not-directory" } });
 });
 
-test("PI_WEB_DISABLE_MCP and -builtin:mcp turn MCP off with a reason, and the servers are still listed", async (t) => {
+test("PI_OBS_DISABLE_MCP and -builtin:mcp turn MCP off with a reason, and the servers are still listed", async (t) => {
   t.after(async () => {
-    delete process.env.PI_WEB_DISABLE_MCP;
+    delete process.env.PI_OBS_DISABLE_MCP;
     await rm(settingsPath, { force: true });
   });
-  process.env.PI_WEB_DISABLE_MCP = "1";
+  process.env.PI_OBS_DISABLE_MCP = "1";
   let { body } = await get();
-  assert.deepEqual(body.mcp, { available: false, reason: "operator-disabled", error: "PI_WEB_DISABLE_MCP is set" });
+  assert.deepEqual(body.mcp, { available: false, reason: "operator-disabled", error: "PI_OBS_DISABLE_MCP is set" });
   assert.deepEqual(body.servers.map((server) => server.name), ["docs", "shared"]);
-  delete process.env.PI_WEB_DISABLE_MCP;
+  delete process.env.PI_OBS_DISABLE_MCP;
 
   await writeFile(settingsPath, JSON.stringify({ extensions: ["-builtin:mcp", "-builtin:codemode"] }));
   ({ body } = await get());

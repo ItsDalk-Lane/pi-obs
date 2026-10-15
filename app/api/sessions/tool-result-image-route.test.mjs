@@ -17,7 +17,7 @@ const { cacheSessionPath, invalidateSessionPathCache } = await jiti.import("../.
 const PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 
 test("a tool result image is served once and then cached for good", async (t) => {
-  const dir = await mkdtemp(join(tmpdir(), "pi-web-tool-image-"));
+  const dir = await mkdtemp(join(tmpdir(), "pi-obs-tool-image-"));
   const id = "tool-image-route-test";
   const filePath = join(dir, `2026-01-01T00-00-00-000Z_${id}.jsonl`);
   const timestamp = "2026-01-01T00:00:00.000Z";

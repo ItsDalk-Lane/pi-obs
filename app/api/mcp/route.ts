@@ -192,7 +192,7 @@ async function overviewResponse(agentDir: string, project: Project | undefined, 
   }
 }
 
-/** Turning on an entry that references PI_WEB_PASSWORD is refused: Pi Web would not connect it, and the pi CLI would send the password. */
+/** Turning on an entry that references PI_OBS_PASSWORD is refused: Pi Obs would not connect it, and the pi CLI would send the password. */
 function webPasswordRefusal(internals: PiSdkInternals) {
   return (_name: string, entry: Record<string, unknown>) => (findWebPasswordField(entry, internals) ? "web-password" as const : undefined);
 }
@@ -206,7 +206,7 @@ function outcomeRefusal(outcome: McpEnabledOutcome<"web-password">, path: string
     case "not-an-object":
       return new Refusal(409, "entry-not-object", `${path} defines MCP server "${name}" as something other than an object, so it has nothing to switch`, { path, name });
     case "refused":
-      return new Refusal(409, "web-password", `"${name}" references PI_WEB_PASSWORD, so Pi Web does not turn it on`, { name });
+      return new Refusal(409, "web-password", `"${name}" references PI_OBS_PASSWORD, so Pi Obs does not turn it on`, { name });
     default:
       return undefined;
   }
@@ -239,7 +239,7 @@ async function switchServer(
 /**
  * How one server's tools reach the model. Nothing connects because of it:
  * open sessions register the changed entry again at their next message, so
- * an entry that references PI_WEB_PASSWORD may change too, and stays off.
+ * an entry that references PI_OBS_PASSWORD may change too, and stays off.
  */
 async function setServerExposure(
   agentDir: string,
@@ -264,7 +264,7 @@ async function setServerExposure(
  * "Enable / Disable in this project" does: an override entry in the project's
  * `.pi/mcp.json` (pi 1.0.1), written under any project write's checks. The
  * global entry must be one pi loads, since an override of anything else is
- * skipped; turning on one that references PI_WEB_PASSWORD is refused, as its
+ * skipped; turning on one that references PI_OBS_PASSWORD is refused, as its
  * switch would be. Remove on the override's row goes back to the global value.
  */
 async function switchServerInProject(
@@ -286,7 +286,7 @@ async function switchServerInProject(
   const global = readMcpServerConfig({ agentDir, internals, scope: "global", name });
   if (typeof global === "string") return refusal(409, "server-invalid", global, { name });
   if (enabled && findWebPasswordField(global.config, internals)) {
-    return refusal(409, "web-password", `"${name}" references PI_WEB_PASSWORD, so Pi Web does not turn it on`, { name });
+    return refusal(409, "web-password", `"${name}" references PI_OBS_PASSWORD, so Pi Obs does not turn it on`, { name });
   }
   try {
     const { value: outcome, path } = await setMcpServerEnabledInProject(target, name, enabled);
@@ -301,7 +301,7 @@ async function switchServerInProject(
 /**
  * The group switch: every server asked for, one write per file, and a result
  * per server, so one the route refuses (removed meanwhile, not an object,
- * referencing PI_WEB_PASSWORD, in an untrusted project, in a file that no
+ * referencing PI_OBS_PASSWORD, in an untrusted project, in a file that no
  * longer parses) keeps the rest from failing.
  */
 async function switchServers(
@@ -364,7 +364,7 @@ async function removeServer(agentDir: string, project: Project | undefined, serv
 /**
  * Puts a removed entry back where it stood, under the same checks as any
  * write: a project entry's folder must still be allowed and trusted. The
- * entry is restored as it was, a PI_WEB_PASSWORD reference included, since
+ * entry is restored as it was, a PI_OBS_PASSWORD reference included, since
  * undo returns the file to what it held a moment ago; the panel shows such an
  * entry as refused. A name the file defines again since is never replaced.
  */

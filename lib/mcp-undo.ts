@@ -37,7 +37,7 @@ interface HeldRecord extends McpHeldRemoval {
   timer: ReturnType<typeof setTimeout>;
 }
 
-const STORE_KEY: symbol = Symbol.for("pi-web:mcp-undo");
+const STORE_KEY: symbol = Symbol.for("pi-obs:mcp-undo");
 
 function records(): Map<string, HeldRecord> {
   const store = globalThis as Record<symbol, Map<string, HeldRecord> | undefined>;

@@ -25,7 +25,7 @@ const { SessionManager } = await jiti.import("@earendil-works/pi-coding-agent");
 
 /** A scratch agent dir with one branched session: u1 → a1, then u1 → a2 (the file's leaf). */
 async function scratchSession(t) {
-  const dir = await mkdtemp(join(tmpdir(), "pi-web-fork-route-"));
+  const dir = await mkdtemp(join(tmpdir(), "pi-obs-fork-route-"));
   const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
   const previousHome = process.env.HOME;
   const previousRegistry = globalThis.__piSessions;

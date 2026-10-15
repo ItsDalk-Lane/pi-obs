@@ -247,7 +247,7 @@ export function createSubagentController(
 ): SubagentController {
   async function start(request: StartSubagentRequest): Promise<SubagentExecution> {
     const enabled = dependencies.isBuiltInSubagentsEnabled ?? isBuiltInSubagentsEnabled;
-    if (!enabled()) throw new Error("Pi Web built-in sub-agents are disabled");
+    if (!enabled()) throw new Error("Pi Obs built-in sub-agents are disabled");
     const parentSessionId = request.parentContext.sessionManager.getSessionId();
     const parent = dependencies.getSession(parentSessionId);
     if (!parent?.isAlive()) throw new Error("Parent session is no longer available");
@@ -261,7 +261,7 @@ export function createSubagentController(
       const runInBackground = request.runInBackground ?? profile.runInBackground;
       const isolation = profile.isolation === "off" ? undefined : request.isolation ?? profile.isolation;
       if (isolation === "worktree") {
-        isolatedWorktree = await addWorktree(parent.cwd, `pi-web-agent-${randomUUID()}`);
+        isolatedWorktree = await addWorktree(parent.cwd, `pi-obs-agent-${randomUUID()}`);
       }
       const childCwd = isolatedWorktree?.path ?? parent.cwd;
       const inheritContext = profile.inheritContext;
@@ -621,7 +621,7 @@ export function createSubagentController(
 
   async function resume(request: ResumeSubagentRequest): Promise<SubagentExecution> {
     const enabled = dependencies.isBuiltInSubagentsEnabled ?? isBuiltInSubagentsEnabled;
-    if (!enabled()) throw new Error("Pi Web built-in sub-agents are disabled");
+    if (!enabled()) throw new Error("Pi Obs built-in sub-agents are disabled");
     const parentSessionId = request.parentContext.sessionManager.getSessionId();
     const existing = await get(request.sessionId);
     if (!existing) throw new Error(`Subagent not found: ${request.sessionId}`);
@@ -783,7 +783,7 @@ export function createSubagentController(
     if (takeResultConsumed(run)) return;
     if (!parent.isAlive()) throw new Error(`Parent session is no longer available: ${run.parentSessionId}`);
     await parent.inner.sendCustomMessage({
-      customType: "pi-web:subagent-notification",
+      customType: "pi-obs:subagent-notification",
       content: subagentNotificationText(run),
       display: true,
       details: subagentToolDetails(run),

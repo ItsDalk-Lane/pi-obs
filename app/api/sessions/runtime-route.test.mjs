@@ -28,7 +28,7 @@ const {
 } = await jiti.import("../../../lib/session-ui-state.ts");
 
 test("list versions expose idle session creation, rename and deletion to other windows", async (t) => {
-  const dir = await mkdtemp(join(tmpdir(), "pi-web-list-sync-"));
+  const dir = await mkdtemp(join(tmpdir(), "pi-obs-list-sync-"));
   const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
   process.env.PI_CODING_AGENT_DIR = dir;
   invalidateSessionListCache();
@@ -79,7 +79,7 @@ test("list versions expose idle session creation, rename and deletion to other w
 });
 
 test("the running poll carries the sidebar state revision and deleting a session forgets its pins", async (t) => {
-  const dir = await mkdtemp(join(tmpdir(), "pi-web-ui-state-delete-"));
+  const dir = await mkdtemp(join(tmpdir(), "pi-obs-ui-state-delete-"));
   const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
   process.env.PI_CODING_AGENT_DIR = dir;
   invalidateSessionListCache();
@@ -115,7 +115,7 @@ test("the running poll carries the sidebar state revision and deleting a session
 });
 
 test("session listing returns a gzip-compressed response when the client accepts it", async (t) => {
-  const dir = await mkdtemp(join(tmpdir(), "pi-web-list-gzip-"));
+  const dir = await mkdtemp(join(tmpdir(), "pi-obs-list-gzip-"));
   const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
   process.env.PI_CODING_AGENT_DIR = dir;
   invalidateSessionListCache();
@@ -149,7 +149,7 @@ test("session listing returns a gzip-compressed response when the client accepts
 });
 
 test("deleting an unpersisted session shuts down its runtime and invalidates caches", async (t) => {
-  const dir = await mkdtemp(join(tmpdir(), "pi-web-delete-empty-"));
+  const dir = await mkdtemp(join(tmpdir(), "pi-obs-delete-empty-"));
   const previousRegistry = globalThis.__piSessions;
   const ids = [];
   globalThis.__piSessions = new Map();
@@ -195,7 +195,7 @@ test("deleting an unpersisted session shuts down its runtime and invalidates cac
 });
 
 test("deleting a session removes all persisted subagent descendants", async (t) => {
-  const dir = await mkdtemp(join(tmpdir(), "pi-web-delete-reparent-"));
+  const dir = await mkdtemp(join(tmpdir(), "pi-obs-delete-reparent-"));
   const grandparentPath = join(dir, "grandparent.jsonl");
   const parentPath = join(dir, "parent.jsonl");
   const childPath = join(dir, "child.jsonl");
@@ -217,7 +217,7 @@ test("deleting a session removes all persisted subagent descendants", async (t) 
     header(childId, parentPath),
     JSON.stringify({
       type: "custom",
-      customType: "pi-web:subagent",
+      customType: "pi-obs:subagent",
       id: "meta",
       parentId: null,
       timestamp: "2026-01-01T00:00:00.000Z",
@@ -235,7 +235,7 @@ test("deleting a session removes all persisted subagent descendants", async (t) 
     header(grandchildId, childPath),
     JSON.stringify({
       type: "custom",
-      customType: "pi-web:subagent",
+      customType: "pi-obs:subagent",
       id: "grandchild-meta",
       parentId: null,
       timestamp: "2026-01-01T00:00:00.000Z",
@@ -283,7 +283,7 @@ test("live detail and state routes work without a persisted JSONL file", async (
     getLeafId: () => entry.id,
     getTree: () => [],
     getSessionName: () => undefined,
-    getSessionFile: () => `/tmp/pi-web-live-route-not-persisted-${process.pid}.jsonl`,
+    getSessionFile: () => `/tmp/pi-obs-live-route-not-persisted-${process.pid}.jsonl`,
   };
   globalThis.__piSessions = new Map([[id, {
     isAlive: () => true,
@@ -339,7 +339,7 @@ test("session detail returns a gzip-compressed response when the client accepts 
     getLeafId: () => entry.id,
     getTree: () => [],
     getSessionName: () => undefined,
-    getSessionFile: () => `/tmp/pi-web-live-route-gzip-${process.pid}.jsonl`,
+    getSessionFile: () => `/tmp/pi-obs-live-route-gzip-${process.pid}.jsonl`,
   };
   globalThis.__piSessions = new Map([[id, {
     isAlive: () => true,

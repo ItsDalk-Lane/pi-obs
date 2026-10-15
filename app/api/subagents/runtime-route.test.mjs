@@ -28,7 +28,7 @@ function installRunningSubagent(t) {
   let aborts = 0;
   const entries = [{
     type: "custom",
-    customType: "pi-web:subagent",
+    customType: "pi-obs:subagent",
     id: "meta",
     parentId: null,
     timestamp: "2026-01-01T00:00:00.000Z",

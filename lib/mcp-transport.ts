@@ -4,7 +4,7 @@ import { findWebPasswordField, resolvedConfigValues, WEB_PASSWORD_VARIABLE, type
 import type { PiSdkInternals } from "./pi-sdk-internals";
 import { sanitizeProjectCommandEnvironment } from "./project-command-env";
 
-// The resolved-value walk and the PI_WEB_PASSWORD rule are client-safe (`lib/mcp-config-values.ts`).
+// The resolved-value walk and the PI_OBS_PASSWORD rule are client-safe (`lib/mcp-config-values.ts`).
 export { findWebPasswordField, resolvedConfigValues, WEB_PASSWORD_VARIABLE, type McpResolvedConfigValue };
 
 // MCP servers are started on behalf of a project like its bash commands, so
@@ -19,7 +19,7 @@ type TransportInternals = Pick<
 >;
 type ConfigValueInternals = Pick<PiSdkInternals, "getConfigValueEnvVarNames" | "isCommandConfigValue">;
 
-export interface PiWebMcpTransportOptions {
+export interface PiObsMcpTransportOptions {
   /** Environment stdio servers start from, before sanitizing. Defaults to `process.env` at connect time. */
   baseEnvironment?: NodeJS.ProcessEnv;
   platform?: NodeJS.Platform;
@@ -62,22 +62,22 @@ function serverEnvironment(
 }
 
 /**
- * The transport factory pi-web gives the SDK's MCP connections. HTTP servers
+ * The transport factory pi-obs gives the SDK's MCP connections. HTTP servers
  * use the SDK's transport unchanged. A stdio server gets the transport the
  * SDK would build, with every option it passes (command and args with `~`
  * expanded, cwd resolved against the session, piped stderr) and its `env`
  * values resolved by the SDK, but started with `inheritEnv: false` from the
  * sanitized environment. It never falls back to the SDK's stdio transport.
  */
-export function createPiWebMcpTransportFactory(
+export function createPiObsMcpTransportFactory(
   internals: TransportInternals,
-  options: PiWebMcpTransportOptions = {},
+  options: PiObsMcpTransportOptions = {},
 ): McpTransportFactory {
   const platform = options.platform ?? process.platform;
   return (entry, cwd, authProvider) => {
     const field = findWebPasswordReference(entry.config, internals);
     if (field) {
-      throw new Error(`MCP server "${entry.name}" ${field} references ${WEB_PASSWORD_VARIABLE}, which Pi Web does not pass to MCP servers`);
+      throw new Error(`MCP server "${entry.name}" ${field} references ${WEB_PASSWORD_VARIABLE}, which Pi Obs does not pass to MCP servers`);
     }
     const transport = internals.createDefaultTransport(entry, cwd, authProvider);
     if ("url" in entry.config) return transport;
@@ -86,7 +86,7 @@ export function createPiWebMcpTransportFactory(
     }
     const { env: configured = {}, ...stdioOptions } = transport.options;
     // `env` must hold only the entry's own values; anything else would be the
-    // SDK passing environment that pi-web has not sanitized.
+    // SDK passing environment that pi-obs has not sanitized.
     const declared = new Set(Object.keys(entry.config.env ?? {}));
     const unexpected = Object.keys(configured).find((name) => !declared.has(name));
     if (unexpected !== undefined) {

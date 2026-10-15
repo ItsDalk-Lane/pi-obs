@@ -238,7 +238,7 @@ test("icons are decorative unless labelled, and the spinner turns through a clas
 const projectChoices = Array.from({ length: SIDEBAR_MENU_FILTER_MIN_CHOICES }, (_, index) => ({
   type: "item",
   id: `project:${index}`,
-  label: index === 3 ? "pi-web" : `project-${index}`,
+  label: index === 3 ? "pi-obs" : `project-${index}`,
   note: index === 5 ? "Workspace" : undefined,
   title: `/home/me/${index === 6 ? "clients/acme" : `p${index}`}`,
   checked: index === 0,
@@ -258,7 +258,7 @@ test("a filter shows once a menu has enough choices, and narrows only the choice
   assert.equal(sidebarMenuHasFilter(undefined), false);
   // By label, note or title, case-insensitive; separators and actions stay.
   const ids = (query) => filterSidebarMenuItems(projectMenu, query).map((item) => item.id);
-  assert.deepEqual(ids("PI-WEB"), ["project:3", "separator", "open-folder"]);
+  assert.deepEqual(ids("PI-OBS"), ["project:3", "separator", "open-folder"]);
   assert.deepEqual(ids("workspace"), ["project:5", "separator", "open-folder"]);
   assert.deepEqual(ids("acme"), ["project:6", "separator", "open-folder"]);
   assert.deepEqual(ids("  "), projectMenu.map((item) => item.id));
@@ -293,7 +293,7 @@ test("filter markup: a field above the list, the empty label, focus only on a de
   assert.match(html, /^<div class="sidebar-menu" role="dialog" aria-label="Session actions" style="width:208px"><div class="sidebar-menu-filter"><input class="sidebar-menu-filter-input" placeholder="Filter projects…" aria-label="Filter projects…" [^>]*data-sidebar-menu-filter="" data-sidebar-menu-autofocus="" value=""\/><\/div><div role="status"><\/div><div role="menu" aria-label="Session actions"><button/);
   assert.equal((html.match(/role="menu"/g) ?? []).length, 1);
   assert.equal((html.match(/role="menuitemradio"/g) ?? []).length, 8);
-  const narrowed = surface({ items: projectMenu, filter, filterQuery: "pi-web" });
+  const narrowed = surface({ items: projectMenu, filter, filterQuery: "pi-obs" });
   assert.equal((narrowed.match(/role="menuitemradio"/g) ?? []).length, 1);
   assert.match(narrowed, /Open another project…/);
   assert.doesNotMatch(narrowed, /sidebar-menu-empty/);

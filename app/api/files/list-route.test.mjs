@@ -7,7 +7,7 @@ import test from "node:test";
 import { NextRequest } from "next/server.js";
 import { createJiti } from "jiti";
 
-const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "pi-web-files-route-")));
+const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "pi-obs-files-route-")));
 fs.writeFileSync(path.join(root, "gitconfig"), "");
 process.env.PI_CODING_AGENT_DIR = path.join(root, "agent");
 process.env.GIT_CONFIG_NOSYSTEM = "1";

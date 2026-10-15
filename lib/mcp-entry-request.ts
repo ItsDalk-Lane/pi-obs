@@ -15,9 +15,9 @@ import { hasJsonContentType, isApiRequestAllowed } from "./request-security";
 // session: Settings › MCP's Test (`POST /api/mcp/test`) and its sign-in
 // (`POST /api/mcp/sign-in`). Each starts a process or contacts a URL and may
 // run a `!command` value, so each re-checks everything a session's start
-// would: the request is Pi Web's own, MCP is not off, the entry is read from
+// would: the request is Pi Obs's own, MCP is not off, the entry is read from
 // its file (never a config from the browser) and valid, it does not reference
-// PI_WEB_PASSWORD, and a project entry's folder is allowed and trusted.
+// PI_OBS_PASSWORD, and a project entry's folder is allowed and trusted.
 
 export interface McpEntryRefusal {
   status: number;
@@ -120,16 +120,16 @@ export async function validateMcpProject(value: unknown): Promise<McpRequestProj
 
 /**
  * The SDK's internals, or MCP off as every Settings › MCP route reads it: the
- * operator's switch (`PI_WEB_DISABLE_MCP`), which nothing in the browser may
+ * operator's switch (`PI_OBS_DISABLE_MCP`), which nothing in the browser may
  * override, or SDK modules that cannot load, without which nothing can be
- * checked, written or connected through Pi Web's transport. `-builtin:mcp`
+ * checked, written or connected through Pi Obs's transport. `-builtin:mcp`
  * does not count: a project may reverse that setting, and an explicit action
- * still works. `doing` ends the operator's message ("so Pi Web …").
+ * still works. `doing` ends the operator's message ("so Pi Obs …").
  */
 export async function mcpInternalsOrRefusal(doing: string): Promise<PiSdkInternals | McpEntryRefusal> {
-  if (isMcpDisabledByOperator()) return mcpEntryRefusal(409, "mcp-off", `${MCP_DISABLE_VARIABLE} is set, so Pi Web ${doing}`);
+  if (isMcpDisabledByOperator()) return mcpEntryRefusal(409, "mcp-off", `${MCP_DISABLE_VARIABLE} is set, so Pi Obs ${doing}`);
   const internals = await loadPiSdkInternals();
-  if (!internals.ok) return mcpEntryRefusal(409, "mcp-off", `Pi Web cannot load the SDK's MCP modules: ${internals.reason}`);
+  if (!internals.ok) return mcpEntryRefusal(409, "mcp-off", `Pi Obs cannot load the SDK's MCP modules: ${internals.reason}`);
   return internals;
 }
 
@@ -146,7 +146,7 @@ function readScope(value: unknown): McpScope | undefined {
 export function mcpProjectTrustRefusal(
   cwd: string,
   agentDir: string,
-  untrustedMessage = "The project is not trusted, so Pi Web does not start its MCP servers",
+  untrustedMessage = "The project is not trusted, so Pi Obs does not start its MCP servers",
 ): McpEntryRefusal | undefined {
   try {
     const status = getProjectTrustStatus(cwd, agentDir);
@@ -163,11 +163,11 @@ export function mcpProjectTrustRefusal(
  * Reads `{ scope, name, cwd? }` from a JSON POST and the entry it names, in
  * the order a refusal is most useful: origin (403 `request-denied`), JSON
  * (415, 400 `invalid-request`), the cwd (`cwd-*`; required for a project
- * entry), MCP off (409 `mcp-off`: `PI_WEB_DISABLE_MCP`, or SDK modules that
+ * entry), MCP off (409 `mcp-off`: `PI_OBS_DISABLE_MCP`, or SDK modules that
  * cannot load; `-builtin:mcp` does not count, an explicit action still
  * works), the project's trust, then the entry: its file's problems, missing
  * (`server-missing`), not an object, refused by the SDK's validator
- * (`server-invalid`), or referencing PI_WEB_PASSWORD (`web-password`).
+ * (`server-invalid`), or referencing PI_OBS_PASSWORD (`web-password`).
  */
 export async function readConnectableMcpEntry(req: Request): Promise<McpConnectableEntry | McpEntryRefusal> {
   if (!isApiRequestAllowed(req)) return mcpEntryRefusal(403, "request-denied", "Untrusted API request");
@@ -216,7 +216,7 @@ export async function readConnectableMcpEntry(req: Request): Promise<McpConnecta
     if (typeof resolved === "string") return mcpEntryRefusal(409, "server-invalid", resolved, { name });
     const { config, configKey } = resolved;
     if (findWebPasswordField(config, internals)) {
-      return mcpEntryRefusal(409, "web-password", `"${name}" references PI_WEB_PASSWORD, so Pi Web does not connect it`, { name });
+      return mcpEntryRefusal(409, "web-password", `"${name}" references PI_OBS_PASSWORD, so Pi Obs does not connect it`, { name });
     }
     return {
       scope,

@@ -14,7 +14,7 @@ import type { SessionEntry } from "./types";
 const WRITE_CAPABLE_TOOLS = new Set(["bash", "powershell", "edit", "write"]);
 const MCP_TOOL_PREFIX = "mcp__";
 
-export const READ_ONLY_MCP_POLICY_EXTENSION_NAME = "pi-web-read-only-mcp";
+export const READ_ONLY_MCP_POLICY_EXTENSION_NAME = "pi-obs-read-only-mcp";
 
 /**
  * Whether a pinned tool selection is read-only: it names tools, and none of
@@ -34,7 +34,7 @@ export function readOnlyMcpBlockReason(toolName: string): string {
   return `This session uses a read-only tool selection, and the MCP server does not mark "${toolName}" as read-only (readOnlyHint), so the call was blocked. Switch the session to a preset that allows changes to use it.`;
 }
 
-export const SUBAGENT_MCP_POLICY_EXTENSION_NAME = "pi-web-subagent-mcp-policy";
+export const SUBAGENT_MCP_POLICY_EXTENSION_NAME = "pi-obs-subagent-mcp-policy";
 
 export function subagentReadOnlyMcpBlockReason(toolName: string): string {
   return `This subagent's profile gives it read-only tools, and the MCP server does not mark "${toolName}" as read-only (readOnlyHint), so the call was blocked.`;

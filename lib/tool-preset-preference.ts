@@ -19,7 +19,7 @@ function getBrowserStorage(): StorageLike | null {
 /**
  * Only an explicit pick from the tool dropdown is ever stored, so a missing value
  * means "never chose". Those users fall back to the configured preset rather than
- * silently pinning pi-web's four built-ins over settings.json defaultTools (#700).
+ * silently pinning pi-obs's four built-ins over settings.json defaultTools (#700).
  */
 export function getPreferredToolPreset(
   storage: StorageLike | null = getBrowserStorage(),

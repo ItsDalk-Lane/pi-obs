@@ -15,7 +15,7 @@ import {
 } from "./session-ui-state-shared";
 
 // The sidebar's pins, archive, project order and project names
-// (`lib/session-ui-state-shared.ts` has the rules) in `pi-web-session-state.json`
+// (`lib/session-ui-state-shared.ts` has the rules) in `pi-obs-session-state.json`
 // beside pi's own files. It holds what the user chose, so unlike the session
 // index it is never rebuilt: writes are serialized in-process, locked against
 // other processes, replaced atomically, and a file that cannot be parsed is
@@ -26,7 +26,7 @@ const MAX_BYTES = 4 * 1024 * 1024;
 const KNOWN_KEYS = new Set(["version", "revision", "sessions", "projects", "projectOrder", "projectNames", "__proto__"]);
 
 // Route handlers are bundled separately and hot reload re-evaluates modules; globalThis keeps one queue per process.
-const QUEUE_KEY: symbol = Symbol.for("pi-web:session-ui-state-write-queue");
+const QUEUE_KEY: symbol = Symbol.for("pi-obs:session-ui-state-write-queue");
 
 /**
  * About three seconds of retries in all, as for `mcp.json`: writes are
@@ -39,7 +39,7 @@ const LOCK_OPTIONS = {
   stale: 10_000,
   retries: { retries: 10, factor: 2, minTimeout: 25, maxTimeout: 500 },
   onCompromised: (error: Error) => {
-    console.warn(`[pi-web] the session UI state lock was compromised: ${error.message}`);
+    console.warn(`[pi-obs] the session UI state lock was compromised: ${error.message}`);
   },
 };
 
@@ -66,11 +66,11 @@ interface SessionUiStateCache {
 }
 
 declare global {
-  var __piWebSessionUiStateCache: SessionUiStateCache | undefined;
+  var __piObsSessionUiStateCache: SessionUiStateCache | undefined;
 }
 
 function cache(): SessionUiStateCache {
-  return (globalThis.__piWebSessionUiStateCache ??= { reads: new Map(), revisions: new Map() });
+  return (globalThis.__piObsSessionUiStateCache ??= { reads: new Map(), revisions: new Map() });
 }
 
 function noteRevision(path: string, revision: number): void {
@@ -88,7 +88,7 @@ function copyState(state: SessionUiState): SessionUiState {
 }
 
 export function getSessionUiStatePath(agentDir = getAgentDir()): string {
-  return join(agentDir, "pi-web-session-state.json");
+  return join(agentDir, "pi-obs-session-state.json");
 }
 
 type Parsed = { ok: true; state: SessionUiState; raw: Record<string, unknown> } | { ok: false };
@@ -138,7 +138,7 @@ function loadState(path: string): SessionUiState {
     state = parsed.state;
     noteRevision(path, state.revision);
   } else {
-    console.warn(`[pi-web] ${path} is not valid session UI state; reading it as empty until the next change sets it aside`);
+    console.warn(`[pi-obs] ${path} is not valid session UI state; reading it as empty until the next change sets it aside`);
     state = emptySessionUiState();
   }
   cache().reads.set(path, { mtimeMs: stats.mtimeMs, size: stats.size, ino: stats.ino, state });
@@ -150,7 +150,7 @@ export function readSessionUiState(path?: string): SessionUiState {
   try {
     return copyState(loadState(path ?? getSessionUiStatePath()));
   } catch (error) {
-    console.warn(`[pi-web] could not read the session UI state: ${error instanceof Error ? error.message : String(error)}`);
+    console.warn(`[pi-obs] could not read the session UI state: ${error instanceof Error ? error.message : String(error)}`);
     return emptySessionUiState();
   }
 }
@@ -169,9 +169,9 @@ function backUpCorruptFile(path: string): void {
   const backup = `${path}.corrupt-${Date.now()}`;
   try {
     renameSync(path, backup);
-    console.warn(`[pi-web] ${path} could not be parsed; moved it to ${backup} and started from an empty session UI state`);
+    console.warn(`[pi-obs] ${path} could not be parsed; moved it to ${backup} and started from an empty session UI state`);
   } catch (error) {
-    console.warn(`[pi-web] ${path} could not be parsed and could not be moved aside (${error instanceof Error ? error.message : String(error)}); starting from an empty session UI state`);
+    console.warn(`[pi-obs] ${path} could not be parsed and could not be moved aside (${error instanceof Error ? error.message : String(error)}); starting from an empty session UI state`);
   }
 }
 
@@ -275,5 +275,5 @@ export async function forgetSessionUiState(ids: Iterable<string>, path?: string)
 }
 
 export function resetSessionUiStateCacheForTests(): void {
-  globalThis.__piWebSessionUiStateCache = undefined;
+  globalThis.__piObsSessionUiStateCache = undefined;
 }

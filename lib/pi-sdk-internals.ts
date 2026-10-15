@@ -15,8 +15,8 @@ import { pathToFileURL } from "node:url";
 
 // MCP support the SDK ships but its package does not export (ADR 0006): the
 // connection class, the stdio transport, the `mcp.json` editor and OAuth
-// sign-in. They are loaded by file URL from the same SDK copy pi-web runs, so
-// that `instanceof` checks inside the SDK see the classes pi-web constructs.
+// sign-in. They are loaded by file URL from the same SDK copy pi-obs runs, so
+// that `instanceof` checks inside the SDK see the classes pi-obs constructs.
 // An SDK upgrade that moves or renames any of them turns MCP off with a reason
 // instead of misbehaving; `lib/pi-sdk-internals.test.mjs` pins the contract.
 
@@ -127,7 +127,7 @@ export interface McpOAuthSettings {
   authServerMetadataUrl?: URL;
 }
 
-/** The part of pi-mcp's `McpClient` that pi-web reads. */
+/** The part of pi-mcp's `McpClient` that pi-obs reads. */
 export interface McpClient {
   readonly connectionState: "idle" | "connecting" | "connected" | "closed";
   readonly serverInfo: { name: string; version: string; title?: string } | undefined;
@@ -150,7 +150,7 @@ export interface McpServerConnectionOptions {
   onChange?: (connection: McpServerConnection) => void;
 }
 
-/** The part of the SDK's `McpServerConnection` that pi-web uses. */
+/** The part of the SDK's `McpServerConnection` that pi-obs uses. */
 export interface McpServerConnection {
   readonly entry: McpServerEntry;
   state: McpServerState;
@@ -218,7 +218,7 @@ export interface PiSdkInternals {
   validateMcpServerConfig: (name: string, value: unknown) => McpServerConfig | string;
   getMcpToolExposure: (config: McpServerConfig, toolName: string) => McpExposure;
   signInMcpServer: (options: McpSignInOptions) => Promise<void>;
-  /** pi-web always uses the default store, `mcp-auth.json` in the agent directory. */
+  /** pi-obs always uses the default store, `mcp-auth.json` in the agent directory. */
   McpOAuthCredentialStore: new () => McpOAuthCredentialStore;
   McpSignInCancelledError: new () => Error;
   resolveConfigValueOrThrow: (config: string, description: string, env?: Record<string, string>) => string;
@@ -289,7 +289,7 @@ function packageImportEntry(manifest: unknown): string | undefined {
 }
 
 /**
- * pi-mcp is a dependency of the SDK, not of pi-web, so it is resolved from the
+ * pi-mcp is a dependency of the SDK, not of pi-obs, so it is resolved from the
  * SDK file that imports it: the copy runtime.js uses, whether npm nested it
  * under the SDK or hoisted it.
  */
@@ -350,7 +350,7 @@ function sdkMembers(modules: LoadedModules): Record<string, unknown> | string {
  */
 function sharesStdioTransport(internals: PiSdkInternals): boolean {
   const probe = internals.createDefaultTransport(
-    { name: "pi-web-probe", config: { command: "pi-web-probe" }, source: "pi-web" },
+    { name: "pi-obs-probe", config: { command: "pi-obs-probe" }, source: "pi-obs" },
     internals.packageDir,
     undefined,
   );
@@ -369,7 +369,7 @@ export async function importPiSdkInternals(options: {
   // PI_PACKAGE_DIR moves getPackageDir() away from the SDK this process
   // loaded, so file URLs would load a second copy.
   if (environment.PI_PACKAGE_DIR) {
-    return { ok: false, reason: `PI_PACKAGE_DIR is set; MCP support loads only from the ${SDK_PACKAGE} that Pi Web runs` };
+    return { ok: false, reason: `PI_PACKAGE_DIR is set; MCP support loads only from the ${SDK_PACKAGE} that Pi Obs runs` };
   }
 
   let packageDir: string;
@@ -377,7 +377,7 @@ export async function importPiSdkInternals(options: {
     packageDir = realpathSync(getPackageDir());
     const resolvedDir = resolvedSdkPackageDir(cwd);
     if (!sameRealPath(packageDir, resolvedDir)) {
-      return { ok: false, reason: `${SDK_PACKAGE} at ${packageDir} is not the package Pi Web resolves (${resolvedDir})` };
+      return { ok: false, reason: `${SDK_PACKAGE} at ${packageDir} is not the package Pi Obs resolves (${resolvedDir})` };
     }
   } catch (error) {
     return { ok: false, reason: `cannot locate ${SDK_PACKAGE}: ${errorMessage(error)}` };
@@ -385,7 +385,7 @@ export async function importPiSdkInternals(options: {
 
   const modules = await importSdkModules(packageDir);
   if (typeof modules === "string") return { ok: false, reason: modules };
-  // The SDK root pi-web imports normally must be the same module instance.
+  // The SDK root pi-obs imports normally must be the same module instance.
   if (modules.mcpExtension.createMcpExtension !== createMcpExtension) {
     return { ok: false, reason: `${SDK_MODULES.mcpExtension} loaded as a second copy of ${SDK_PACKAGE}` };
   }
@@ -404,11 +404,11 @@ export async function importPiSdkInternals(options: {
 
 // Route handlers and instrumentation are bundled into separate module graphs,
 // and hot reload re-evaluates this module; globalThis keeps one load per process.
-const INTERNALS_KEY: symbol = Symbol.for("pi-web.piSdkInternals");
+const INTERNALS_KEY: symbol = Symbol.for("pi-obs.piSdkInternals");
 
 /**
  * The SDK's unexported MCP modules, loaded once per server process. When this
- * returns `ok: false`, MCP stays off: pi-web never falls back to transports
+ * returns `ok: false`, MCP stays off: pi-obs never falls back to transports
  * that pass the server's whole environment to MCP servers.
  */
 export function loadPiSdkInternals(): Promise<PiSdkInternalsResult> {

@@ -6,8 +6,8 @@ const question: Step = {
   kind: "user",
   gapMinutes: 0.1,
   text: {
-    en: "Suggest a name for a CLI flag that stops pi-web from opening the browser on start.",
-    zh: "帮我给一个命令行参数起个名字：让 pi-web 启动时不要自动打开浏览器。",
+    en: "Suggest a name for a CLI flag that stops pi-obs from opening the browser on start.",
+    zh: "帮我给一个命令行参数起个名字：让 pi-obs 启动时不要自动打开浏览器。",
   },
 };
 
@@ -21,8 +21,8 @@ const firstAnswer: Step = {
       },
       seconds: 6,
       text: {
-        en: "I'd go with **`--no-open`**. It matches Vite and Next.js, reads naturally (`pi-web --no-open`), and leaves room for a matching environment variable such as `PI_WEB_NO_OPEN=1`. Alternatives: `--no-browser` (Jupyter's name) or `--headless`, which suggests more than it does.",
-        zh: "我推荐 **`--no-open`**。它和 Vite、Next.js 的写法一致，读起来很自然（`pi-web --no-open`），也方便配一个环境变量，比如 `PI_WEB_NO_OPEN=1`。备选：`--no-browser`（Jupyter 的叫法），或者 `--headless`，不过后者的含义比实际功能更大。",
+        en: "I'd go with **`--no-open`**. It matches Vite and Next.js, reads naturally (`pi-obs --no-open`), and leaves room for a matching environment variable such as `PI_OBS_NO_OPEN=1`. Alternatives: `--no-browser` (Jupyter's name) or `--headless`, which suggests more than it does.",
+        zh: "我推荐 **`--no-open`**。它和 Vite、Next.js 的写法一致，读起来很自然（`pi-obs --no-open`），也方便配一个环境变量，比如 `PI_OBS_NO_OPEN=1`。备选：`--no-browser`（Jupyter 的叫法），或者 `--headless`，不过后者的含义比实际功能更大。",
       },
     },
   ],
@@ -65,8 +65,8 @@ export const branchingSession: SessionScript = {
     {
       kind: "user",
       text: {
-        en: "Actually — keep it consistent with the options pi-web already has, and explain how this branching works.",
-        zh: "算了——还是和 pi-web 现有的参数风格保持一致吧。顺便讲讲这个分支是怎么回事。",
+        en: "Actually — keep it consistent with the options pi-obs already has, and explain how this branching works.",
+        zh: "算了——还是和 pi-obs 现有的参数风格保持一致吧。顺便讲讲这个分支是怎么回事。",
       },
     },
     {
@@ -78,12 +78,12 @@ export const branchingSession: SessionScript = {
             zh: "先看看现有的参数解析，保持风格一致，然后解释两种分支方式。",
           },
           seconds: 4,
-          tools: [{ name: "read", args: { path: "bin/pi-web-options.js" }, result: { readFile: "bin/pi-web-options.js", limit: 50 } }],
+          tools: [{ name: "read", args: { path: "bin/pi-obs-options.js" }, result: { readFile: "bin/pi-obs-options.js", limit: 50 } }],
         },
         {
           seconds: 16,
           text: {
-            en: `\`bin/pi-web-options.js\` already uses \`--no-open\` together with \`PI_WEB_NO_OPEN=1\`, so the consistent answer is to keep exactly that.
+            en: `\`bin/pi-obs-options.js\` already uses \`--no-open\` together with \`PI_OBS_NO_OPEN=1\`, so the consistent answer is to keep exactly that.
 
 **About the branching you just did.** You edited an earlier message instead of continuing the thread, so this session now has **two branches**:
 
@@ -94,7 +94,7 @@ Suggest a name for a CLI flag…
    └─ Actually — keep it consistent…           ← branch 2 (you are here)
 \`\`\`
 
-Pi Web offers two ways to branch — hover any of your messages to see them:
+Pi Obs offers two ways to branch — hover any of your messages to see them:
 
 | | **Edit from here** | **New session** |
 | --- | --- | --- |
@@ -103,7 +103,7 @@ Pi Web offers two ways to branch — hover any of your messages to see them:
 | How to switch | **Branches** in the top bar | Open it from the sidebar — it's listed like any other session |
 
 Try it now: open **Branches** in the top bar and click the *Something shorter?* branch, then come back. A session forked with **New session** from this one is in the sidebar as well.`,
-            zh: `\`bin/pi-web-options.js\` 里已经在用 \`--no-open\`，并配有 \`PI_WEB_NO_OPEN=1\`，所以保持一致的答案就是沿用它。
+            zh: `\`bin/pi-obs-options.js\` 里已经在用 \`--no-open\`，并配有 \`PI_OBS_NO_OPEN=1\`，所以保持一致的答案就是沿用它。
 
 **关于你刚才创建的分支**：你编辑了之前的一条消息，而不是继续往下聊，所以这个会话现在有 **两个分支**：
 
@@ -111,10 +111,10 @@ Try it now: open **Branches** in the top bar and click the *Something shorter?* 
 帮我给一个命令行参数起个名字…
 └─ 我推荐 --no-open…
    ├─ 有没有更短的？                        ← 分支 1
-   └─ 算了——还是和 pi-web 现有的参数风格…   ← 分支 2（当前）
+   └─ 算了——还是和 pi-obs 现有的参数风格…   ← 分支 2（当前）
 \`\`\`
 
-Pi Web 提供两种分支方式——把鼠标悬停在你发的任意一条消息上就能看到：
+Pi Obs 提供两种分支方式——把鼠标悬停在你发的任意一条消息上就能看到：
 
 | | **从此处编辑** | **新会话** |
 | --- | --- | --- |
@@ -155,7 +155,7 @@ export const branchingForkSession: SessionScript = {
           text: {
             en: `This session was created with **New session** on the *Something shorter?* message in *Branching: edit from here vs. new session*: everything before that message was copied, and from here on the two conversations are independent files.
 
-For a local server like pi-web, people usually expect:
+For a local server like pi-obs, people usually expect:
 
 - \`--port <n>\` / \`-p <n>\` — plus \`PORT\` from the environment
 - \`--hostname <host>\` / \`-H <host>\` — default \`127.0.0.1\` so it isn't exposed by accident
@@ -165,7 +165,7 @@ For a local server like pi-web, people usually expect:
 Command-line flags should override environment variables, and unknown flags should fail loudly instead of being ignored.`,
             zh: `这个会话是在「分支：从此处编辑 vs 新会话」里「有没有更短的？」那条消息上点 **新会话** 创建的：那条消息之前的内容都复制了过来，从这里开始，两段对话就是互相独立的文件了。
 
-对于 pi-web 这样的本地服务，大家通常会期待：
+对于 pi-obs 这样的本地服务，大家通常会期待：
 
 - \`--port <n>\` / \`-p <n>\`，同时支持环境变量 \`PORT\`
 - \`--hostname <host>\` / \`-H <host>\`，默认 \`127.0.0.1\`，避免意外暴露到网络

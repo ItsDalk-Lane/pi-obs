@@ -6,7 +6,7 @@ import test, { after } from "node:test";
 import { createJiti } from "jiti";
 
 const originalAgentDir = process.env.PI_CODING_AGENT_DIR;
-const testAgentDir = await mkdtemp(join(tmpdir(), "pi-web-models-config-route-"));
+const testAgentDir = await mkdtemp(join(tmpdir(), "pi-obs-models-config-route-"));
 process.env.PI_CODING_AGENT_DIR = testAgentDir;
 
 const jiti = createJiti(import.meta.url, {

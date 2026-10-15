@@ -1,7 +1,7 @@
 /**
- * Replaces the network layer before any Pi Web component runs: every
+ * Replaces the network layer before any Pi Obs component runs: every
  * `/api/...` fetch and EventSource is answered in the page by the mock
- * backend, so the untouched UI behaves as if a Pi Web server were running.
+ * backend, so the untouched UI behaves as if a Pi Obs server were running.
  */
 import { MockEventSource, setStreamResolver } from "./event-source";
 import { handleApiRequest, resolveApiStream, warmDemoAssets } from "./router";
@@ -11,7 +11,7 @@ import { usageReport } from "./settings-routes";
 
 declare global {
   interface Window {
-    __piWebDemoInstalled?: boolean;
+    __piObsDemoInstalled?: boolean;
   }
 }
 
@@ -27,16 +27,16 @@ function isApiUrl(url: URL): boolean {
 
 /**
  * First visit in this tab with a bare URL: open the welcome tour instead of an
- * empty composer. Pi Web restores `pi-web:tab-open-session` on load.
+ * empty composer. Pi Obs restores `pi-obs:tab-open-session` on load.
  */
 function openWelcomeSessionOnFirstVisit(): void {
   try {
     const params = new URLSearchParams(window.location.search);
     if (params.has("session") || params.has("cwd")) return;
-    if (window.sessionStorage.getItem("pi-web:tab-open-session")) return;
-    window.sessionStorage.setItem("pi-web:tab-open-session", JSON.stringify({ kind: "session", sessionId: WELCOME_SESSION_ID }));
+    if (window.sessionStorage.getItem("pi-obs:tab-open-session")) return;
+    window.sessionStorage.setItem("pi-obs:tab-open-session", JSON.stringify({ kind: "session", sessionId: WELCOME_SESSION_ID }));
   } catch {
-    // Storage unavailable: Pi Web falls back to the most recent project.
+    // Storage unavailable: Pi Obs falls back to the most recent project.
   }
 }
 
@@ -44,7 +44,7 @@ function openWelcomeSessionOnFirstVisit(): void {
 function seedProviderUsage(): void {
   for (const providerId of ["openai-codex", "deepseek"]) {
     try {
-      const key = `pi-web:provider-usage:${providerId}`;
+      const key = `pi-obs:provider-usage:${providerId}`;
       if (!window.localStorage.getItem(key)) window.localStorage.setItem(key, JSON.stringify(usageReport(providerId)));
     } catch {
       // Storage unavailable: the panel offers a manual refresh instead.
@@ -52,8 +52,8 @@ function seedProviderUsage(): void {
   }
 }
 
-if (typeof window !== "undefined" && !window.__piWebDemoInstalled) {
-  window.__piWebDemoInstalled = true;
+if (typeof window !== "undefined" && !window.__piObsDemoInstalled) {
+  window.__piObsDemoInstalled = true;
   openWelcomeSessionOnFirstVisit();
   seedProviderUsage();
   const realFetch = window.fetch.bind(window);

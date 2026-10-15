@@ -1,4 +1,4 @@
-# Pi Web - Development Notes
+# Pi Obs - Development Notes
 
 > **This repository is a fork of [agegr/pi-web](https://github.com/agegr/pi-web)** (MIT, © 2026 agegr),
 > published from <https://github.com/ItsDalk-Lane/pi-obs> as the npm package `pi-obs`.
@@ -25,7 +25,7 @@ Typecheck: `node_modules/.bin/tsc --noEmit` · Lint: `npm run lint`
 
 ### Dev server troubleshooting
 
-- First run `lsof -nP -iTCP:30141 -sTCP:LISTEN` and reuse a healthy Pi Web process. A second `next dev` on another port is no workaround: both contend for `.next/dev/lock`.
+- First run `lsof -nP -iTCP:30141 -sTCP:LISTEN` and reuse a healthy Pi Obs process. A second `next dev` on another port is no workaround: both contend for `.next/dev/lock`.
 - A browser-only `Module ... factory is not available` overlay usually means that tab has a stale Turbopack/HMR graph, not a broken server or source. Use the browser's explicit reload, then compare the server log and a direct HTTP/API request.
 - Restart only when the failure reproduces from a fresh page and the server-side checks fail too: stop that exact dev process gracefully, move `.next` into a `mktemp -d` backup, restart with `npm run dev`.
 - Never fall back to `next dev --webpack`: the dev graph can fail on `undici` imports such as `node:console`. Development uses Turbopack.
@@ -33,7 +33,7 @@ Typecheck: `node_modules/.bin/tsc --noEmit` · Lint: `npm run lint`
 
 ### Upgrading pi
 
-pi's packages depend on each other with `^` ranges, and the published pi-web's dependencies resolve afresh on install (no lockfile ships). Install every `@earendil-works/*` package the tree holds, the SDK's own dependencies included (`pi-codemode`, `pi-mcp`, `pi-telemetry`, …), with `npm install --save-exact`, so npm reuses those exact versions for the SDK's ranges. `lib/pi-packages.test.mjs` fails on any pi package that is not pinned that way; pi-web 0.12.0 pinned four, and installs after pi 1.2.0 paired pi-coding-agent 1.1.0 with pi-codemode 1.2.0.
+pi's packages depend on each other with `^` ranges, and the published pi-obs's dependencies resolve afresh on install (no lockfile ships). Install every `@earendil-works/*` package the tree holds, the SDK's own dependencies included (`pi-codemode`, `pi-mcp`, `pi-telemetry`, …), with `npm install --save-exact`, so npm reuses those exact versions for the SDK's ranges. `lib/pi-packages.test.mjs` fails on any pi package that is not pinned that way; pi-obs 0.12.0 pinned four, and installs after pi 1.2.0 paired pi-coding-agent 1.1.0 with pi-codemode 1.2.0.
 
 ---
 
@@ -42,9 +42,9 @@ pi's packages depend on each other with `^` ranges, and the published pi-web's d
 - **Browsing** (read-only, no AgentSession): `GET /api/sessions` lists `~/.pi/agent/sessions/`; `GET /api/sessions/[id]` reads the `.jsonl` through SDK `SessionManager` helpers and `lib/session-reader.ts`, or an open wrapper's in-memory `SessionManager`. `GET /api/agent/running` snapshots the running ids.
 - **Sending**: `POST /api/agent/[id]` → `startRpcSession()` (`lib/rpc-manager.ts`) creates the AgentSession in-process (`createAgentSessionFromServices()`); `session.send(cmd)` → `session.prompt()`.
 - **Events**: `GET /api/agent/[id]/events` streams SSE `data: {...}` from `session.onEvent()`, fed by `session.subscribe()`.
-- **Extension compatibility (principle)**: extensions written for the pi CLI must behave the same here. Fix display problems in the web client; never add pi-web-only options or fields to the extension API (`ctx.ui.*` options, `extension_ui_request`). pi's TUI (`node_modules/@earendil-works/pi-tui`) is the reference for what an extension asking for something means.
-- **Embed mode (fork)**: `?embed=1` marks a host-framed load (Obsidian); the flag lives in `sessionStorage` under `pi-web:embed-mode`. While set, everything that would open in the main UI's right panel is handed to the host instead: `openPanel()` (`lib/embed-mode.ts`) posts `{source:"pi-web", type:"open-panel", panel, url}` to the parent, and the host answers with an Obsidian tab hosting the standalone `/panel/<kind>` page. Standalone, `openPanel` falls back to `window.open`, so the panel routes stay testable in a browser. Panel URLs are absolute on purpose — the host document is `app://obsidian.md`, where a relative URL resolves to a blank frame.
-- **Cross-boundary import (fork)**: `obsidian-plugin/main.ts` imports `lib/file-icon-names.ts` from the web side. That file must stay pure data and functions — no JSX, no React, no `"use client"` — or the plugin's esbuild bundle breaks. It is the single source of the file-icon mapping on both sides.
+- **Extension compatibility (principle)**: extensions written for the pi CLI must behave the same here. Fix display problems in the web client; never add pi-obs-only options or fields to the extension API (`ctx.ui.*` options, `extension_ui_request`). pi's TUI (`node_modules/@earendil-works/pi-tui`) is the reference for what an extension asking for something means.
+- **Embed mode (fork)**: `?embed=1` marks a host-framed load (Obsidian); the flag lives in `sessionStorage` under `pi-obs:embed-mode`. While set, everything that would open in the main UI's right panel is handed to the host instead: `openPanel()` (`lib/embed-mode.ts`) posts `{source:"pi-obs", type:"open-panel", panel, url}` to the parent, and the host answers with an Obsidian tab hosting the standalone `/panel/<kind>` page. Standalone, `openPanel` falls back to `window.open`, so the panel routes stay testable in a browser. Panel URLs are absolute on purpose — the host document is `app://obsidian.md`, where a relative URL resolves to a blank frame.
+- **Cross-boundary import (fork)**: `obsidian-plugin/main.ts` imports `lib/file-icon-names.ts`, `lib/pi-obs-server.ts` and `lib/app-update.ts` from the web side. Those files must stay pure data and functions — no JSX, no React, no `"use client"`, relative imports only — or the plugin's esbuild bundle breaks. `file-icon-names.ts` is the single source of the file-icon mapping on both sides; `pi-obs-server.ts` is the single source of the plugin's server and npm helpers.
 
 ---
 
@@ -107,7 +107,7 @@ app/api/
   provider-usage/query/route.ts    POST provider usage quotas
   push/config/route.ts             GET VAPID public key
   push/subscribe/route.ts          POST register a push subscription
-  app-update/route.ts              GET current vs latest published pi-web version
+  app-update/route.ts              GET current vs latest published pi-obs version
 
 app/panel/
   file/page.tsx                    standalone file panel; opens other files through openPanel, mentions to the host
@@ -116,11 +116,11 @@ app/panel/
   history/page.tsx                 a session's exported HTML in a srcdoc frame (the export forbids framing)
 
 obsidian-plugin/
-  manifest.json                    plugin metadata: id pi-web, desktop-only, Obsidian >= 1.5.0
-  main.ts                          ItemViews, server spawn/installer, settings tab, panel tab placement, icon registration
+  manifest.json                    plugin metadata: id pi-obs, desktop-only, Obsidian >= 1.5.0
+  main.ts                          ItemViews; the server's lifecycle (start from the settings page's status card, stop by port, resume on launch the server running at last unload), run modes (local dir, fixed npm run dev / npm package), npm install/uninstall/update with install-scope dialog, one settings page (status + npm package cards with click-to-copy values, then preferences), the single main view, panel tab placement, icon registration
   main.js                          esbuild output (git-ignored)
-  styles.css                       iframe sizing, connecting and offline states
-  esbuild.config.mjs               bundles main.ts + ../lib/file-icon-names.ts -> main.js
+  styles.css                       iframe sizing, connecting and offline states, the settings page's card layout
+  esbuild.config.mjs               bundles main.ts + ../lib/{file-icon-names,app-update,pi-obs-server}.ts -> main.js
 
 lib/
   agent-client.ts           typed fetch helper for /api/agent commands
@@ -130,7 +130,7 @@ lib/
   session-fork-name.ts      client-safe Fork naming: source title + " · " + 4 hex; splitting the suffix off for the row and toast
   session-delete.ts         deleteSessions(): session files with their subagents, re-parenting what stays, wrapper shutdown, pins/archive cleanup
   session-tree.ts           sidebar row model: pinned section, project groups and their order, archived predicate, virtual rows, drop targets
-  session-ui-state.ts       pi-web-session-state.json (pins, archive, project order and names): lock, atomic write, revision, corrupt backup
+  session-ui-state.ts       pi-obs-session-state.json (pins, archive, project order and names): lock, atomic write, revision, corrupt backup
   session-ui-state-shared.ts client-safe types and rules of that state: request parsing, apply, undo snapshot
   sidebar-prefs.ts          per-browser sidebar tab, group expand choices, pinned-section collapse, files-section fold, folders found outside git
   sidebar-actions.ts        session row menu entries, a project group's name entries and rename request, fork refusal messages, delete-all requests
@@ -165,6 +165,7 @@ lib/
   draft-store.ts            local draft persistence
   embed-mode.ts             fork: ?embed=1 sessionStorage flag, buildPanelUrl/openPanel (postMessage to the host, window.open standalone), postToHost
   file-icon-names.ts        fork: Catppuccin icon name per file name; imported by obsidian-plugin/main.ts across the repo boundary, so no JSX/React here
+  pi-obs-server.ts          fork: the plugin's server helpers — listener pids by port (netstat/lsof/ss), kill-tree commands, the real node on PATH (Electron's execPath is not it), npm argument builders and version parsers; pure and injectable, so node --test covers it
   extension-ui-queue.ts     FIFO queues for extension dialogs and custom panels, by request id; isBlockingExtensionUiRequest() (which method a run waits on)
   markdown.ts               shared markdown helpers
   markdown-blocks.ts        splitMarkdownBlocks(): where a streaming reply may be cut into blocks parsed apart
@@ -180,11 +181,11 @@ lib/
   stacked-dialog.ts         Escape and focus handling for Settings and dialogs stacked above it
   project-trust.ts          project trust status and decisions; fresh-folder trust-and-write
   mcp-host.ts               per-session MCP host: registers mcp.json servers before prompts, reports status
-  mcp-transport.ts          MCP transport factory; stdio gets a sanitized env, never PI_WEB_PASSWORD
+  mcp-transport.ts          MCP transport factory; stdio gets a sanitized env, never PI_OBS_PASSWORD
   mcp-command.ts            client-safe: who owns /mcp (built-in or another extension)
   mcp-read-only-policy.ts   read-only sessions block MCP tools without readOnlyHint (nested calls too)
   mcp-config-key.ts         canonicalJson() and mcpConfigKey(), the per-process HMAC statuses are keyed by
-  mcp-config-values.ts      client-safe: the values pi resolves and the PI_WEB_PASSWORD rule
+  mcp-config-values.ts      client-safe: the values pi resolves and the PI_OBS_PASSWORD rule
   mcp-config-read.ts        Settings › MCP reads of both mcp.json files; nothing resolved or run
   mcp-config-file.ts        the mcp.json writer: SDK editor's bytes, lock, atomic write, typed refusals
   mcp-override.ts           project overrides of global servers: the SDK's isOverride() and loader refusals
@@ -203,8 +204,8 @@ lib/
 
 components/
   AppShell.tsx             layout, URL state, tab management
-  SessionSidebar.tsx       toolbar row (Sessions | Files tabs, or the Pi Web brand with the files below them; new, search): tree, archive, menus, toast; files section (resizable, foldable; one header row with the file keys and changed-files count, the picker's row) or tab (picker boxes + file buttons), FileExplorer
-  PiWebTitle.tsx           the sidebar's "Pi Web" brand (files below the sessions only): a click scrambles it into the versions
+  SessionSidebar.tsx       toolbar row (Sessions | Files tabs, or the Pi Obs brand with the files below them; new, search): tree, archive, menus, toast; files section (resizable, foldable; one header row with the file keys and changed-files count, the picker's row) or tab (picker boxes + file buttons), FileExplorer
+  PiObsTitle.tsx           the sidebar's "Pi Obs" brand (files below the sessions only): a click scrambles it into the versions
   SessionTree.tsx          virtualized rows of the session tree and the archive view
   SidebarMenu.tsx          sidebar popup menu (bottom sheet on phones), portaled to body: filter field, item secondary actions, the files tab's classic look
   ProjectWorktreePicker.tsx project and worktree boxes + menus: the files' (one row below the sessions, stacked in the tab) and the new-session bar's
@@ -263,7 +264,7 @@ Design decisions and traps live in `docs/agents/`, one note per area. Read every
 
 - [obsidian.md](docs/obsidian.md) (**fork only**): the Obsidian adaptation — embed mode and the `open-panel` postMessage contract, the standalone `/panel/*` routes, the plugin's server lifecycle and two install modes, the cross-boundary `file-icon-names.ts` import and its icon scaling, and the three integration points to re-check when syncing with upstream. Files: `lib/embed-mode.ts`, `lib/file-icon-names.ts`, `app/panel/**`, `obsidian-plugin/**`, the panel-opening calls in `components/AppShell.tsx`.
 
-- [sessions.md](docs/agents/sessions.md): AgentSession lifecycle and shutdown, fork vs in-session branching, the sidebar's on-disk Fork, session file rewrites, toolCall normalization, SSE reconnect and tool events, transcript system / usage / context-edit entries, running-state polling, custom-message collapsing, streamed chunks re-rendering only the reply, streaming markdown block by block, history caches (tool-result images, subagent runs, session views) and deferred code highlighting with Prism languages loaded on demand, the session sidebar (toolbar row and its brand, project groups, their order and display names, pins, archive, new-session project adoption, the files below the sessions or in a tab), the project/worktree bar above a fresh composer (the header: brand, then the bar) and what it carries across the remount, exported HTML, the extension status bar and its `command:` buttons. Files: `lib/rpc-manager.ts`, `lib/session-reader.ts`, `lib/session-fork*.ts`, `lib/session-delete.ts`, `lib/normalize.ts`, `lib/session-tree.ts`, `lib/session-ui-state*.ts`, `lib/sidebar-prefs.ts`, `lib/sidebar-actions.ts`, `lib/session-links.ts`, `lib/new-session-context.ts`, `hooks/useAgentSession.ts`, `hooks/useSessionUiState.ts`, `hooks/useSidebarMotion.ts`, `hooks/useGroupDrag.ts`, `hooks/useFilesPlacement.ts`, `hooks/useResizablePanel.ts`, `app/api/agent/**`, `app/api/sessions/**`, `components/SessionSidebar.tsx`, `components/PiWebTitle.tsx`, `components/SessionTree.tsx`, `components/SidebarMenu.tsx`, `components/SidebarToast.tsx`, `components/SidebarIcons.tsx`, `components/ProjectWorktreePicker.tsx`, `components/NewSessionContextBar.tsx`, `components/WorktreeCreateForm.tsx`, `handleNewSession`, `handleSelectSession` and the bar's handlers in `components/AppShell.tsx`, `components/BranchNavigator.tsx`, `components/MessageView.tsx`, `components/MarkdownBody.tsx`, `lib/markdown-blocks.ts`, `lib/streaming-message.ts`, `hooks/useStreamingSelector.ts`, `components/MermaidBlock.tsx`, `lib/highlight-queue.ts`, `lib/prism-languages.ts`, `hooks/usePrismLanguages.ts`, `lib/session-view-cache.ts`, `components/CodemodeToolView.tsx`, `components/ExtensionStatusBar.tsx`, `components/ExtensionWidgets.tsx`.
+- [sessions.md](docs/agents/sessions.md): AgentSession lifecycle and shutdown, fork vs in-session branching, the sidebar's on-disk Fork, session file rewrites, toolCall normalization, SSE reconnect and tool events, transcript system / usage / context-edit entries, running-state polling, custom-message collapsing, streamed chunks re-rendering only the reply, streaming markdown block by block, history caches (tool-result images, subagent runs, session views) and deferred code highlighting with Prism languages loaded on demand, the session sidebar (toolbar row and its brand, project groups, their order and display names, pins, archive, new-session project adoption, the files below the sessions or in a tab), the project/worktree bar above a fresh composer (the header: brand, then the bar) and what it carries across the remount, exported HTML, the extension status bar and its `command:` buttons. Files: `lib/rpc-manager.ts`, `lib/session-reader.ts`, `lib/session-fork*.ts`, `lib/session-delete.ts`, `lib/normalize.ts`, `lib/session-tree.ts`, `lib/session-ui-state*.ts`, `lib/sidebar-prefs.ts`, `lib/sidebar-actions.ts`, `lib/session-links.ts`, `lib/new-session-context.ts`, `hooks/useAgentSession.ts`, `hooks/useSessionUiState.ts`, `hooks/useSidebarMotion.ts`, `hooks/useGroupDrag.ts`, `hooks/useFilesPlacement.ts`, `hooks/useResizablePanel.ts`, `app/api/agent/**`, `app/api/sessions/**`, `components/SessionSidebar.tsx`, `components/PiObsTitle.tsx`, `components/SessionTree.tsx`, `components/SidebarMenu.tsx`, `components/SidebarToast.tsx`, `components/SidebarIcons.tsx`, `components/ProjectWorktreePicker.tsx`, `components/NewSessionContextBar.tsx`, `components/WorktreeCreateForm.tsx`, `handleNewSession`, `handleSelectSession` and the bar's handlers in `components/AppShell.tsx`, `components/BranchNavigator.tsx`, `components/MessageView.tsx`, `components/MarkdownBody.tsx`, `lib/markdown-blocks.ts`, `lib/streaming-message.ts`, `hooks/useStreamingSelector.ts`, `components/MermaidBlock.tsx`, `lib/highlight-queue.ts`, `lib/prism-languages.ts`, `hooks/usePrismLanguages.ts`, `lib/session-view-cache.ts`, `components/CodemodeToolView.tsx`, `components/ExtensionStatusBar.tsx`, `components/ExtensionWidgets.tsx`.
 - [tools.md](docs/agents/tools.md): tool presets and Chat only, exact system prompts, tool exposure, the codemode / tool-search / mcp built-ins, the read-only MCP policy, the Code mode and PowerShell `defaultTools` switches. Files: `lib/tool-presets.ts`, `lib/tool-preset-preference.ts`, `lib/chat-only.ts`, `lib/exact-system-prompt.ts`, `lib/builtin-extensions.ts`, `lib/mcp-read-only-policy.ts`, `lib/codemode-settings.ts`, `lib/powershell-settings.ts`, `lib/global-settings-file.ts`, `app/api/agent/new/route.ts`, `app/api/tools/settings/route.ts`, tool selection in `lib/rpc-manager.ts`.
 - [mcp-runtime.md](docs/agents/mcp-runtime.md): the per-session MCP host (when servers register and connect, reported states, trust read on every sync, idle release); `/mcp` in the composer. Files: `lib/mcp-host.ts`, `lib/mcp-transport.ts`, `lib/mcp-status.ts`, `lib/mcp-command.ts`, `lib/mcp-config-key.ts`, MCP wiring in `lib/rpc-manager.ts` and `lib/builtin-extensions.ts`, `/mcp` handling in `hooks/useAgentSession.ts`.
 - [mcp-settings.md](docs/agents/mcp-settings.md): Settings › MCP reads without running anything, masking, the trust dialog's server list, row states, notices, Code mode choice, trust from Settings, Escape stacking, every `mcp.json` write and undo. Files: `app/api/mcp/route.ts`, `app/api/project-trust/route.ts`, `lib/mcp-config-read.ts`, `lib/mcp-config-file.ts`, `lib/mcp-override.ts`, `lib/mcp-undo.ts`, `lib/mcp-secrets.ts`, `lib/mcp-server-display.ts`, `lib/mcp-json-error.ts`, `lib/project-trust.ts`, `lib/regular-file.ts`, `lib/stacked-dialog.ts`, `lib/settings-navigation.ts`, `components/McpConfig.tsx`, `components/mcp-config-helpers.ts`, `components/ProjectTrustDialog.tsx`, `components/SettingsPanel.tsx`.

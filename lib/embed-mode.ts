@@ -1,4 +1,4 @@
-// Embed mode: Pi Web running inside a host app (Obsidian) instead of a browser tab.
+// Embed mode: Pi Obs running inside a host app (Obsidian) instead of a browser tab.
 //
 // The host loads the main UI in a frame with `?embed=1`; the flag is kept in
 // sessionStorage so it survives client-side navigation. While embedded, every
@@ -11,10 +11,10 @@ export type PanelKind = "file" | "terminal" | "agent" | "history";
 
 export type PanelParams = Record<string, string | number | undefined | null>;
 
-const EMBED_KEY = "pi-web:embed-mode";
+const EMBED_KEY = "pi-obs:embed-mode";
 
 /** Message types a host (e.g. the Obsidian plugin) can listen for. */
-export const HOST_MESSAGE_SOURCE = "pi-web";
+export const HOST_MESSAGE_SOURCE = "pi-obs";
 export const OPEN_PANEL_MESSAGE = "open-panel";
 
 export function isEmbedMode(): boolean {

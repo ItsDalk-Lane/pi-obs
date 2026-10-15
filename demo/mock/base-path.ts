@@ -1,4 +1,4 @@
-/** GitHub Pages prefix (e.g. "/pi-web"), empty for local builds. */
+/** GitHub Pages prefix (e.g. "/pi-obs"), empty for local builds. */
 export const DEMO_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 /** Prefix a root-relative static asset path with the Pages base path. */
@@ -8,7 +8,7 @@ export function demoAssetPath(path: string): string {
 
 /**
  * Current pathname without the base path, for `router.replace()`, which adds
- * the base path itself. Pi Web passes `window.location.pathname` directly.
+ * the base path itself. Pi Obs passes `window.location.pathname` directly.
  */
 export function demoRouterPath(): string {
   if (typeof window === "undefined") return "/";

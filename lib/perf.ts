@@ -1,6 +1,6 @@
 // Optional server-side request timing for slow-path diagnosis.
 //
-// Enabled only when PI_WEB_PERF=1. Every instrumented route creates a
+// Enabled only when PI_OBS_PERF=1. Every instrumented route creates a
 // collector at the top of its handler, marks phases with span(), and attaches
 // the result to the outgoing response. When disabled every call is a cheap
 // no-op so the hot paths stay untouched.
@@ -18,7 +18,7 @@ export interface ServerPerf {
 	attach<T extends { headers: Headers }>(response: T): T;
 }
 
-const PERF_ENABLED = process.env.PI_WEB_PERF === "1";
+const PERF_ENABLED = process.env.PI_OBS_PERF === "1";
 
 export function isServerPerfEnabled(): boolean {
 	return PERF_ENABLED;

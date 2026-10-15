@@ -1,6 +1,6 @@
 {
   "name": "pi-obs",
-  "version": "0.12.1",
+  "version": "0.1.0",
   "description": "Web UI for the pi coding agent, adapted to run as an Obsidian desktop plugin",
   "homepage": "https://github.com/ItsDalk-Lane/pi-obs#readme",
   "repository": {
@@ -22,7 +22,7 @@
     "ios_saf 16.2"
   ],
   "bin": {
-    "pi-obs": "bin/pi-web.js"
+    "pi-obs": "bin/pi-obs.js"
   },
   "files": [
     "bin",

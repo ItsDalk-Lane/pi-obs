@@ -8,7 +8,7 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import { join } from "node:path";
 
-const HOST_EXTENSION_NAME = "pi-web-project-command-environment";
+const HOST_EXTENSION_NAME = "pi-obs-project-command-environment";
 const HOST_EXTENSION_PATH = `<inline:${HOST_EXTENSION_NAME}>`;
 // Pi's own abort path settles well within this once the process tree is gone.
 const ABORT_SETTLE_GRACE_MS = 1000;
@@ -37,7 +37,7 @@ function isHostRuntimeVariable(name: string, platform: NodeJS.Platform): boolean
     || comparableName.startsWith("NEXT_")
     // The browser login password guards this server; commands run on behalf of
     // a project (and the model reading their output) have no use for it.
-    || comparableName === "PI_WEB_PASSWORD";
+    || comparableName === "PI_OBS_PASSWORD";
 }
 
 export function sanitizeProjectCommandEnvironment(

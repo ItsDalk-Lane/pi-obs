@@ -45,7 +45,7 @@ export function mcpServerKey(server: Pick<McpServerInfo, "scope" | "name">): str
 
 /**
  * What a row says about an entry, most important first. From the file: an
- * entry pi refuses, one Pi Web refuses because it references PI_WEB_PASSWORD,
+ * entry pi refuses, one Pi Obs refuses because it references PI_OBS_PASSWORD,
  * one turned off in the file, a project entry of a project whose servers may
  * not be read, a global entry the trusted project's entry of the same name
  * replaces or overrides, and MCP being off on this server. Only an entry the file lets
@@ -90,7 +90,7 @@ export const MCP_SERVER_ROW_STATES: readonly McpServerRowState[] = [
 ];
 
 export interface McpRowContext {
-  /** MCP is available on this Pi Web server (not turned off by the operator or a setting). */
+  /** MCP is available on this Pi Obs server (not turned off by the operator or a setting). */
   mcpAvailable: boolean;
   /** A session may read the project's `.pi/mcp.json` (see `mcpProjectServersLoad()`). */
   projectServersLoad: boolean;
@@ -866,7 +866,7 @@ async function loadWithin(cwd: string | null, fetchImpl: FetchLike, signal: Abor
 /**
  * Loads the overview for the panel's project, or the global file alone without
  * one. A project folder the route refuses (removed since, or outside the
- * folders Pi Web may read) does not hide the global servers: they are loaded
+ * folders Pi Obs may read) does not hide the global servers: they are loaded
  * again without it, and the refusal is kept for the Project group to explain.
  * The whole load ends by `timeoutMs`, aborting what is still on its way
  * (`withinDeadline()`).
@@ -1051,7 +1051,7 @@ export async function saveMcpCodemodeInlineBudget(
 
 /**
  * Whether MCP being off leaves the panel read-only, as `POST /api/mcp`
- * decides: the operator turned it off (`PI_WEB_DISABLE_MCP`), or the SDK's
+ * decides: the operator turned it off (`PI_OBS_DISABLE_MCP`), or the SDK's
  * MCP modules cannot load, so nothing could be checked. `-builtin:mcp` does
  * not: a project can turn it back on, and whether a global switch works must
  * not depend on the folder Settings was opened from.
@@ -1121,17 +1121,17 @@ function mcpServerSwitchable(server: McpSwitchable): boolean {
   return server.notAnObject !== true;
 }
 
-/** Whether a switch may turn the entry on: the route refuses one that references PI_WEB_PASSWORD. */
+/** Whether a switch may turn the entry on: the route refuses one that references PI_OBS_PASSWORD. */
 function mcpServerCanTurnOn(server: McpSwitchable): boolean {
   return mcpServerSwitchable(server) && server.webPasswordField === undefined;
 }
 
 /**
  * What a group switch sends: the servers not already as asked, as
- * `itemsToSwitch()` picks them, except that one referencing PI_WEB_PASSWORD
+ * `itemsToSwitch()` picks them, except that one referencing PI_OBS_PASSWORD
  * is never turned on (the route refuses it) and an entry that is not an object
  * is never sent (nothing in it can be switched); `keptOff` counts the
- * PI_WEB_PASSWORD ones, for the note under the heading.
+ * PI_OBS_PASSWORD ones, for the note under the heading.
  */
 export function mcpGroupSwitchTargets<T extends McpSwitchable>(servers: readonly T[], enabled: boolean): { targets: T[]; keptOff: number } {
   const sendable = enabled ? mcpServerCanTurnOn : mcpServerSwitchable;
@@ -1145,7 +1145,7 @@ export function mcpGroupSwitchTargets<T extends McpSwitchable>(servers: readonly
  * Whether a group switch reads on: some server is on, and every server it
  * could turn on is. That is the Skills and Plugins rule (on only while every
  * row is) over the servers the switch can change: an entry referencing
- * PI_WEB_PASSWORD that is off, which it never turns on, or one that is not an
+ * PI_OBS_PASSWORD that is off, which it never turns on, or one that is not an
  * object would otherwise keep the group partial for good, so the switch would
  * always read off, every click would ask to turn it on and send nothing, and
  * the group could never be switched off from its heading.
@@ -1250,7 +1250,7 @@ export async function postMcpAction(
  * be refused: MCP off on the server (`mcpWritesOff()`; `-builtin:mcp` still
  * tests, as an explicit action), a project no decision trusts or a trust store
  * that cannot be read, an entry pi refuses, and one that references
- * PI_WEB_PASSWORD. A switched-off entry can be tested before it is turned on.
+ * PI_OBS_PASSWORD. A switched-off entry can be tested before it is turned on.
  */
 export type McpTestBlock = McpWriteBlock | "invalid" | "web-password";
 
@@ -1275,7 +1275,7 @@ export function mcpTestBlock(
 
 /**
  * A refusal of the test route in the words of a test: the reasons the route
- * shares with the switches would otherwise say Pi Web "changes" nothing, or
+ * shares with the switches would otherwise say Pi Obs "changes" nothing, or
  * that it left a file "unchanged" (`mcp.reason.*` is worded for writes).
  * `server-missing`, the `cwd-*` reasons and the request guards read the same
  * for both, and `internal` shows the route's diagnostic.

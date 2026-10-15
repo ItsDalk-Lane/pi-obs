@@ -7,7 +7,7 @@ import test, { after } from "node:test";
 import { createJiti } from "jiti";
 
 const originalAgentDir = process.env.PI_CODING_AGENT_DIR;
-const testAgentDir = await mkdtemp(join(tmpdir(), "pi-web-subagent-route-global-"));
+const testAgentDir = await mkdtemp(join(tmpdir(), "pi-obs-subagent-route-global-"));
 process.env.PI_CODING_AGENT_DIR = testAgentDir;
 
 const jiti = createJiti(import.meta.url, {
@@ -213,7 +213,7 @@ test("profile PUT rejects invalid codemode without creating or overwriting files
 });
 
 test("profiles route creates, lists, and deletes a project profile", async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pi-web-subagent-route-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pi-obs-subagent-route-"));
   allowFileRoot(cwd);
   t.after(() => rm(cwd, { recursive: true, force: true }));
 
@@ -247,7 +247,7 @@ test("profiles route creates, lists, and deletes a project profile", async (t) =
 });
 
 test("profiles route keeps same-name global and project profiles independently editable", async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pi-web-subagent-route-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pi-obs-subagent-route-"));
   allowFileRoot(cwd);
   t.after(() => rm(cwd, { recursive: true, force: true }));
 
@@ -303,7 +303,7 @@ test("profiles route keeps same-name global and project profiles independently e
 });
 
 test("profiles route toggles a built-in through settings.json without writing a profile file", async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pi-web-subagent-route-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pi-obs-subagent-route-"));
   allowFileRoot(cwd);
   t.after(async () => {
     await PATCH(jsonRequest("PATCH", { cwd, scope: "builtin", name: "explore", enabled: true }));
@@ -342,7 +342,7 @@ test("profiles route toggles a built-in through settings.json without writing a 
 });
 
 test("profiles route rejects missing paths, malformed profiles, and unsafe names", async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pi-web-subagent-route-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pi-obs-subagent-route-"));
   allowFileRoot(cwd);
   t.after(() => rm(cwd, { recursive: true, force: true }));
 

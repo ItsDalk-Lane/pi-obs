@@ -39,7 +39,7 @@ export function canonicalJson(value: unknown, depth = 0): string {
 }
 
 // One key per server process: hot reload re-evaluates this module, globalThis keeps it.
-const CONFIG_KEY_SECRET: symbol = Symbol.for("pi-web:mcp-config-key-secret");
+const CONFIG_KEY_SECRET: symbol = Symbol.for("pi-obs:mcp-config-key-secret");
 
 /**
  * What identifies an entry's content, so a status recorded for it can be

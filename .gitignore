@@ -26,6 +26,7 @@
 *.pem
 /.agents/
 /.workbuddy/
+/.trae/
 /skills-lock.json
 
 # debug

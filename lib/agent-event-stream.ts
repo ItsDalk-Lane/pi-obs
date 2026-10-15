@@ -64,7 +64,7 @@ function isDroppableEvent(event: AgentEventLike): boolean {
     && (update as { type: string }).type.endsWith("_delta");
 }
 function resolveBacklogLimitBytes(): number {
-  const raw = Number(process.env.PI_WEB_SSE_BACKLOG_LIMIT_BYTES);
+  const raw = Number(process.env.PI_OBS_SSE_BACKLOG_LIMIT_BYTES);
   return Number.isFinite(raw) && raw >= 64 * 1024 ? raw : DEFAULT_BACKLOG_LIMIT_BYTES;
 }
 
@@ -80,8 +80,8 @@ function logBackpressure(
   lastBackpressureLogAt = now;
   const queued = `${Math.round(queuedBytes / 1024)} KB`;
   console.warn(closing
-    ? `[pi-web] Agent event stream for ${sessionId} closed: client backlog ${queued} exceeds ${Math.round(limitBytes / 1024)} KB; it reconnects and re-snapshots.`
-    : `[pi-web] Agent event stream for ${sessionId} is behind (${queued} queued): dropping rebuildable deltas (${droppedEvents} so far).`);
+    ? `[pi-obs] Agent event stream for ${sessionId} closed: client backlog ${queued} exceeds ${Math.round(limitBytes / 1024)} KB; it reconnects and re-snapshots.`
+    : `[pi-obs] Agent event stream for ${sessionId} is behind (${queued} queued): dropping rebuildable deltas (${droppedEvents} so far).`);
 }
 
 /**
@@ -98,7 +98,7 @@ function logBackpressure(
  * graphs, each with its own copy of this module; a plain module-level Set
  * would be two disconnected registries. Symbol.for + globalThis shares one.
  */
-const CLOSER_REGISTRY: symbol = Symbol.for("pi-web.agentEventStreamClosers");
+const CLOSER_REGISTRY: symbol = Symbol.for("pi-obs.agentEventStreamClosers");
 type StreamCloser = (closeController: boolean | "error") => void;
 const activeStreamClosers: Set<StreamCloser> =
   ((globalThis as Record<symbol, Set<StreamCloser>>)[CLOSER_REGISTRY] ??= new Set<StreamCloser>());
@@ -158,7 +158,7 @@ export function createAgentEventStream(
         unsubscribe = null;
         if (abortHandler) req.signal.removeEventListener("abort", abortHandler);
         if (closeController === "error") {
-          try { controller.error(reason ?? new Error("pi-web server shutting down")); } catch { /* already closed */ }
+          try { controller.error(reason ?? new Error("pi-obs server shutting down")); } catch { /* already closed */ }
         } else if (closeController) {
           try { controller.close(); } catch { /* stream already closed */ }
         }
@@ -186,7 +186,7 @@ export function createAgentEventStream(
           logBackpressure(sessionId, queuedBytes, backlogLimitBytes, droppedEvents, true);
           cleanup(
             "error",
-            new Error(`pi-web agent event stream closed: client backlog exceeded ${Math.round(backlogLimitBytes / 1024)} KB`),
+            new Error(`pi-obs agent event stream closed: client backlog exceeded ${Math.round(backlogLimitBytes / 1024)} KB`),
           );
           return;
         }

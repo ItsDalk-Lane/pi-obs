@@ -29,7 +29,7 @@ export const MCP_STATUS_MAX_RECORDS = 500;
 // The shape changed from one record per entry, and a dev server keeps
 // globalThis across hot reloads: a new name, so the old map is never read as
 // the new one.
-const STORE_KEY: symbol = Symbol.for("pi-web:mcp-status:by-config");
+const STORE_KEY: symbol = Symbol.for("pi-obs:mcp-status:by-config");
 
 /** Which entry a status is about: its scope, the file that defines it (as the panel names it), and its name. */
 export interface McpStatusEntry {
@@ -179,7 +179,7 @@ export function clearMcpStatuses(): void {
 /** Sessions held at once; the least recently written goes first. */
 export const MCP_INACTIVE_HOSTS_MAX = 100;
 
-const INACTIVE_HOSTS_KEY: symbol = Symbol.for("pi-web:mcp-inactive-hosts");
+const INACTIVE_HOSTS_KEY: symbol = Symbol.for("pi-obs:mcp-inactive-hosts");
 
 function inactiveHosts(): Map<string, McpHostInactiveInfo> {
   const store = globalThis as Record<symbol, Map<string, McpHostInactiveInfo> | undefined>;
@@ -187,7 +187,7 @@ function inactiveHosts(): Map<string, McpHostInactiveInfo> {
 }
 
 /**
- * Records that the session `sessionId` connects no server through Pi Web,
+ * Records that the session `sessionId` connects no server through Pi Obs,
  * because its `/mcp` command is another extension's. Kept while the session
  * is open: its host forgets it when the session ends, or starts again with
  * Pi's own `/mcp`.

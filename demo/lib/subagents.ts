@@ -10,9 +10,9 @@ import { disabledBuiltInSubagents } from "./subagent-settings";
 import { PRESET_READ_ONLY } from "./tool-presets";
 import type { SessionEntry, SubagentSessionStatus } from "./types";
 
-export const SUBAGENT_META_TYPE = "pi-web:subagent";
-export const SUBAGENT_STATUS_TYPE = "pi-web:subagent-status";
-export const SUBAGENT_RESULT_TYPE = "pi-web:subagent-result";
+export const SUBAGENT_META_TYPE = "pi-obs:subagent";
+export const SUBAGENT_STATUS_TYPE = "pi-obs:subagent-status";
+export const SUBAGENT_RESULT_TYPE = "pi-obs:subagent-result";
 export const SUBAGENT_CONTROL_TOOL_NAMES = ["Agent", "get_subagent_result", "steer_subagent"] as const;
 
 export type SubagentStatus = SubagentSessionStatus;
@@ -29,7 +29,7 @@ export interface SubagentProfile {
   extensionTools?: string[];
   loadSkills: boolean;
   loadExtensions: boolean;
-  /** Whether this profile enables Pi Web's codemode tool. Omitted profiles are disabled. */
+  /** Whether this profile enables Pi Obs's codemode tool. Omitted profiles are disabled. */
   codemode?: SubagentCodemode;
   model?: string;
   thinking?: ThinkingLevel;
@@ -272,7 +272,7 @@ function unmanagedFrontmatter(stored: Record<string, unknown>): Record<string, u
 }
 
 /**
- * pi-web filters `tools` down to the built-ins it can dispatch, which would drop
+ * pi-obs filters `tools` down to the built-ins it can dispatch, which would drop
  * another runtime's `ext:<name>` selectors on every save — carry them through.
  */
 function composeToolsField(tools: string[], storedTools: unknown): string {

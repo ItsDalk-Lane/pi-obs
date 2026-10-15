@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { AppUpdateResponse } from "@/lib/api-types";
-import { getPiWebReleaseUrl, isNewerStableVersion } from "@/lib/app-update";
+import { getPiObsReleaseUrl, isNewerStableVersion } from "@/lib/app-update";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +8,7 @@ const CURRENT_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0";
 const NPM_LATEST_URL = "https://registry.npmjs.org/pi-obs/latest";
 const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 const FETCH_TIMEOUT_MS = 5_000;
-const SKIP_VERSION_CHECK = process.env.PI_WEB_SKIP_VERSION_CHECK === "1";
+const SKIP_VERSION_CHECK = process.env.PI_OBS_SKIP_VERSION_CHECK === "1";
 
 interface AppUpdateCache {
   value?: AppUpdateResponse;
@@ -17,11 +17,11 @@ interface AppUpdateCache {
 }
 
 declare global {
-  var __piWebAppUpdateCache: AppUpdateCache | undefined;
+  var __piObsAppUpdateCache: AppUpdateCache | undefined;
 }
 
 function getCache(): AppUpdateCache {
-  return globalThis.__piWebAppUpdateCache ??= { expiresAt: 0 };
+  return globalThis.__piObsAppUpdateCache ??= { expiresAt: 0 };
 }
 
 async function fetchLatestVersion(): Promise<AppUpdateResponse> {
@@ -34,7 +34,7 @@ async function fetchLatestVersion(): Promise<AppUpdateResponse> {
 
   const body = await response.json() as { version?: unknown };
   const latestVersion = typeof body.version === "string" ? body.version : "";
-  const releaseUrl = getPiWebReleaseUrl(latestVersion);
+  const releaseUrl = getPiObsReleaseUrl(latestVersion);
   if (!releaseUrl) throw new Error("npm registry returned an invalid version");
 
   return {

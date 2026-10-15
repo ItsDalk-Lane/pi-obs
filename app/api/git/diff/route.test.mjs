@@ -6,7 +6,7 @@ import path from "node:path";
 import test from "node:test";
 import { createJiti } from "jiti";
 
-const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "pi-web-git-diff-route-")));
+const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "pi-obs-git-diff-route-")));
 const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
 const previousRootsCache = globalThis.__piAllowedRootsCache;
 const previousAdditionalRoots = globalThis.__piAdditionalAllowedRoots;

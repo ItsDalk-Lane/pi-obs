@@ -849,7 +849,7 @@ export function AppShell() {
       if (!response.ok || !data.info) throw new Error(data.error ?? `HTTP ${response.status}`);
       handleSelectSession(data.info);
     } catch (error) {
-      console.error("[pi-web] failed to open session:", error instanceof Error ? error.message : error);
+      console.error("[pi-obs] failed to open session:", error instanceof Error ? error.message : error);
     }
   }, [handleSelectSession, sessionCatalog]);
 
@@ -1183,7 +1183,7 @@ export function AppShell() {
 
   const activeFileTab = fileTabs.find((tab) => tab.id === activeFileTabId) ?? null;
   const activeCwdName = activeCwd ? getFileName(activeCwd) || activeCwd : null;
-  const windowTitle = activeCwdName ? `${activeCwdName} - Pi Web` : "Pi Web";
+  const windowTitle = activeCwdName ? `${activeCwdName} - Pi Obs` : "Pi Obs";
 
   useEffect(() => {
     const syncWindowTitle = () => {

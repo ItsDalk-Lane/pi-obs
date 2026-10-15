@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Snapshot the Pi Web repository into public/demo-files so the demo's file
+// Snapshot the Pi Obs repository into public/demo-files so the demo's file
 // explorer and viewer can browse real project files without a backend.
 //
 // Every git-tracked file outside demo/ is copied under a hashed name (GitHub

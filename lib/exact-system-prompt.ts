@@ -1,6 +1,6 @@
 import type { InlineExtension } from "@earendil-works/pi-coding-agent";
 
-export const EXACT_SYSTEM_PROMPT_EXTENSION_NAME = "pi-web-exact-system-prompt";
+export const EXACT_SYSTEM_PROMPT_EXTENSION_NAME = "pi-obs-exact-system-prompt";
 
 /**
  * Replace the whole system prompt of every agent run with the text `getPrompt` returns.

@@ -116,7 +116,7 @@ export async function buildEnabledModelsInput(
 }
 
 /**
- * Provider ids whose models pi-web must not offer to edit one by one.
+ * Provider ids whose models pi-obs must not offer to edit one by one.
  *
  * A provider is built in when pi ships it or an extension registered it at
  * runtime; everything else is defined by models.json.

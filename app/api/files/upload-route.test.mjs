@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { createJiti } from "jiti";
 
-const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "pi-web-upload-route-")));
+const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "pi-obs-upload-route-")));
 const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
 const previousRoots = globalThis.__piAllowedRootsCache;
 process.env.PI_CODING_AGENT_DIR = path.join(base, "agent");

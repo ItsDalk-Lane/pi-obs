@@ -242,7 +242,7 @@ export async function deleteSessions(
   try {
     await forgetSessionUiState(deletedSessionIds);
   } catch (error) {
-    console.warn(`[pi-web] could not clear the sidebar state of deleted sessions: ${error instanceof Error ? error.message : String(error)}`);
+    console.warn(`[pi-obs] could not clear the sidebar state of deleted sessions: ${error instanceof Error ? error.message : String(error)}`);
   }
   invalidateSessionListCache();
   return { deleted: [...deletedSessionIds], missing, running };

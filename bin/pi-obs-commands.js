@@ -7,7 +7,7 @@ const path = require("path");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { openInBrowser } = require("./browser-opener");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { runUpdate } = require("./pi-web-update");
+const { runUpdate } = require("./pi-obs-update");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const records = require("./run-records");
 
@@ -47,18 +47,18 @@ async function stopServer(record, {
     else kill(pid, "SIGTERM");
   } catch (killError) {
     if (killError.code !== "ESRCH") {
-      error(`Could not stop pi-web (pid ${pid}): ${killError.message}`);
+      error(`Could not stop pi-obs (pid ${pid}): ${killError.message}`);
       return 1;
     }
   }
   for (let waited = 0; isAlive(pid); waited += STOP_POLL_MS) {
     if (waited >= timeoutMs) {
-      error(`pi-web on ${record.url} (pid ${pid}) is still running after ${timeoutMs / 1000} s.`);
+      error(`pi-obs on ${record.url} (pid ${pid}) is still running after ${timeoutMs / 1000} s.`);
       return 1;
     }
     await wait(STOP_POLL_MS);
   }
-  log(`Stopped pi-web on ${record.url} (pid ${pid}).`);
+  log(`Stopped pi-obs on ${record.url} (pid ${pid}).`);
   return 0;
 }
 
@@ -79,8 +79,8 @@ async function runCommand(options, {
     case "status": {
       const running = await list();
       log(running.length === 0
-        ? "No pi-web server is running."
-        : `Running pi-web servers:\n${running.map(records.formatRunRecord).join("\n")}`);
+        ? "No pi-obs server is running."
+        : `Running pi-obs servers:\n${running.map(records.formatRunRecord).join("\n")}`);
       return 0;
     }
     case "stop":

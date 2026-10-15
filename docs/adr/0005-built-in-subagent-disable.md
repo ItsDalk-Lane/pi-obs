@@ -6,7 +6,7 @@ Accepted.
 
 ## Context
 
-Pi Web ships three built-in profiles (`general-purpose`, `explore`, `plan`) as
+Pi Obs ships three built-in profiles (`general-purpose`, `explore`, `plan`) as
 constants in `lib/subagents.ts`. Everything else about a profile lives in a
 markdown file — `~/.pi/agent/agents/*.md`, `.agents/agents/*.md`, or
 `.pi/agents/*.md` — whose `enabled: false` frontmatter key switches it off.
@@ -70,7 +70,7 @@ control a built-in gets.
 
 - Disabling a built-in leaves no `.md` file, so pi-subagents and any other
   runtime reading those directories are unaffected, and the built-in's prompt
-  keeps tracking the version Pi Web ships.
+  keeps tracking the version Pi Obs ships.
 - A running session keeps the `Agent` tool description it was created with, so a
   disabled built-in is still advertised there until the session reloads. It
   cannot be started: `resolveSubagentProfile` re-reads the setting and rejects

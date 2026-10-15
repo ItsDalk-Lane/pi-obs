@@ -31,7 +31,7 @@ import type {
 import { createHeadlessCustomUiTui, DEFAULT_CUSTOM_UI_COLUMNS, type HeadlessCustomUiTui } from "./custom-ui-terminal";
 import {
   createSubagentExtension,
-  preferPiWebSubagentExtension,
+  preferPiObsSubagentExtension,
 } from "./subagent-extension";
 import {
   listSubagentProfiles,
@@ -47,7 +47,7 @@ import { isBuiltInSubagentsEnabled } from "./subagent-settings";
 import { resolveShellTools } from "./powershell-settings";
 import { CHAT_ONLY_RESOURCE_LOADER_OPTIONS, contextFilesSystemPrompt } from "./chat-only";
 import { createExactSystemPromptExtension } from "./exact-system-prompt";
-import { createPiWebBuiltinExtensions, createSubagentCodemodeExtension, createSubagentMcpExtensions } from "./builtin-extensions";
+import { createPiObsBuiltinExtensions, createSubagentCodemodeExtension, createSubagentMcpExtensions } from "./builtin-extensions";
 import type { McpHost } from "./mcp-host";
 import { mcpPromptPreparation, type McpCommandCandidate } from "./mcp-command";
 import { createReadOnlyMcpPolicyExtension, createSubagentMcpPolicyExtension } from "./mcp-read-only-policy";
@@ -156,7 +156,7 @@ const IDLE_RESET_EVENT_TYPES = new Set([
 const DEFAULT_SESSION_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
 
 /**
- * Resolves the PI_WEB_IDLE_TIMEOUT_MS environment variable into a session idle
+ * Resolves the PI_OBS_IDLE_TIMEOUT_MS environment variable into a session idle
  * timeout in milliseconds. An unset/blank value returns the 10-minute default,
  * `0` disables idle shutdown, and positive values up to Node's timer limit
  * (2147483647 ms) are used as-is. Invalid or out-of-range values fall back to
@@ -164,12 +164,12 @@ const DEFAULT_SESSION_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
  * @param rawValue Value to parse; defaults to the environment variable.
  */
 export function resolveSessionIdleTimeoutMs(
-  rawValue: string | undefined = process.env.PI_WEB_IDLE_TIMEOUT_MS,
+  rawValue: string | undefined = process.env.PI_OBS_IDLE_TIMEOUT_MS,
 ): number {
   if (rawValue !== undefined && rawValue.trim() !== "") {
     const parsed = Number(rawValue);
     if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 2_147_483_647) return parsed;
-    console.warn(`[pi-web] invalid PI_WEB_IDLE_TIMEOUT_MS "${rawValue}", falling back to 10 minutes`);
+    console.warn(`[pi-obs] invalid PI_OBS_IDLE_TIMEOUT_MS "${rawValue}", falling back to 10 minutes`);
   }
   return DEFAULT_SESSION_IDLE_TIMEOUT_MS;
 }
@@ -179,7 +179,7 @@ const SESSION_IDLE_TIMEOUT_MS = resolveSessionIdleTimeoutMs();
 const DEFAULT_SESSION_SHUTDOWN_DEADLINE_MS = 5_000;
 
 /**
- * Resolves the PI_WEB_SHUTDOWN_DEADLINE_MS environment variable into the time
+ * Resolves the PI_OBS_SHUTDOWN_DEADLINE_MS environment variable into the time
  * extensions get to handle `session_shutdown` before the wrapper disposes the
  * SDK session anyway. An unset/blank value returns the 5-second default, and
  * positive values up to Node's timer limit (2147483647 ms) are used as-is.
@@ -188,12 +188,12 @@ const DEFAULT_SESSION_SHUTDOWN_DEADLINE_MS = 5_000;
  * @param rawValue Value to parse; defaults to the environment variable.
  */
 export function resolveSessionShutdownDeadlineMs(
-  rawValue: string | undefined = process.env.PI_WEB_SHUTDOWN_DEADLINE_MS,
+  rawValue: string | undefined = process.env.PI_OBS_SHUTDOWN_DEADLINE_MS,
 ): number {
   if (rawValue !== undefined && rawValue.trim() !== "") {
     const parsed = Number(rawValue);
     if (Number.isFinite(parsed) && parsed > 0 && parsed <= 2_147_483_647) return parsed;
-    console.warn(`[pi-web] invalid PI_WEB_SHUTDOWN_DEADLINE_MS "${rawValue}", falling back to 5 seconds`);
+    console.warn(`[pi-obs] invalid PI_OBS_SHUTDOWN_DEADLINE_MS "${rawValue}", falling back to 5 seconds`);
   }
   return DEFAULT_SESSION_SHUTDOWN_DEADLINE_MS;
 }
@@ -254,7 +254,7 @@ const PLAIN_TEXT_THEME = new PlainTextTheme();
 const CUSTOM_UI_KEYBINDINGS = new TuiKeybindingsManager(TUI_KEYBINDINGS);
 
 // Tools that belong to the session, not to a branch of it: the ones that reach other tools,
-// and pi-web's subagent tools, which the built-in subagent setting switches on for the whole
+// and pi-obs's subagent tools, which the built-in subagent setting switches on for the whole
 // session. Navigation keeps them although the target branch was recorded without them.
 const SESSION_TOOL_NAMES = new Set<string>(["codemode", "tool_search", ...SUBAGENT_CONTROL_TOOL_NAMES]);
 
@@ -473,7 +473,7 @@ export class AgentSessionWrapper {
     try {
       this.onAgentRunComplete?.(this.sessionId, this.inner.sessionManager.getSessionName());
     } catch (error) {
-      console.error("[pi-web] completion listener failed:", error instanceof Error ? error.message : error);
+      console.error("[pi-obs] completion listener failed:", error instanceof Error ? error.message : error);
     }
   }
 
@@ -484,7 +484,7 @@ export class AgentSessionWrapper {
 
   beginExtensionBinding(): void {
     void this.ensureExtensionsBound().catch((err) => {
-      console.error("[pi-web] failed to dispatch session_start to extensions:", err instanceof Error ? err.message : err);
+      console.error("[pi-obs] failed to dispatch session_start to extensions:", err instanceof Error ? err.message : err);
     });
   }
 
@@ -510,7 +510,7 @@ export class AgentSessionWrapper {
       await this.waitForExtensionsBound();
       if (!controller.signal.aborted) await mcpHost.prepareForPrompt(controller.signal);
     })().catch((error: unknown) => {
-      console.error("[pi-web] MCP servers could not be prepared:", error instanceof Error ? error.message : error);
+      console.error("[pi-obs] MCP servers could not be prepared:", error instanceof Error ? error.message : error);
     });
     const wait = { controller, done: waited };
     this.mcpPromptWait = wait;
@@ -548,7 +548,7 @@ export class AgentSessionWrapper {
             id: randomUUID(),
             method: "notify",
             notifyType: "warning",
-            message: "Extension requested shutdown, but shutdown is not supported in Pi Web.",
+            message: "Extension requested shutdown, but shutdown is not supported in Pi Obs.",
           } as ExtensionUiRequest as AgentEvent),
           onError: (error) => this.emit({
             type: "extension_error",
@@ -561,7 +561,7 @@ export class AgentSessionWrapper {
         this.inner.extensionRunner.setUIContext?.(uiContext, "rpc");
       }
       this.extensionsBound = true;
-      console.log(`[pi-web] session_start dispatched to extensions for session ${this.inner.sessionId}`);
+      console.log(`[pi-obs] session_start dispatched to extensions for session ${this.inner.sessionId}`);
     })().catch((err) => {
       this.extensionBindingError = err;
       throw err;
@@ -648,7 +648,7 @@ export class AgentSessionWrapper {
         listener(event);
       } catch (error) {
         console.error(
-          `[pi-web] failed to deliver ${event.type} event:`,
+          `[pi-obs] failed to deliver ${event.type} event:`,
           error instanceof Error ? error.message : error,
         );
       }
@@ -692,7 +692,7 @@ export class AgentSessionWrapper {
         return;
       }
       void this.shutdown().catch((error) => {
-        console.error("[pi-web] failed to shut down idle session:", error instanceof Error ? error.message : error);
+        console.error("[pi-obs] failed to shut down idle session:", error instanceof Error ? error.message : error);
       });
     }, timeoutMs);
   }
@@ -768,7 +768,7 @@ export class AgentSessionWrapper {
       await this.shutdown();
     } catch (error) {
       console.error(
-        `[pi-web] ${replacement} succeeded, but source session shutdown failed:`,
+        `[pi-obs] ${replacement} succeeded, but source session shutdown failed:`,
         error instanceof Error ? error.message : error,
       );
     }
@@ -799,7 +799,7 @@ export class AgentSessionWrapper {
         const imageError = validateAgentImages(command.images);
         if (imageError) throw new Error(imageError);
       }
-      // A session whose folder was deleted outside pi-web stays readable, but a
+      // A session whose folder was deleted outside pi-obs stays readable, but a
       // run there would reach the model only for its tools to fail (and `write`
       // to recreate the folder). The pi CLI does not resume such a session
       // either; refuse as /api/agent/new does. (A `!` command already refuses.)
@@ -870,7 +870,7 @@ export class AgentSessionWrapper {
             const controller = new AbortController();
             const waited = this.mcpHost.prepareForPrompt(controller.signal, { wait: mcpPreparation === "wait" })
               .catch((error: unknown) => {
-                console.error("[pi-web] MCP servers could not be prepared:", error instanceof Error ? error.message : error);
+                console.error("[pi-obs] MCP servers could not be prepared:", error instanceof Error ? error.message : error);
               })
               .then(() => {
                 if (!controller.signal.aborted) return;
@@ -923,7 +923,7 @@ export class AgentSessionWrapper {
             }
           }).catch((error) => {
             console.error(
-              "[pi-web] prompt completion handler failed:",
+              "[pi-obs] prompt completion handler failed:",
               error instanceof Error ? error.message : error,
             );
           });
@@ -1336,7 +1336,7 @@ export class AgentSessionWrapper {
     try {
       this.mcpHost?.dispose();
     } catch (error) {
-      console.error("[pi-web] MCP host dispose failed:", error instanceof Error ? error.message : error);
+      console.error("[pi-obs] MCP host dispose failed:", error instanceof Error ? error.message : error);
     }
   }
 
@@ -1384,7 +1384,7 @@ export class AgentSessionWrapper {
     void this.emitSessionShutdown(emit)
       .catch((error) => {
         console.error(
-          "[pi-web] session_shutdown before dispose failed:",
+          "[pi-obs] session_shutdown before dispose failed:",
           error instanceof Error ? error.message : error,
         );
       })
@@ -1404,7 +1404,7 @@ export class AgentSessionWrapper {
           await this.waitForExtensionsBound();
         } catch (error) {
           console.error(
-            "[pi-web] extension binding failed before session shutdown:",
+            "[pi-obs] extension binding failed before session shutdown:",
             error instanceof Error ? error.message : error,
           );
         }
@@ -1447,7 +1447,7 @@ export class AgentSessionWrapper {
     try {
       if (await Promise.race([handled, deadline]) === "timeout") {
         console.warn(
-          `[pi-web] extensions did not finish session_shutdown for session ${this.sessionId} within ${SESSION_SHUTDOWN_DEADLINE_MS} ms; disposing it anyway`,
+          `[pi-obs] extensions did not finish session_shutdown for session ${this.sessionId} within ${SESSION_SHUTDOWN_DEADLINE_MS} ms; disposing it anyway`,
         );
       }
     } finally {
@@ -1978,7 +1978,7 @@ export class AgentSessionWrapper {
       get theme() { return PLAIN_TEXT_THEME; },
       getAllThemes: () => [],
       getTheme: () => undefined,
-      setTheme: () => ({ success: false, error: "Theme switching is not supported in Pi Web extension UI yet" }),
+      setTheme: () => ({ success: false, error: "Theme switching is not supported in Pi Obs extension UI yet" }),
       getToolsExpanded: () => false,
       setToolsExpanded: () => {},
     };
@@ -2138,7 +2138,7 @@ function closingRpcSessionWait(sessionId: string): Promise<void> | null {
     const entry = { done: false, promise: Promise.resolve() };
     entry.promise = closing.waitUntilDisposed(SESSION_SHUTDOWN_DEADLINE_MS + CLOSING_SESSION_WAIT_MARGIN_MS)
       .then((disposed) => {
-        if (!disposed) console.warn(`[pi-web] session ${sessionId} is still shutting down; starting it again anyway`);
+        if (!disposed) console.warn(`[pi-obs] session ${sessionId} is still shutting down; starting it again anyway`);
       })
       .finally(() => { entry.done = true; });
     closingSessionWaits.set(closing, entry);
@@ -2467,7 +2467,7 @@ export async function startRpcSession(
       // Otherwise DO NOT pass a builtin-only allow-list: passing CODING_TOOL_NAMES
       // set allowedToolNames to coding builtins only, which filtered every
       // extension/package-provided tool (e.g. subagents, web access) out of the
-      // tool registry — so they were unavailable in Pi Web sessions even though the
+      // tool registry — so they were unavailable in Pi Obs sessions even though the
       // `pi` CLI keeps them. Leaving the allow-list unset lets the SDK register all
       // tools (and activate extension tools); we narrow the ACTIVE set below.
       toolsOption = selectedToolNames.length === 0 ? [] : undefined;
@@ -2495,7 +2495,7 @@ export async function startRpcSession(
     // which MCP servers the session connects (ADR 0006).
     const builtins = subagentResources || chatOnly
       ? undefined
-      : await createPiWebBuiltinExtensions({ agentDir });
+      : await createPiObsBuiltinExtensions({ agentDir });
     const subagentCodemode = subagentResources?.codemode
       ? await createSubagentCodemodeExtension({
           agentDir,
@@ -2560,7 +2560,7 @@ export async function startRpcSession(
                 isBuiltInSubagentsEnabled,
               ),
             ],
-            extensionsOverride: (base) => preferUserBashExtension(preferPiWebSubagentExtension(base)),
+            extensionsOverride: (base) => preferUserBashExtension(preferPiObsSubagentExtension(base)),
           },
       ...(trustReloadOptions ? { resourceLoaderReloadOptions: trustReloadOptions } : {}),
     });
@@ -2634,7 +2634,7 @@ export async function startRpcSession(
     // A pinned selection replaces only the coding tools of the SDK's initial loadout, which
     // already holds the extension tools pi activates on registration and whatever
     // `defaultTools` names (such as `+codemode`), so installed extensions stay usable in
-    // Pi Web just like in the `pi` CLI.
+    // Pi Obs just like in the `pi` CLI.
     if (!subagentResources && !chatOnly) {
       const initialToolNames = inner.getActiveToolNames();
       inner.setActiveToolsByName(
@@ -2655,7 +2655,7 @@ export async function startRpcSession(
       chatOnly,
       onAgentRunComplete: (completedSessionId, sessionName) => {
         void notifySessionComplete(completedSessionId, sessionName).catch((error) => {
-          console.error("[pi-web] failed to send completion push:", error instanceof Error ? error.message : error);
+          console.error("[pi-obs] failed to send completion push:", error instanceof Error ? error.message : error);
         });
       },
       suppressCompletionNotifications: Boolean(subagentResources),
@@ -2671,7 +2671,7 @@ export async function startRpcSession(
           await wrapper.waitUntilReady();
           await wrapper.send({ type: "set_model", provider: deferredModel.provider, modelId: deferredModel.id });
         } catch (error) {
-          console.error(`[pi-web] could not switch to ${deferredModel.provider}/${deferredModel.id}:`, error instanceof Error ? error.message : error);
+          console.error(`[pi-obs] could not switch to ${deferredModel.provider}/${deferredModel.id}:`, error instanceof Error ? error.message : error);
         }
       }
       // Bound extensions may have registered providers a later model listing will not see.

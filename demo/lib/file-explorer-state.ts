@@ -1,4 +1,4 @@
-const EXPLORER_OPEN_STORAGE_KEY = "pi-web:file-explorer:open";
+const EXPLORER_OPEN_STORAGE_KEY = "pi-obs:file-explorer:open";
 
 interface StorageLike {
   getItem(key: string): string | null;

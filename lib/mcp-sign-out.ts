@@ -2,7 +2,7 @@ import type { McpServerConfig } from "@earendil-works/pi-coding-agent";
 import type { McpOAuthCredentialStore, McpOAuthServerStore, PiSdkInternals } from "./pi-sdk-internals";
 
 // What a sign-out of an MCP server bars (ADR 0006, Settings › MCP sign-in):
-// every connection Pi Web opened for the server before the sign-out, a
+// every connection Pi Obs opened for the server before the sign-out, a
 // sign-in's (`lib/mcp-sign-in.ts`) and a Test's (`lib/mcp-test.ts`), stores
 // nothing in `mcp-auth.json` afterwards. A refresh already on its way when the
 // tokens are removed would otherwise save renewed ones right after, and sign
@@ -61,11 +61,11 @@ export class McpSignedOutError extends Error {
 }
 
 // Hot reload re-evaluates this module; globalThis keeps the counts. They lived
-// in the sign-in registry before (`Symbol.for("pi-web:mcp-sign-in")`.signOuts),
+// in the sign-in registry before (`Symbol.for("pi-obs:mcp-sign-in")`.signOuts),
 // whose map a dev server may still hold: it is taken over, so a run started
 // before the reload keeps comparing against the same count.
-const SIGN_OUTS_KEY: symbol = Symbol.for("pi-web:mcp-sign-outs");
-const LEGACY_REGISTRY_KEY: symbol = Symbol.for("pi-web:mcp-sign-in");
+const SIGN_OUTS_KEY: symbol = Symbol.for("pi-obs:mcp-sign-outs");
+const LEGACY_REGISTRY_KEY: symbol = Symbol.for("pi-obs:mcp-sign-in");
 
 /** Sign-in key → how often it was signed out in this process. Never pruned: one number per server signed out of. */
 function signOutCounts(): Map<string, number> {

@@ -84,7 +84,7 @@ function createRegistry(): SessionLivenessRegistry {
           }
           if (active) return true;
         } catch (error) {
-          console.error(`[pi-web] Session liveness provider '${provider.name}' failed; preserving the session:`, error);
+          console.error(`[pi-obs] Session liveness provider '${provider.name}' failed; preserving the session:`, error);
           return true;
         }
       }
@@ -137,7 +137,7 @@ function scheduleLeaseExpiry(lease: LeaseRecord): void {
 export function acquireSessionLivenessLease(sessionId: string): SessionLivenessLease {
   const leases = getLeaseStore();
   const providerRelease = registerSessionLivenessProvider({
-    name: "pi-web-selected-session",
+    name: "pi-obs-selected-session",
     sessionId,
     isActive: () => !lease.released && lease.expiresAt > Date.now(),
   });
@@ -187,7 +187,7 @@ export function renewSessionLivenessLeases(sessionId: string): number {
 }
 
 /**
- * Register session-scoped work that must survive pi-web's automatic idle eviction.
+ * Register session-scoped work that must survive pi-obs's automatic idle eviction.
  * Explicit shutdown and runtime replacement still take precedence.
  */
 export function registerSessionLivenessProvider(provider: SessionLivenessProvider): () => void {

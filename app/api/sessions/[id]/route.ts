@@ -33,7 +33,7 @@ export async function GET(
     const searchParams = new URL(req.url).searchParams;
     const force = searchParams.get("force") === "1";
 
-    // A live wrapper only reflects the appends pi-web itself made. When another
+    // A live wrapper only reflects the appends pi-obs itself made. When another
     // pi process (the TUI) writes the same session file, the in-memory index
     // stays stale. Only probe on ?force=1 (session mount / page refresh): two
     // processes writing one JSONL is unsupported, so post-turn reads must not

@@ -1027,12 +1027,12 @@ a.session-tree-main {
 }
 
 /* With the files below the sessions there is no tab to choose: the brand
-   stands where the tabs were (PiWebTitle), the panel's typographic anchor,
+   stands where the tabs were (PiObsTitle), the panel's typographic anchor,
    as on the old sidebar. Not a cell: no box, no line on its right; its text
    in the chevron column (6px in plus a header toggle's 5px). A click shows
    the versions in the accent for a few seconds. Never cut: New's label
    gives way first, and on a row too narrow for the versions they take the
-   sidebar's meta size (data-fit 2, which only they reach: "Pi Web" fits
+   sidebar's meta size (data-fit 2, which only they reach: "Pi Obs" fits
    beside the two cells at the sidebar's 180px minimum, and at 11px so do
    the versions with a digit to spare). */
 .sidebar-brand {

@@ -3,7 +3,7 @@
 import type { SubagentRunInfo } from "./subagents";
 
 export interface SubagentToolDetails {
-  kind: "pi-web-subagent";
+  kind: "pi-obs-subagent";
   sessionId: string;
   profile: string;
   description: string;

@@ -30,7 +30,7 @@ function normalizePort(value) {
 }
 
 // Subcommands and their own options. Matched only as the first argument, so a
-// bare `pi-web [options]` still starts the server.
+// bare `pi-obs [options]` still starts the server.
 const COMMAND_OPTIONS = {
   version: {},
   status: {},
@@ -42,31 +42,31 @@ const COMMAND_OPTIONS = {
 function getHelpText() {
   return `Usage: pi-obs [command] [options]
 
-Start the Pi Web UI server, or run one of the commands below.
+Start the Pi Obs UI server, or run one of the commands below.
 
 Commands:
-  version                    Print the installed Pi Web version (also -v, --version)
-  status                     List running Pi Web servers
+  version                    Print the installed Pi Obs version (also -v, --version)
+  status                     List running Pi Obs servers
   stop [--port <port>]       Stop a running server
   open [--port <port>]       Open a running server in the browser
   update [--check]           Update a global npm install to the latest version
 
 Options:
   -p, --port <port>          Server port (default: 30141, or PORT)
-  -H, --hostname <host>      Bind hostname (default: 127.0.0.1, or PI_WEB_HOSTNAME)
+  -H, --hostname <host>      Bind hostname (default: 127.0.0.1, or PI_OBS_HOSTNAME)
       --no-open              Do not open a browser automatically
   -h, --help                 Show this help message and exit
 
 Environment:
   PORT                       Default port when --port is omitted
-  PI_WEB_HOSTNAME            Default hostname when --hostname is omitted
-  PI_WEB_NO_OPEN             Set to 1/true/yes/on to disable browser open
-  PI_WEB_APP_NAME            PWA manifest name (trimmed; default Pi Web)
-  PI_WEB_PASSWORD            Enable browser password login and API Basic Auth
-  PI_WEB_ALLOWED_HOSTS       Extra exact proxy/custom hostnames, comma-separated
-  PI_WEB_SKIP_VERSION_CHECK  Set to 1 to disable Pi Web update checks
-  PI_WEB_IDLE_TIMEOUT_MS     Session idle timeout in ms (0 disables; default 600000)
-  PI_WEB_SHUTDOWN_DEADLINE_MS  Shutdown wait for extensions in ms (default 5000)
+  PI_OBS_HOSTNAME            Default hostname when --hostname is omitted
+  PI_OBS_NO_OPEN             Set to 1/true/yes/on to disable browser open
+  PI_OBS_APP_NAME            PWA manifest name (trimmed; default Pi Obs)
+  PI_OBS_PASSWORD            Enable browser password login and API Basic Auth
+  PI_OBS_ALLOWED_HOSTS       Extra exact proxy/custom hostnames, comma-separated
+  PI_OBS_SKIP_VERSION_CHECK  Set to 1 to disable Pi Obs update checks
+  PI_OBS_IDLE_TIMEOUT_MS     Session idle timeout in ms (0 disables; default 600000)
+  PI_OBS_SHUTDOWN_DEADLINE_MS  Shutdown wait for extensions in ms (default 5000)
 `;
 }
 
@@ -133,8 +133,8 @@ function parseLaunchOptions(args = process.argv.slice(2), env = process.env) {
   return {
     help: false,
     port: normalizePort(values.port ?? env.PORT ?? "30141"),
-    hostname: values.hostname ?? env.PI_WEB_HOSTNAME ?? "127.0.0.1",
-    openBrowser: !values["no-open"] && !isEnabled(env.PI_WEB_NO_OPEN),
+    hostname: values.hostname ?? env.PI_OBS_HOSTNAME ?? "127.0.0.1",
+    openBrowser: !values["no-open"] && !isEnabled(env.PI_OBS_NO_OPEN),
   };
 }
 

@@ -32,14 +32,14 @@ function post(body, headers = JSON_HEADERS) {
   }));
 }
 
-/** A session file as pi writes it: header, then one exchange; a subagent's carries pi-web's meta entry. */
+/** A session file as pi writes it: header, then one exchange; a subagent's carries pi-obs's meta entry. */
 async function writeSession(dir, name, { id, cwd, parentSession, subagentOf }) {
   const path = join(dir, `${name}.jsonl`);
   const lines = [{ type: "session", version: 3, id, timestamp: TIME, cwd, ...(parentSession ? { parentSession } : {}) }];
   if (subagentOf) {
     lines.push({
       type: "custom",
-      customType: "pi-web:subagent",
+      customType: "pi-obs:subagent",
       id: `${id}-meta`,
       parentId: null,
       timestamp: TIME,
@@ -55,7 +55,7 @@ async function writeSession(dir, name, { id, cwd, parentSession, subagentOf }) {
 }
 
 async function scratchAgentDir(t) {
-  const dir = await mkdtemp(join(tmpdir(), "pi-web-delete-route-"));
+  const dir = await mkdtemp(join(tmpdir(), "pi-obs-delete-route-"));
   const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
   const previousRegistry = globalThis.__piSessions;
   process.env.PI_CODING_AGENT_DIR = dir;

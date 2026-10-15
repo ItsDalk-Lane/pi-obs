@@ -8,7 +8,7 @@ const source = readFileSync(new URL("./useFilesPlacement.ts", import.meta.url), 
 const script = new Script(ts.transpileModule(source, {
   compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.CommonJS },
 }).outputText);
-const KEY = "pi-web:sidebar-files-placement";
+const KEY = "pi-obs:sidebar-files-placement";
 
 // A fresh module per fixture: the store caches the choice at module level. The
 // stand-in useSyncExternalStore subscribes once, as a mounted component does,
@@ -82,7 +82,7 @@ test("another tab's choice for this key, or a cleared storage, is followed", () 
   assert.equal(store.useFilesPlacement(), "below");
   const onStorage = store.events.get("storage");
   store.stored.set(KEY, "tab");
-  onStorage({ key: "pi-web:sidebar-tab" });
+  onStorage({ key: "pi-obs:sidebar-tab" });
   assert.equal(store.useFilesPlacement(), "below", "another key is not this choice");
   assert.equal(store.notifications, 0);
   onStorage({ key: KEY });

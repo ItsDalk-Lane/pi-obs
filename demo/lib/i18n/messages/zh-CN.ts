@@ -1,6 +1,6 @@
 import type { LocalePlugin } from "../types";
 
-/** Pi Web 内置简体中文语言包。 */
+/** Pi Obs 内置简体中文语言包。 */
 export const zhCNLocale: LocalePlugin = {
   id: "zh-CN",
   label: "简体中文",
@@ -14,7 +14,7 @@ export const zhCNLocale: LocalePlugin = {
     "common.settings": "设置",
     "settings.title": "设置",
     "settings.general": "常规",
-    "settings.generalDescription": "选择 Pi Web 的显示方式和界面语言。",
+    "settings.generalDescription": "选择 Pi Obs 的显示方式和界面语言。",
     "settings.appearance": "外观",
     "settings.appearanceDescription": "选择浅色或深色主题，也可以跟随系统设置。",
     "settings.chatContentWidth": "聊天内容宽度",
@@ -58,8 +58,8 @@ export const zhCNLocale: LocalePlugin = {
     "skills.scope.project": "项目",
     "skills.scope.path": "路径",
     "agents.close": "关闭",
-    "agents.builtInTitle": "启用 Pi Web 内置子代理",
-    "agents.builtInDescription": "提供 Pi Web 集成的 Agent 工具，并停用发生冲突的 pi-subagents 扩展。",
+    "agents.builtInTitle": "启用 Pi Obs 内置子代理",
+    "agents.builtInDescription": "提供 Pi Obs 集成的 Agent 工具，并停用发生冲突的 pi-subagents 扩展。",
     "agents.reloadRequired": "重新加载当前会话后生效。",
     "agents.reloadSession": "重新加载会话",
     "agents.maxConcurrent": "并发子代理数",
@@ -119,7 +119,7 @@ export const zhCNLocale: LocalePlugin = {
     "agentSwitcher.status.failed": "失败",
     "agentSwitcher.status.aborted": "已中止",
     "agentSwitcher.status.interrupted": "已中断",
-    "appUpdate.releaseNotes": "Pi Web v{version} 可用，查看更新说明",
+    "appUpdate.releaseNotes": "Pi Obs v{version} 可用，查看更新说明",
     "sidebar.hide": "隐藏侧边栏",
     "sidebar.show": "显示侧边栏",
     "theme.light": "主题：浅色",
@@ -608,11 +608,11 @@ export const zhCNLocale: LocalePlugin = {
     "models.enabledUnavailable": "登录该 provider 后即可选择模型。",
     "models.refreshCatalog": "刷新模型目录",
     "models.refreshingCatalog": "刷新中…",
-    "models.refreshCatalogHint": "立即获取该 provider 当前发布的模型列表。pi 内置的列表固定在 pi-web 附带的 pi 版本上，新发布的模型需要刷新后才会出现。",
+    "models.refreshCatalogHint": "立即获取该 provider 当前发布的模型列表。pi 内置的列表固定在 pi-obs 附带的 pi 版本上，新发布的模型需要刷新后才会出现。",
     "models.catalogUpdated": "已从服务商更新模型列表。",
     "models.catalogUnchanged": "模型列表已是最新。",
     "models.catalogUnreachable": "无法获取模型目录。请检查网络连接和该 provider 的凭据后重试。",
-    "models.catalogOffline": "已设置 PI_OFFLINE，pi-web 不会联网获取模型目录。",
+    "models.catalogOffline": "已设置 PI_OFFLINE，pi-obs 不会联网获取模型目录。",
     "models.enabledCustomEmpty": "这个 provider 目前没有可用模型。请先保存修改，并确认 API key 有效。",
     "models.enabledStale": "{count} 条失配",
     "models.enabledStaleHint": "模型可用的前提是它所属的 provider 有可用凭证。凭证缺失、模型被改名或删除、配置是给别的机器写的，都会让条目匹配不到任何模型。",

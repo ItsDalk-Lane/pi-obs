@@ -1,8 +1,8 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
-export const PI_WEB_AUTH_USERNAME = "pi";
-export const PI_WEB_SESSION_COOKIE = "pi_web_session";
-export const PI_WEB_SESSION_MAX_AGE = 60 * 60 * 24 * 30;
+export const PI_OBS_AUTH_USERNAME = "pi";
+export const PI_OBS_SESSION_COOKIE = "pi_obs_session";
+export const PI_OBS_SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 
 function hashSecret(value: string): Buffer {
   return createHash("sha256").update(value, "utf8").digest();
@@ -13,21 +13,21 @@ function secretsEqual(actual: string, expected: string): boolean {
 }
 
 export function isWebPasswordEnabled(
-  password: string | undefined = process.env.PI_WEB_PASSWORD,
+  password: string | undefined = process.env.PI_OBS_PASSWORD,
 ): password is string {
   return typeof password === "string" && password.length > 0;
 }
 
 export function isValidWebPassword(
   suppliedPassword: string,
-  password = process.env.PI_WEB_PASSWORD,
+  password = process.env.PI_OBS_PASSWORD,
 ): boolean {
   return isWebPasswordEnabled(password) && secretsEqual(suppliedPassword, password);
 }
 
 export function isValidBasicAuthorization(
   authorization: string | null,
-  password = process.env.PI_WEB_PASSWORD,
+  password = process.env.PI_OBS_PASSWORD,
 ): boolean {
   if (!isWebPasswordEnabled(password) || !authorization) return false;
 
@@ -48,13 +48,13 @@ export function isValidBasicAuthorization(
 
   const username = credentials.slice(0, separator);
   const suppliedPassword = credentials.slice(separator + 1);
-  const usernameMatches = secretsEqual(username, PI_WEB_AUTH_USERNAME);
+  const usernameMatches = secretsEqual(username, PI_OBS_AUTH_USERNAME);
   const passwordMatches = isValidWebPassword(suppliedPassword, password);
   return usernameMatches && passwordMatches;
 }
 
 function sessionSignature(payload: string, password: string): string {
-  return createHmac("sha256", password).update(`pi-web-session:${payload}`, "utf8").digest("hex");
+  return createHmac("sha256", password).update(`pi-obs-session:${payload}`, "utf8").digest("hex");
 }
 
 export function createWebSessionToken(
@@ -62,13 +62,13 @@ export function createWebSessionToken(
   now = Date.now(),
   nonce = randomBytes(16).toString("hex"),
 ): string {
-  const payload = `v1.${Math.floor(now / 1000) + PI_WEB_SESSION_MAX_AGE}.${nonce}`;
+  const payload = `v1.${Math.floor(now / 1000) + PI_OBS_SESSION_MAX_AGE}.${nonce}`;
   return `${payload}.${sessionSignature(payload, password)}`;
 }
 
 export function isValidWebSessionToken(
   token: string | undefined,
-  password = process.env.PI_WEB_PASSWORD,
+  password = process.env.PI_OBS_PASSWORD,
   now = Date.now(),
 ): boolean {
   if (!token || !isWebPasswordEnabled(password)) return false;

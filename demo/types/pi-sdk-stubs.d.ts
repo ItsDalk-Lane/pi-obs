@@ -1,4 +1,4 @@
-// The demo only ships Pi Web's browser code. A few copied modules keep
+// The demo only ships Pi Obs's browser code. A few copied modules keep
 // type-only (or server-only) imports from the pi SDK; declare the
 // names they use loosely so the demo typechecks without the agent runtime.
 /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -6,12 +6,12 @@ import { useI18n } from "@/hooks/useI18n";
 /**
  * The sidebar's brand with the files below the sessions (its toolbar row,
  * components/SessionSidebar.tsx; the tabs layout has its tabs there), with
- * the old sidebar's easter egg: a click scrambles "Pi Web" into the versions
- * (pi-web's, a "p", pi's) in the accent; they scramble back after
+ * the old sidebar's easter egg: a click scrambles "Pi Obs" into the versions
+ * (pi-obs's, a "p", pi's) in the accent; they scramble back after
  * VERSION_SHOWN_MS, or at once on a second click.
  */
 
-export const BRAND_TEXT = "Pi Web";
+export const BRAND_TEXT = "Pi Obs";
 /** How long the versions stay, counted from the click that showed them. */
 export const VERSION_SHOWN_MS = 3000;
 /** The text settles left to right over its length times this many frames. */
@@ -77,7 +77,7 @@ function useScramble(target: string): string {
   return text;
 }
 
-export function PiWebTitle({ onWidthChange }: {
+export function PiObsTitle({ onWidthChange }: {
   /**
    * After a commit that changed the text's length (in its code type, its
    * width): the toolbar row fits its labels again, before that paints.

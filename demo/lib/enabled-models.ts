@@ -4,7 +4,7 @@
  * `enabledModels` is a whitelist of pi `--models` patterns, so turning one
  * model off implies spelling out everything that stays on. pi's TUI solves that
  * by rewriting the whole list from the models it can see right now
- * (`/scoped-models` + Ctrl+S). pi-web must not: `ModelRuntime.getAvailable()`
+ * (`/scoped-models` + Ctrl+S). pi-obs must not: `ModelRuntime.getAvailable()`
  * only returns models of providers with configured auth, so a full rewrite
  * while the user is logged out of a provider would silently delete every entry
  * they had for it, and it would also flatten hand-written globs and drop
@@ -77,7 +77,7 @@ export interface EnabledModelsModelView {
   /** `provider/modelId`, the reference used by every edit. */
   ref: string;
   enabled: boolean;
-  /** Thinking level pinned by a `:level` pattern; read-only in pi-web. */
+  /** Thinking level pinned by a `:level` pattern; read-only in pi-obs. */
   thinkingPin?: string;
 }
 
@@ -109,7 +109,7 @@ export interface EnabledModelsView {
   scope: "global" | "project";
   /** That file's path, shortened for display, e.g. `~/.pi/agent/settings.json`. */
   settingsPath: string;
-  /** False when project settings shadow the global value pi-web can write. */
+  /** False when project settings shadow the global value pi-obs can write. */
   editable: boolean;
   modelError?: string;
 }

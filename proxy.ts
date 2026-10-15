@@ -12,7 +12,7 @@ import {
   isValidWebSessionToken,
   isValidBasicAuthorization,
   isWebPasswordEnabled,
-  PI_WEB_SESSION_COOKIE,
+  PI_OBS_SESSION_COOKIE,
 } from "@/lib/web-auth";
 
 function tooManyAttempts(retryAfterMs: number): NextResponse {
@@ -39,7 +39,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.json({ error: "Untrusted API request" }, { status: 403 });
   }
 
-  const password = process.env.PI_WEB_PASSWORD;
+  const password = process.env.PI_OBS_PASSWORD;
   if (!isWebPasswordEnabled(password)) {
     if (request.nextUrl.pathname === "/login") {
       return NextResponse.redirect(new URL("/", request.url));
@@ -47,7 +47,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  let authenticated = isValidWebSessionToken(request.cookies.get(PI_WEB_SESSION_COOKIE)?.value, password);
+  let authenticated = isValidWebSessionToken(request.cookies.get(PI_OBS_SESSION_COOKIE)?.value, password);
   const authorization = isApiRequest ? request.headers.get("authorization") : null;
   if (!authenticated && authorization && /^Basic\s/i.test(authorization)) {
     // Every Basic header is a password guess, so it shares the login form's
@@ -80,7 +80,7 @@ export function proxy(request: NextRequest) {
       status: 401,
       headers: {
         "Cache-Control": "no-store",
-        "WWW-Authenticate": 'Basic realm="Pi Web", charset="UTF-8"',
+        "WWW-Authenticate": 'Basic realm="Pi Obs", charset="UTF-8"',
       },
     });
   }

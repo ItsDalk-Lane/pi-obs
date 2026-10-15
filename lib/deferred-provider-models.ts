@@ -6,19 +6,19 @@ type RuntimeModel = Awaited<ReturnType<ModelRuntime["getAvailable"]>>[number];
 /**
  * Models of every provider seen in any ModelRuntime of this process, by provider.
  *
- * pi-web builds a fresh runtime for each model listing, and some extensions register their
+ * pi-obs builds a fresh runtime for each model listing, and some extensions register their
  * provider only in the first runtime of a process, deferring later ones to `session_start`
  * (pi-claude-bridge does, so a subagent sharing its parent's registry does not overwrite the
  * parent's stream function). A listing runtime never starts a session, so after the first one
  * those providers vanished from the model picker, and a session could not start on them.
  */
 declare global {
-  var __piWebProviderModelCatalog: Map<string, RuntimeModel[]> | undefined;
+  var __piObsProviderModelCatalog: Map<string, RuntimeModel[]> | undefined;
 }
 
 function catalog(): Map<string, RuntimeModel[]> {
-  globalThis.__piWebProviderModelCatalog ??= new Map();
-  return globalThis.__piWebProviderModelCatalog;
+  globalThis.__piObsProviderModelCatalog ??= new Map();
+  return globalThis.__piObsProviderModelCatalog;
 }
 
 /** Record what a runtime offers, so later runtimes can show a provider they have not registered yet. */

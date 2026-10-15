@@ -4,7 +4,7 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
 const configDir = dirname(fileURLToPath(import.meta.url));
-// The demo mirrors the Pi Web release it was copied from, so report the parent
+// The demo mirrors the Pi Obs release it was copied from, so report the parent
 // package's versions in the UI (About / update checks).
 const parentPackage = JSON.parse(readFileSync(join(configDir, "../package.json"), "utf8")) as {
   version: string;

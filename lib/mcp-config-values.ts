@@ -1,13 +1,13 @@
 import type { McpConfigFieldRef } from "./api-types";
 
 // Which values of an `mcp.json` entry pi resolves before it connects, and the
-// PI_WEB_PASSWORD rule over them. Client-safe, with no runtime imports: the
+// PI_OBS_PASSWORD rule over them. Client-safe, with no runtime imports: the
 // add pane (`components/mcp-add-helpers.ts`) previews and pre-blocks with the
 // same walk the server-side reader, the transport and the routes use
 // (re-exported by `lib/mcp-transport.ts`), so a change to which fields pi
 // resolves is made once.
 
-export const WEB_PASSWORD_VARIABLE = "PI_WEB_PASSWORD";
+export const WEB_PASSWORD_VARIABLE = "PI_OBS_PASSWORD";
 
 export interface McpResolvedConfigValue extends McpConfigFieldRef {
   value: string;
@@ -52,7 +52,7 @@ export function resolvedConfigValues(config: unknown): McpResolvedConfigValue[] 
 }
 
 /**
- * The value of `config` that references `PI_WEB_PASSWORD`, or undefined.
+ * The value of `config` that references `PI_OBS_PASSWORD`, or undefined.
  * Values resolve against this process's environment, which still holds the
  * password, so removing it from the server's environment is not enough. Names
  * compare case-insensitively, as Windows resolves them. A `!command` can read

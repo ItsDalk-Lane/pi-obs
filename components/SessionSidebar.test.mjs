@@ -125,7 +125,7 @@ test("on a desktop the files sit below the sessions by default, both in view", (
   assert.match(html, /^<div class="session-sidebar is-files-below" style="--sidebar-files-height:320px">/);
   // No tabs: the brand (its name says the versions a click shows), then New
   // and the sessions' search. No view options.
-  assert.match(html, /<div class="sidebar-header"><button type="button" class="sidebar-brand" aria-label="Pi Web, versions: web [^",]+, pi [^",]+">Pi Web<\/button><span class="sidebar-header-spacer"><\/span><button type="button" class="sidebar-new-button"/);
+  assert.match(html, /<div class="sidebar-header"><button type="button" class="sidebar-brand" aria-label="Pi Obs, versions: web [^",]+, pi [^",]+">Pi Obs<\/button><span class="sidebar-header-spacer"><\/span><button type="button" class="sidebar-new-button"/);
   assert.doesNotMatch(html, /role="tablist"|role="tab"|role="tabpanel"|View options|sidebar-title/);
   assert.match(html, /<span class="sidebar-new-label">New<\/span><\/button><button type="button" title="Search conversations" aria-label="Search conversations" aria-expanded="false" aria-controls="session-search-input" class="sidebar-search-toggle">/);
   // Two regions, both shown: the sessions, the separator, the files.
@@ -387,12 +387,12 @@ test("below the sessions the picker is one row under the header row, lined up wi
 test("the layout, the tab and the fold chosen last never change the first render, which matches the server's", () => {
   const serverHtml = render();
   const saved = {
-    "pi-web:sidebar-files-placement": "tab",
-    "pi-web:sidebar-tab": "files",
-    "pi-web:sidebar-files-collapsed": "true",
-    "pi-web:sidebar-groups-v2": JSON.stringify({ "/work/alpha": false }),
-    "pi-web:sidebar-pins-collapsed": "true",
-    "pi-web:sidebar-files-show-ignored": "true",
+    "pi-obs:sidebar-files-placement": "tab",
+    "pi-obs:sidebar-tab": "files",
+    "pi-obs:sidebar-files-collapsed": "true",
+    "pi-obs:sidebar-groups-v2": JSON.stringify({ "/work/alpha": false }),
+    "pi-obs:sidebar-pins-collapsed": "true",
+    "pi-obs:sidebar-files-show-ignored": "true",
   };
   const previous = globalThis.window;
   globalThis.window = {

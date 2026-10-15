@@ -39,7 +39,7 @@ function AgentPanel() {
   }, []);
 
   useEffect(() => {
-    document.title = `${label} — Pi Web`;
+    document.title = `${label} — Pi Obs`;
   }, [label]);
 
   const handleSelectRunning = useCallback((id: string) => {

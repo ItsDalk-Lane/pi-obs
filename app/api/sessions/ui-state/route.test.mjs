@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { createJiti } from "jiti";
 
-const agentDir = await mkdtemp(path.join(os.tmpdir(), "pi-web-session-ui-state-route-"));
+const agentDir = await mkdtemp(path.join(os.tmpdir(), "pi-obs-session-ui-state-route-"));
 const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
 process.env.PI_CODING_AGENT_DIR = agentDir;
 test.after(async () => {
@@ -22,7 +22,7 @@ const jiti = createJiti(import.meta.url, {
 const { GET, POST, dynamic } = await jiti.import("./route.ts");
 const { resetSessionUiStateCacheForTests } = await jiti.import("../../../../lib/session-ui-state.ts");
 
-const statePath = path.join(agentDir, "pi-web-session-state.json");
+const statePath = path.join(agentDir, "pi-obs-session-state.json");
 const JSON_HEADERS = { host: "localhost", "Content-Type": "application/json" };
 
 function post(body, headers = JSON_HEADERS) {
@@ -192,7 +192,7 @@ test("a corrupt file is kept as a backup and the state starts over", async () =>
     const next = await okState(await post({ action: "set", ids: ["a"], pinned: true }));
     assert.deepEqual(Object.keys(next.sessions), ["a"]);
     assert.equal(next.revision, 2);
-    const backups = (await readdir(agentDir)).filter((name) => name.startsWith("pi-web-session-state.json.corrupt-"));
+    const backups = (await readdir(agentDir)).filter((name) => name.startsWith("pi-obs-session-state.json.corrupt-"));
     assert.equal(backups.length, 1);
     assert.equal(await readFile(path.join(agentDir, backups[0]), "utf8"), "{\"version\":1,\"sessions\":");
     for (const backup of backups) await rm(path.join(agentDir, backup));

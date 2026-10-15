@@ -968,7 +968,7 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
     return () => { cancelled = true; };
   }, [cwd, refreshKey, treeRefreshKey, showHidden]);
 
-  // Files changed outside pi-web (an editor, a terminal) show up once the
+  // Files changed outside pi-obs (an editor, a terminal) show up once the
   // window is back in front (#1144).
   useEffect(() => {
     const refresh = () => setTreeRefreshKey((key) => key + 1);

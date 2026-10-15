@@ -23,7 +23,7 @@ assert.ok(mode === "dev" || mode === "start", "E2E_SERVER_MODE must be dev or st
 assert.ok(mode !== "dev" || !existsSync(join(root, ".next/dev/lock")), "Use a checkout without an active dev server");
 const artifacts = join(root, "test-results/e2e");
 mkdirSync(artifacts, { recursive: true });
-const agentDir = mkdtempSync(join(tmpdir(), "pi-web-e2e-"));
+const agentDir = mkdtempSync(join(tmpdir(), "pi-obs-e2e-"));
 const project = join(agentDir, "project");
 const sessionDir = join(agentDir, "sessions", "e2e");
 mkdirSync(project);
@@ -153,7 +153,7 @@ try {
   const base = `http://127.0.0.1:${port}`;
   server = spawn(process.execPath, [join(root, "node_modules/next/dist/bin/next"), mode, "-H", "127.0.0.1", "-p", String(port)], {
     cwd: root,
-    env: { ...process.env, PI_CODING_AGENT_DIR: agentDir, PI_WEB_PASSWORD: "", NEXT_TELEMETRY_DISABLED: "1" },
+    env: { ...process.env, PI_CODING_AGENT_DIR: agentDir, PI_OBS_PASSWORD: "", NEXT_TELEMETRY_DISABLED: "1" },
     stdio: ["ignore", "pipe", "pipe"],
   });
   server.once("error", (error) => { serverError = error; });

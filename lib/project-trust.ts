@@ -71,7 +71,7 @@ export function getProjectTrustStatus(cwd: string, agentDir: string): ProjectTru
 }
 
 // Hot reload re-evaluates this module; globalThis keeps one warning per error per process.
-const TRUST_READ_WARNINGS_KEY: symbol = Symbol.for("pi-web:project-trust-read-warnings");
+const TRUST_READ_WARNINGS_KEY: symbol = Symbol.for("pi-obs:project-trust-read-warnings");
 const TRUST_READ_WARNINGS_MAX = 200;
 
 /**
@@ -112,7 +112,7 @@ export function mayReadProjectConfigNow(cwd: string, agentDir: string): boolean 
       if (warned.size >= TRUST_READ_WARNINGS_MAX) warned.delete(warned.values().next().value as string);
       warned.add(key);
       // A lock error does not name the file, so the path is always given.
-      console.warn(`[pi-web] cannot read project trust from ${trustPath}; projects that need it count as untrusted meanwhile: ${message}`);
+      console.warn(`[pi-obs] cannot read project trust from ${trustPath}; projects that need it count as untrusted meanwhile: ${message}`);
     }
     return false;
   }
@@ -134,14 +134,14 @@ export function trustProject(cwd: string, agentDir: string): ProjectTrustStatus 
  * repository's `.pi/extensions`, project `.pi/settings.json` extension
  * entries, and `.agents/skills` — behind the SDK's project-trust store.
  *
- * Pi Web *executes* project extensions when it builds session services: their
+ * Pi Obs *executes* project extensions when it builds session services: their
  * factory runs on import and their `session_start` handlers run on startup.
- * Without a trust gate, merely opening an untrusted repository in Pi Web runs
+ * Without a trust gate, merely opening an untrusted repository in Pi Obs runs
  * repository-controlled code locally (issue #236). The SDK's resource loader
  * only imports project extensions once `resolveProjectTrust` resolves true, so
  * denying trust keeps them dormant.
  *
- * Pi Web and the `pi` CLI share the same trust store. Projects with gated
+ * Pi Obs and the `pi` CLI share the same trust store. Projects with gated
  * resources default to untrusted until either client records a trust decision.
  * Returns `undefined` when the project has no trust-requiring resources,
  * leaving ordinary projects on their existing load path.
@@ -160,7 +160,7 @@ export function projectTrustReloadOptions(
 // "Fresh folders"). Writing `.pi/mcp.json` makes a folder require trust, and
 // `POST /api/project-trust` refuses one that does not require it yet, so
 // adding a project server to a folder with no decision would leave the server
-// behind Restricted mode with no way to trust it from Pi Web.
+// behind Restricted mode with no way to trust it from Pi Obs.
 // ---------------------------------------------------------------------------
 
 /**
@@ -244,7 +244,7 @@ const NESTED_PROJECT_SCAN_SKIP = new Set(["node_modules", ".git", ".pi", ".agent
  * `.agents/skills`, all by `lstat`) and no decision of its own or between it
  * and `cwd`. An exact decision below wins over the new one anyway. Fresh
  * folders are mostly containers (`~/work`, `~/code`, a dated `~/pi-cwd`
- * folder), which often hold repositories Pi Web has never opened, and
+ * folder), which often hold repositories Pi Obs has never opened, and
  * trusting the container would load such a repository's `.pi/extensions` and
  * connect its `.pi/mcp.json` with no dialog the first time it is opened.
  *
@@ -305,11 +305,11 @@ function within(target: string, root: string): boolean {
 
 /**
  * Why trusting `cwd` would trust more than the one folder, or undefined when
- * it would not. A decision is inherited by every folder below it, so Pi Web
+ * it would not. A decision is inherited by every folder below it, so Pi Obs
  * never trusts by itself the home folder, a filesystem root, a folder that
  * holds the home folder or Pi's agent folder, one that holds another folder
- * Pi Web knows (`knownFolders`: the folders sessions ran in, their projects,
- * and folders chosen in Pi Web, which is what the allowed file roots hold),
+ * Pi Obs knows (`knownFolders`: the folders sessions ran in, their projects,
+ * and folders chosen in Pi Obs, which is what the allowed file roots hold),
  * or one that holds a project with no decision that needs trust
  * (`findInheritingTrustProject()`). Paths are compared by real path.
  */
@@ -348,7 +348,7 @@ export type FreshFolderTrustResult<T> =
   | { ok: false; reason: "write-failed"; writeError: unknown; rollbackError?: string; status?: ProjectTrustStatus };
 
 // Route handlers are bundled separately and hot reload re-evaluates modules; globalThis keeps one chain per folder per process.
-const FRESH_TRUST_LOCKS_KEY: symbol = Symbol.for("pi-web:fresh-folder-trust-locks");
+const FRESH_TRUST_LOCKS_KEY: symbol = Symbol.for("pi-obs:fresh-folder-trust-locks");
 
 /** Runs `task` after every earlier task for the same folder has settled. */
 function serializeForFolder<T>(key: string, task: () => Promise<T>): Promise<T> {
@@ -437,7 +437,7 @@ export async function trustFreshFolderAndWrite<T>(
         store.set(cwd, null);
         return { ok: false, reason: "write-failed", writeError };
       } catch (rollbackError) {
-        console.warn(`[pi-web] could not take back the trust given to ${cwd} after a failed write: ${message(rollbackError)}`);
+        console.warn(`[pi-obs] could not take back the trust given to ${cwd} after a failed write: ${message(rollbackError)}`);
         return { ok: false, reason: "write-failed", writeError, rollbackError: message(rollbackError), status: trusted };
       }
     }

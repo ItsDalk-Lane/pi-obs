@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 // contacts a URL, and may run a `!command` value, so it re-checks everything
 // a session's start would (`readConnectableMcpEntry()`, shared with sign-in):
 // MCP is not off, the entry is read from its file (never a config from the
-// browser) and valid, it does not reference PI_WEB_PASSWORD, and a project
+// browser) and valid, it does not reference PI_OBS_PASSWORD, and a project
 // entry's folder is allowed and trusted. A global stdio server runs in the
 // panel's project when it has one (checked like any cwd), else in the home
 // folder, which the answer names.

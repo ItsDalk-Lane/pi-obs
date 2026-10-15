@@ -1,4 +1,4 @@
-# Pi Web — Obsidian 适配分支
+# Pi Obs — Obsidian 适配分支
 
 [English](./README.md) | [日本語](./README.ja.md) | [Русский](./README.ru.md)
 
@@ -12,17 +12,17 @@
 >
 > 下文未标注的部分与上游一致。
 
-[pi 编程智能体](https://github.com/earendil-works/pi)的本地浏览器界面。Pi Web 与 pi 共用本机配置和会话文件，可在浏览器中查找和继续对话、运行智能体、配置模型与资源，并查看项目文件。
+[pi 编程智能体](https://github.com/earendil-works/pi)的本地浏览器界面。Pi Obs 与 pi 共用本机配置和会话文件，可在浏览器中查找和继续对话、运行智能体、配置模型与资源，并查看项目文件。
 
 **在 Obsidian 中使用**：见 [Obsidian 插件文档](./docs/obsidian.zh-CN.md)。该文档说明插件的构建安装、设置项，以及嵌入模式和面板路由的行为。
 
 >以下内容为上游文档。
 
-**[在线体验演示 →](https://agegr.github.io/pi-web/)**：真实的 Pi Web 界面直接在浏览器里运行，带有示例会话、文件和模型。无需安装；回复都是预设内容，不会调用任何模型。
+**[在线体验演示 →](https://agegr.github.io/pi-obs/)**：真实的 Pi Obs 界面直接在浏览器里运行，带有示例会话、文件和模型。无需安装；回复都是预设内容，不会调用任何模型。
 
 中文微信群：请查看 [GitHub Discussions 帖子](https://github.com/agegr/pi-web/discussions/271)。
 
-![Pi Web 展示包含结构化 Markdown、工具调用和项目导航的 pi 会话](https://raw.githubusercontent.com/agegr/pi-web/main/docs/screenshot2.png)
+![Pi Obs 展示包含结构化 Markdown、工具调用和项目导航的 pi 会话](https://raw.githubusercontent.com/agegr/pi-web/main/docs/screenshot2.png)
 
 ## 本分支与上游的差异
 
@@ -43,8 +43,8 @@
 - **两种分支方式**：**新会话**会从较早的消息创建独立会话文件；**从此处编辑**会在当前会话内创建分支。
 - **项目文件工具**：浏览和上传文件、查看 Git Diff，并预览源码、Markdown、图片、音频、PDF 和 DOCX；文件变化后会自动刷新。
 - **Git worktree**：从侧边栏切换 checkout，同时把同一仓库不同 worktree 的会话归在一起。
-- **网页配置**：无需离开 Pi Web，即可管理 Provider 登录和 API Key、模型、模型测试、插件包及技能。
-- **英文、简体中文和繁体中文界面**：Pi Web 首次打开时跟随浏览器语言，也可从顶部栏切换语言。
+- **网页配置**：无需离开 Pi Obs，即可管理 Provider 登录和 API Key、模型、模型测试、插件包及技能。
+- **英文、简体中文和繁体中文界面**：Pi Obs 首次打开时跟随浏览器语言，也可从顶部栏切换语言。
 
 ## 快速开始（浏览器方式）
 
@@ -52,13 +52,13 @@
 > 发布后以下命令可直接使用。命令名为 `pi-obs`（见 `package.json`的 `bin`）。
 > 只想用上游已发布的版本，见 [docs/release.md](./docs/release.md)。
 
-Pi Web 要求 Node.js 22.19.0 或更高版本。先用 `node --version` 检查版本，然后运行：
+Pi Obs 要求 Node.js 22.19.0 或更高版本。先用 `node --version` 检查版本，然后运行：
 
 ```bash
 npx pi-obs@latest
 ```
 
-服务就绪后，命令行会尝试自动打开浏览器。如果没有打开，请访问 [http://127.0.0.1:30141](http://127.0.0.1:30141)。Pi Web 默认仅监听 `127.0.0.1`。
+服务就绪后，命令行会尝试自动打开浏览器。如果没有打开，请访问 [http://127.0.0.1:30141](http://127.0.0.1:30141)。Pi Obs 默认仅监听 `127.0.0.1`。
 
 如果尚未配置模型 Provider，请打开**模型（Models）**面板登录或添加 API Key。
 
@@ -83,19 +83,19 @@ pi-obs update [--check] # 更新全局 npm 安装
 
 ## 配置
 
-端口和主机名以命令行参数为准，优先于对应的环境变量。`--no-open` 与 `PI_WEB_NO_OPEN=1` 中任意一个都会关闭自动打开浏览器。运行 `pi-obs --help`（或 `-h`）可打印启动选项并以退出码 0 结束，不会启动服务；未知参数会报错并以退出码 1 结束。
+端口和主机名以命令行参数为准，优先于对应的环境变量。`--no-open` 与 `PI_OBS_NO_OPEN=1` 中任意一个都会关闭自动打开浏览器。运行 `pi-obs --help`（或 `-h`）可打印启动选项并以退出码 0 结束，不会启动服务；未知参数会报错并以退出码 1 结束。
 
 | 参数或环境变量 | 用途 | 默认值 |
 | --- | --- | --- |
 | `--help`、`-h` | 打印启动选项并退出 | — |
 | `--port <端口>`、`-p <端口>` 或 `PORT` | 服务端口 | `30141` |
-| `--hostname <主机>`、`-H <主机>` 或 `PI_WEB_HOSTNAME` | 监听主机名 | `127.0.0.1` |
-| `--no-open` 或 `PI_WEB_NO_OPEN=1` | 不自动打开浏览器 | 自动打开 |
-| `PI_WEB_APP_NAME` | PWA manifest 的 `name` 和 `short_name`；去除首尾空白，空值使用默认值 | `Pi Web` |
-| `PI_WEB_ALLOWED_HOSTS` | 额外允许的代理或自定义主机名，多个值用逗号分隔，必须精确匹配 | 未设置 |
-| `PI_WEB_PASSWORD` | 启用浏览器密码登录；API 客户端可使用用户名为 `pi` 的 Basic Auth | 不启用认证 |
+| `--hostname <主机>`、`-H <主机>` 或 `PI_OBS_HOSTNAME` | 监听主机名 | `127.0.0.1` |
+| `--no-open` 或 `PI_OBS_NO_OPEN=1` | 不自动打开浏览器 | 自动打开 |
+| `PI_OBS_APP_NAME` | PWA manifest 的 `name` 和 `short_name`；去除首尾空白，空值使用默认值 | `Pi Obs` |
+| `PI_OBS_ALLOWED_HOSTS` | 额外允许的代理或自定义主机名，多个值用逗号分隔，必须精确匹配 | 未设置 |
+| `PI_OBS_PASSWORD` | 启用浏览器密码登录；API 客户端可使用用户名为 `pi` 的 Basic Auth | 不启用认证 |
 
-在启动服务前设置 `PI_WEB_APP_NAME`，例如 `PI_WEB_APP_NAME='工作 Pi' pi-obs`。修改后重启服务即可提供新的 manifest，无需重新构建。已安装 PWA 的名称更新由浏览器管理，不保证立即生效；此设置不改变页面标题或图标。
+在启动服务前设置 `PI_OBS_APP_NAME`，例如 `PI_OBS_APP_NAME='工作 Pi' pi-obs`。修改后重启服务即可提供新的 manifest，无需重新构建。已安装 PWA 的名称更新由浏览器管理，不保证立即生效；此设置不改变页面标题或图标。
 
 例如：
 
@@ -109,10 +109,10 @@ pi-obs -p 8080 -H 0.0.0.0 --no-open
 监听非回环地址会暴露一个可执行高权限操作的智能体。在可信局域网中使用时，请设置足够长的随机密码：
 
 ```bash
-PI_WEB_PASSWORD='足够长的随机密码' pi-obs --hostname 0.0.0.0
+PI_OBS_PASSWORD='足够长的随机密码' pi-obs --hostname 0.0.0.0
 ```
 
-密码认证不会加密连接。不要通过明文 HTTP 将 Pi Web 暴露到互联网；远程访问应使用可信反向代理提供 HTTPS，或通过可信 VPN。如果反向代理传递外部主机名，请把该名称精确加入 `PI_WEB_ALLOWED_HOSTS`。这个白名单不会改变 Pi Web 的监听地址。
+密码认证不会加密连接。不要通过明文 HTTP 将 Pi Obs 暴露到互联网；远程访问应使用可信反向代理提供 HTTPS，或通过可信 VPN。如果反向代理传递外部主机名，请把该名称精确加入 `PI_OBS_ALLOWED_HOSTS`。这个白名单不会改变 Pi Obs 的监听地址。
 
 ### HTTP 代理
 
@@ -138,11 +138,11 @@ npx pi-obs@latest
 
 ## 注意事项
 
-- **智能体数据**：Pi Web 默认读取 `~/.pi/agent` 下的 pi 数据，包括 `sessions/<编码后的工作目录>/<时间戳>_<uuid>.jsonl` 中的会话文件。可通过 `PI_CODING_AGENT_DIR` 指定其他 pi agent 目录。
-- **文件系统访问**：Pi Web 必须能读取智能体数据目录及会话记录中的工作目录。与现有 pi 会话共用数据时，请让 Pi Web 运行在与 pi 相同的文件系统环境中。
+- **智能体数据**：Pi Obs 默认读取 `~/.pi/agent` 下的 pi 数据，包括 `sessions/<编码后的工作目录>/<时间戳>_<uuid>.jsonl` 中的会话文件。可通过 `PI_CODING_AGENT_DIR` 指定其他 pi agent 目录。
+- **文件系统访问**：Pi Obs 必须能读取智能体数据目录及会话记录中的工作目录。与现有 pi 会话共用数据时，请让 Pi Obs 运行在与 pi 相同的文件系统环境中。
 - **共享配置**：模型面板使用 pi 的模型、设置和凭据存储，因此两种界面都能看到相关更改。
-- **文件访问边界**：文件浏览器仅能访问在 Pi Web 中选择过的工作目录，以及它已识别的项目或会话根目录；它不是通用的文件系统浏览器。
-- **Git worktree**：切换器何时显示、如何创建 worktree，以及删除会产生什么影响，见 [Pi Web 里的 Worktree](./docs/worktrees.zh-CN.md)。
+- **文件访问边界**：文件浏览器仅能访问在 Pi Obs 中选择过的工作目录，以及它已识别的项目或会话根目录；它不是通用的文件系统浏览器。
+- **Git worktree**：切换器何时显示、如何创建 worktree，以及删除会产生什么影响，见 [Pi Obs 里的 Worktree](./docs/worktrees.zh-CN.md)。
 
 ## 开发
 

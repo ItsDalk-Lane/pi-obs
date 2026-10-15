@@ -22,7 +22,7 @@ This repo publishes **two artifacts on two independent version lines**:
 | Artifact | Goes to | Version field |
 | --- | --- | --- |
 | The server, `pi-obs` | npm | `package.json` `version` |
-| The Obsidian plugin, `pi-web` | GitHub Release assets (BRAT downloads these) | `obsidian-plugin/manifest.json` `version` |
+| The Obsidian plugin, `pi-obs` | GitHub Release assets (BRAT downloads these) | `obsidian-plugin/manifest.json` `version` |
 
 A release need not bump both. Decide up front which one it carries and say so in the notes. The
 plugin's build output is inside the npm tarball as well, but **BRAT never reads npm** — the GitHub
@@ -276,8 +276,8 @@ One-time cleanup, only needed for the first release of `pi-obs`:
   pre-publish state.
 - In `docs/obsidian.md` and `docs/obsidian.zh-CN.md`, the **Publishing** section already describes
   the post-publish behavior; no change needed.
-- Confirm the Obsidian plugin installs from the registry: with **Pi Web directory** empty, enable the
-  plugin in a vault and check that `npm install pi-obs` succeeds into the plugin's `pi-web-app`
+- Confirm the Obsidian plugin installs from the registry: with **Pi Obs directory** empty, enable the
+  plugin in a vault and check that `npm install pi-obs` succeeds into the plugin's `pi-obs-app`
   folder. This is the path most users will take, and it cannot be tested before the first publish.
 - Install through **BRAT** in a scratch vault and confirm all three functions work: the main view
   loads, a file opens in its own tab, a terminal opens in its own tab. BRAT reads the GitHub

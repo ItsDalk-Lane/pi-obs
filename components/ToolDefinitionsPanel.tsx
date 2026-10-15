@@ -212,7 +212,7 @@ export function ToolDefinitionsPanel({ loading, tools, translate }: Props) {
       </section>
 
       <style>{`
-        /* The host panel (.pi-web-toppanel) scrolls: the content only sets a
+        /* The host panel (.pi-obs-toppanel) scrolls: the content only sets a
            floor, so the panel is as tall as what it shows, one bar and one. */
         .tool-definitions-panel {
           display: grid;

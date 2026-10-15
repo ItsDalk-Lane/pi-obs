@@ -45,7 +45,7 @@ export interface McpSignInRun {
   deadlineAt?: number;
   /** Starting failed, or was refused. */
   error?: McpActionFailure;
-  /** The server no longer knows the flow (it ended over a minute ago, or Pi Web restarted). */
+  /** The server no longer knows the flow (it ended over a minute ago, or Pi Obs restarted). */
   gone?: boolean;
   pasting?: boolean;
   /** Why the server refused the last paste; the flow keeps waiting. */
@@ -81,7 +81,7 @@ export function mcpSignInLink(url: string | undefined): string | undefined {
  * Why Sign in cannot be used, or undefined when it can: the Test route's
  * checks, which the sign-in route shares (`mcpTestBlock()`): MCP off on the
  * server, a project no decision trusts or a trust store that cannot be read,
- * an entry pi refuses, and one that references PI_WEB_PASSWORD.
+ * an entry pi refuses, and one that references PI_OBS_PASSWORD.
  */
 export function mcpSignInBlock(
   server: Pick<McpServerInfo, "scope" | "invalidError" | "validated" | "webPasswordField">,
@@ -92,8 +92,8 @@ export function mcpSignInBlock(
 
 /**
  * Why Sign out cannot be used: the checks of any change to the entry
- * (`mcpWriteBlock()`), and an entry pi refuses, whose URL Pi Web does not
- * read. An entry that references PI_WEB_PASSWORD can still be signed out of.
+ * (`mcpWriteBlock()`), and an entry pi refuses, whose URL Pi Obs does not
+ * read. An entry that references PI_OBS_PASSWORD can still be signed out of.
  */
 export function mcpSignOutBlock(
   server: Pick<McpServerInfo, "scope" | "invalidError" | "validated">,

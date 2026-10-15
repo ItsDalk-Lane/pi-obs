@@ -11,9 +11,9 @@ import { disabledBuiltInSubagents } from "./subagent-settings";
 import { PRESET_READ_ONLY } from "./tool-presets";
 import type { SessionEntry, SubagentSessionStatus } from "./types";
 
-export const SUBAGENT_META_TYPE = "pi-web:subagent";
-export const SUBAGENT_STATUS_TYPE = "pi-web:subagent-status";
-export const SUBAGENT_RESULT_TYPE = "pi-web:subagent-result";
+export const SUBAGENT_META_TYPE = "pi-obs:subagent";
+export const SUBAGENT_STATUS_TYPE = "pi-obs:subagent-status";
+export const SUBAGENT_RESULT_TYPE = "pi-obs:subagent-result";
 export const SUBAGENT_CONTROL_TOOL_NAMES = ["Agent", "get_subagent_result", "steer_subagent"] as const;
 
 export type SubagentStatus = SubagentSessionStatus;
@@ -37,7 +37,7 @@ export interface SubagentProfile {
   extensions?: string[];
   loadSkills: boolean;
   loadExtensions: boolean;
-  /** Whether this profile enables Pi Web's codemode tool. Omitted profiles are disabled. */
+  /** Whether this profile enables Pi Obs's codemode tool. Omitted profiles are disabled. */
   codemode?: SubagentCodemode;
   /** Whether its children connect the servers in `mcp.json`. Omitted profiles do not. */
   mcp?: SubagentMcp;
@@ -348,7 +348,7 @@ function unmanagedFrontmatter(stored: Record<string, unknown>): Record<string, u
 }
 
 /**
- * pi-web filters `tools` down to the built-ins it can dispatch, which would drop
+ * pi-obs filters `tools` down to the built-ins it can dispatch, which would drop
  * another runtime's `ext:<name>` selectors on every save — carry them through.
  */
 function composeToolsField(tools: string[], storedTools: unknown): string {
@@ -915,7 +915,7 @@ export function selectSubagentExtensionTools(
  * pi-subagents does. A dropped extension binds no handlers, tools, commands or providers,
  * but its factory has already run once: this scopes the child, it is not a sandbox. Names
  * resolve like `ext:` selectors (directory, file or package name, case-insensitive), so a
- * name two sources claim keeps neither. pi-web's own inline extensions always stay, as do the
+ * name two sources claim keeps neither. pi-obs's own inline extensions always stay, as do the
  * built-ins a child with `mcp: on` names (`SUBAGENT_MCP_EXTENSION_PATHS`). The SDK
  * calls the override on every reload, so the scope holds without further wiring.
  */

@@ -383,7 +383,7 @@ export async function runAgentCommand(session: MockSession, command: Record<stri
     }
     case "set_tools": {
       const toolNames = Array.isArray(command.toolNames) ? command.toolNames as string[] : [];
-      appendEntry(session, { type: "custom", customType: "pi-web:tool-selection", data: { version: 1, tools: toolNames } });
+      appendEntry(session, { type: "custom", customType: "pi-obs:tool-selection", data: { version: 1, tools: toolNames } });
       return ok({ sessionId: session.id, recreated: false });
     }
     case "set_session_name": {
@@ -426,8 +426,8 @@ export async function runAgentCommand(session: MockSession, command: Record<stri
     case "compact": {
       const tokensBefore = lastAssistantUsage(session) ?? 12_000;
       const summary = currentDemoLocale() === "zh"
-        ? "## 目标\n通过对话熟悉 Pi Web 的界面和功能。\n\n## 进展\n- 已浏览会话列表、文件浏览器和模型设置\n- 已了解分支、工具调用和斜杠命令\n\n## 下一步\n- 继续在演示中探索，或运行 `npx pi-obs@latest` 连接真实的 pi agent"
-        : "## Goal\nLearn Pi Web's layout and features through conversation.\n\n## Progress\n- Toured the session list, file explorer and model settings\n- Covered branching, tool calls and slash commands\n\n## Next steps\n- Keep exploring the demo, or run `npx pi-obs@latest` to connect a real pi agent";
+        ? "## 目标\n通过对话熟悉 Pi Obs 的界面和功能。\n\n## 进展\n- 已浏览会话列表、文件浏览器和模型设置\n- 已了解分支、工具调用和斜杠命令\n\n## 下一步\n- 继续在演示中探索，或运行 `npx pi-obs@latest` 连接真实的 pi agent"
+        : "## Goal\nLearn Pi Obs's layout and features through conversation.\n\n## Progress\n- Toured the session list, file explorer and model settings\n- Covered branching, tool calls and slash commands\n\n## Next steps\n- Keep exploring the demo, or run `npx pi-obs@latest` to connect a real pi agent";
       appendEntry(session, { type: "compaction", summary, firstKeptEntryId: session.leafId ?? "", tokensBefore });
       return ok({ tokensBefore, estimatedTokensAfter: 9_400 + estimateTokens(summary) });
     }
@@ -486,7 +486,7 @@ export function createRuntimeSession(body: Record<string, unknown>) {
   appendEntry(session, { type: "model_change", provider: model.provider, modelId: model.modelId });
   appendEntry(session, { type: "thinking_level_change", thinkingLevel });
   if (Array.isArray(body.toolNames)) {
-    appendEntry(session, { type: "custom", customType: "pi-web:tool-selection", data: { version: 1, tools: body.toolNames } });
+    appendEntry(session, { type: "custom", customType: "pi-obs:tool-selection", data: { version: 1, tools: body.toolNames } });
   }
   session.transient = true;
   return { success: true, sessionId: session.id, data: null, model, thinkingLevel };

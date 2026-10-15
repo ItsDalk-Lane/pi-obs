@@ -7,7 +7,7 @@ import { createJiti } from "jiti";
 
 // The allowed roots come from the session catalogue, so point it at an empty
 // scratch agent directory instead of the user's real ~/.pi/agent.
-const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "pi-web-linked-route-")));
+const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "pi-obs-linked-route-")));
 const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
 process.env.PI_CODING_AGENT_DIR = path.join(base, "agent");
 fs.mkdirSync(process.env.PI_CODING_AGENT_DIR);

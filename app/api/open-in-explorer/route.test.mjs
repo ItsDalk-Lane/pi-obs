@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { createJiti } from "jiti";
 
-const agentDir = await mkdtemp(path.join(os.tmpdir(), "pi-web-open-in-explorer-agent-"));
+const agentDir = await mkdtemp(path.join(os.tmpdir(), "pi-obs-open-in-explorer-agent-"));
 process.env.PI_CODING_AGENT_DIR = agentDir;
 
 const jiti = createJiti(import.meta.url, {
@@ -26,7 +26,7 @@ function open(cwd, host = "localhost:30141") {
 }
 
 test("rejects a path outside the allowed roots before looking at it", async (t) => {
-  const outside = await mkdtemp(path.join(os.tmpdir(), "pi-web-open-in-explorer-outside-"));
+  const outside = await mkdtemp(path.join(os.tmpdir(), "pi-obs-open-in-explorer-outside-"));
   t.after(() => rm(outside, { recursive: true, force: true }));
 
   // Existing and missing paths answer the same, so the route is no existence oracle.

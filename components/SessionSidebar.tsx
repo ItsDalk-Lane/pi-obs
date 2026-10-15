@@ -80,7 +80,7 @@ import { archiveViewState, filesFoldState, useSidebarMotion } from "@/hooks/useS
 import { DirectoryPicker } from "./DirectoryPicker";
 import { DismissButton } from "./DismissButton";
 import { FileExplorer, type FileExplorerHandle } from "./FileExplorer";
-import { PiWebTitle } from "./PiWebTitle";
+import { PiObsTitle } from "./PiObsTitle";
 import { ProjectWorktreePicker, type ProjectWorktreePickerHandle, type WorktreeRemoval } from "./ProjectWorktreePicker";
 import { SessionSearch } from "./SessionSearch";
 import { SessionTree, sessionRowTitle, type SessionTreeReveal } from "./SessionTree";
@@ -98,6 +98,7 @@ import {
   FolderIcon,
   MessageIcon,
   ForkIcon,
+  HistoryIcon,
   OpenInNewTabIcon,
   PencilIcon,
   PinIcon,
@@ -225,6 +226,8 @@ interface Props {
   onBackgroundTaskDone?: () => void;
   onRunningSessionIdsChange?: (ids: Set<string>) => void;
   onSessionsChange?: (sessions: SessionInfo[]) => void;
+  /** Opens a session's full history (its exported HTML; an Obsidian panel in embed mode). */
+  onViewFullHistory?: (sessionId: string) => void;
   /** Hides the sidebar's own toolbar row (tabs, New, search) when a host shows
    *  those controls elsewhere (the composer toolbar). */
   hideHeader?: boolean;
@@ -308,8 +311,8 @@ type SidebarMenuState =
   | { kind: "row"; row: SessionRow; anchor: SidebarMenuAnchor; opener: HTMLElement | null }
   | { kind: "group"; project: SidebarProject; olderCount: number; anchor: SidebarMenuAnchor; opener: HTMLElement; askDelete?: boolean };
 
-const UNREAD_SESSIONS_STORAGE_KEY = "pi-web:unread-session-ids";
-const LAST_CUSTOM_CWD_STORAGE_KEY = "pi-web:last-custom-cwd";
+const UNREAD_SESSIONS_STORAGE_KEY = "pi-obs:unread-session-ids";
+const LAST_CUSTOM_CWD_STORAGE_KEY = "pi-obs:last-custom-cwd";
 const RUNNING_SESSIONS_POLL_MS = 2500;
 const SESSION_DETAILS_HYDRATION_DELAY_MS = 750;
 /** "Archive sessions older than 7 days" in a project's menu. */
@@ -334,6 +337,7 @@ const SIDEBAR_HEADER_HEIGHT = 36;
 
 const SESSION_ACTION_LABEL_KEYS: Record<SessionMenuActionId, string> = {
   "open-new-tab": "sidebar.openInNewTab",
+  "full-history": "sidebar.fullHistory",
   pin: "sidebar.pin",
   unpin: "sidebar.unpin",
   rename: "sidebar.rename",
@@ -348,6 +352,7 @@ const SESSION_ACTION_LABEL_KEYS: Record<SessionMenuActionId, string> = {
 function sessionActionIcon(id: SessionMenuActionId): ReactNode {
   switch (id) {
     case "open-new-tab": return <OpenInNewTabIcon />;
+    case "full-history": return <HistoryIcon />;
     case "pin": return <PinIcon />;
     case "unpin": return <PinOffIcon />;
     case "rename": return <PencilIcon />;
@@ -501,7 +506,7 @@ function buttonAnchor(element: HTMLElement, align: "start" | "end"): SidebarMenu
   return { kind: "rect", rect: { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom }, align };
 }
 
-export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSession, controlRef, onNewSessionContextChange, initialSessionId, initialSessionLinked, skipInitialProjectSelection, onInitialRestoreDone, refreshKey, onSessionDeleted, selectedCwd: selectedCwdProp, onCwdChange, onOpenFile, onOpenTerminal, explorerRefreshKey, onExplorerRefresh, onAtMention, onAtMentions, onBackgroundTaskDone, onRunningSessionIdsChange, onSessionsChange, hideHeader, floatingFilesOpen, onFilesWindowRequest, onSessionsWindowClose, onFilesWindowClose, sessionsWindowOpen, dropdownRect }: Props) {
+export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSession, controlRef, onNewSessionContextChange, initialSessionId, initialSessionLinked, skipInitialProjectSelection, onInitialRestoreDone, refreshKey, onSessionDeleted, selectedCwd: selectedCwdProp, onCwdChange, onOpenFile, onOpenTerminal, explorerRefreshKey, onExplorerRefresh, onAtMention, onAtMentions, onBackgroundTaskDone, onRunningSessionIdsChange, onSessionsChange, onViewFullHistory, hideHeader, floatingFilesOpen, onFilesWindowRequest, onSessionsWindowClose, onFilesWindowClose, sessionsWindowOpen, dropdownRect }: Props) {
   const { t } = useI18n();
   const isMobile = useIsMobile();
   const [allSessions, setAllSessions] = useState<SessionInfo[]>([]);
@@ -676,7 +681,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     if (target) focusIfLost(document, target());
   }, [focusRequest]);
 
-  // Pins, archive and project order: pi-web's own state, kept on the server for every window.
+  // Pins, archive and project order: pi-obs's own state, kept on the server for every window.
   const {
     state: uiState,
     loaded: uiStateLoaded,
@@ -724,7 +729,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     maxWidth: FILES_SECTION_MAX_HEIGHT,
     minWidth: FILES_SECTION_MIN_HEIGHT,
     persistClamp: false,
-    storageKey: "pi-web:sidebar-files-height",
+    storageKey: "pi-obs:sidebar-files-height",
     widthRef: filesHeightRef,
   });
   const filesSizerPanelRef = filesSizer.panelRef;
@@ -1842,7 +1847,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     }
   }, [loadSessions]);
 
-  // A project's display name is pi-web's own (the UI state file): renaming
+  // A project's display name is pi-obs's own (the UI state file): renaming
   // it never selects the project, nor moves, pins or folds its group. The
   // header's field goes as the name is saved; its toggle takes the focus.
   const startProjectRename = useCallback((project: SidebarProject) => {
@@ -1991,6 +1996,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     const { family } = row;
     switch (id) {
       case "open-new-tab": openFamilyInNewTab(family); break;
+      case "full-history": onViewFullHistory?.(family.root.id); break;
       case "pin": setFamilyPinned(family, true); break;
       case "unpin": setFamilyPinned(family, false); break;
       case "rename": startRename(family); break;
@@ -2008,7 +2014,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     setMenu({ kind: "row", row, anchor, opener });
   }, []);
 
-  // Right-click: an extension listening for the downstream event (a pi-web
+  // Right-click: an extension listening for the downstream event (a pi-obs
   // integration) claims the row first; only an unclaimed event opens the
   // built-in menu. A transient row has nothing to offer, so the browser's own
   // menu stays.
@@ -2608,7 +2614,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
           the search is the sessions'. */}
       {!hideHeader && (
       <div ref={headerRef} className="sidebar-header">
-        {stacked && <PiWebTitle onWidthChange={fitHeader} />}
+        {stacked && <PiObsTitle onWidthChange={fitHeader} />}
         {!stacked && (
           <div className="sidebar-tabs-list" role="tablist" aria-label={t("sidebar.tabsLabel")}>
             <button

@@ -8,7 +8,7 @@ import { ProjectTrustStore } from "@earendil-works/pi-coding-agent";
 import { createJiti } from "jiti";
 
 // Real paths: trust.json keys folders by them, and the temp folder is a link on macOS.
-const root = realpathSync(await mkdtemp(join(tmpdir(), "pi-web-project-trust-route-")));
+const root = realpathSync(await mkdtemp(join(tmpdir(), "pi-obs-project-trust-route-")));
 const agentDir = join(root, "agent");
 const cwd = join(root, "project");
 const fresh = join(root, "fresh");

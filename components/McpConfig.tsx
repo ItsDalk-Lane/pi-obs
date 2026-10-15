@@ -217,7 +217,7 @@ export interface McpCodemodeSaveState {
 /** What the last group switch left undone, under that group's heading. */
 export interface McpGroupStatus {
   scope: McpScope;
-  /** Servers that reference PI_WEB_PASSWORD, which the switch left off. */
+  /** Servers that reference PI_OBS_PASSWORD, which the switch left off. */
   keptOff: number;
   /** The servers the route refused, of `total` asked for. */
   failures: { name: string; failure: McpActionFailure }[];
@@ -736,7 +736,7 @@ export function McpConfig({
 
   // One request for the whole group, answered per server: the ones the route
   // refuses keep their state and are named under the heading, and so are the
-  // ones referencing PI_WEB_PASSWORD, which switching on leaves off.
+  // ones referencing PI_OBS_PASSWORD, which switching on leaves off.
   const switchGroup = useCallback(async (scope: McpScope, servers: McpServerInfo[], enabled: boolean) => {
     const { targets, keptOff } = mcpGroupSwitchTargets(servers, enabled);
     const pressed = pressedButton();
@@ -1334,7 +1334,7 @@ function McpServerGroupList({
   const { t } = useI18n();
   const { enabled, total } = mcpGroupCounts(group.servers);
   // On only while every server it can turn on is: a partial group reads as off beside its count, and one
-  // click completes it; an entry it never turns on (PI_WEB_PASSWORD, not an object) cannot hold it off.
+  // click completes it; an entry it never turns on (PI_OBS_PASSWORD, not an object) cannot hold it off.
   const checked = mcpGroupSwitchChecked(group.servers);
   const emptyKey = mcpGroupEmptyKey(group);
   const statusText = status ? groupStatusText(status, t) : undefined;
@@ -1491,7 +1491,7 @@ function McpServerDetail({
   const inProjectNoteId = useId();
   const key = mcpServerKey(server);
   const name = revealHiddenCharacters(server.name);
-  // The route never turns on an entry that references PI_WEB_PASSWORD; turning one off still works.
+  // The route never turns on an entry that references PI_OBS_PASSWORD; turning one off still works.
   const passwordKeepsOff = !server.enabled && server.webPasswordField !== undefined;
   // An entry that is not an object has no `enabled` to write; Remove still works.
   const switchless = server.notAnObject === true;
@@ -1903,7 +1903,7 @@ function McpTestButton({
  * the last test request did. The status's own state word is left out when
  * that status is what gave the entry its state, which the label has just
  * said. Test points at the line saying why it cannot be used: the refusal's
- * own line for a refused entry or one that references PI_WEB_PASSWORD, which
+ * own line for a refused entry or one that references PI_OBS_PASSWORD, which
  * would otherwise be said twice.
  */
 function McpStatusRow({

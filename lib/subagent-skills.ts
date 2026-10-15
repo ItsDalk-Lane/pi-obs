@@ -35,7 +35,7 @@ export function createSubagentSkillsBinding(options: {
     }).join("\n\n");
   };
   const compose: InlineExtension = {
-    name: "pi-web-subagent-skills",
+    name: "pi-obs-subagent-skills",
     hidden: true,
     factory: (pi) => {
       pi.on("before_agent_start", (event) => {

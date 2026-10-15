@@ -136,7 +136,7 @@ export interface ProjectTrustStatus {
 }
 
 /**
- * Why Pi Web does not trust a fresh folder by itself when a project server is
+ * Why Pi Obs does not trust a fresh folder by itself when a project server is
  * added to it (`trustFreshFolderAndWrite()` in `lib/project-trust.ts`): a
  * decision is inherited by every folder below it, so trusting this one would
  * trust `path` too.
@@ -144,11 +144,11 @@ export interface ProjectTrustStatus {
  * - `root`: it is a filesystem root;
  * - `contains-home`: it holds the home folder (`path`);
  * - `contains-agent-dir`: it is, or holds, Pi's agent folder (`path`);
- * - `contains-folder`: it holds another folder Pi Web knows (`path`): a
- *   session's folder, its project, or a folder chosen in Pi Web;
+ * - `contains-folder`: it holds another folder Pi Obs knows (`path`): a
+ *   session's folder, its project, or a folder chosen in Pi Obs;
  * - `contains-project`: it holds a project whose resources need trust and
  *   which has no decision (`path`), such as a repository cloned into it;
- * - `too-many-folders`: it holds more folders than Pi Web reads to look for
+ * - `too-many-folders`: it holds more folders than Pi Obs reads to look for
  *   such a project (`path` is the folder itself).
  */
 export interface FreshFolderTrustBreadth {
@@ -204,13 +204,13 @@ export type McpConfigFileProblemReason =
   | "auto-enable-codemode-invalid"
   /** A project file that is a symbolic link to nothing. */
   | "link-dangling"
-  /** A project file whose real path is outside the folders Pi Web may read. */
+  /** A project file whose real path is outside the folders Pi Obs may read. */
   | "link-outside"
   /** Not a regular file (a directory, a FIFO, a device). */
   | "not-a-file"
   /** A project file larger than 1 MiB. */
   | "too-large"
-  /** A project file that declares more servers than Pi Web lists (`MCP_PROJECT_MAX_SERVERS`, 200). */
+  /** A project file that declares more servers than Pi Obs lists (`MCP_PROJECT_MAX_SERVERS`, 200). */
   | "too-many-servers"
   | "unreadable";
 
@@ -297,7 +297,7 @@ export interface McpServerInfo {
   commandFields: McpConfigFieldRef[];
   /** Values that read the host's environment variables on every connection; a `!command` is in `commandFields` instead. */
   variableReferences: McpVariableReference[];
-  /** The value that references `PI_WEB_PASSWORD`; Pi Web refuses to connect such an entry. */
+  /** The value that references `PI_OBS_PASSWORD`; Pi Obs refuses to connect such an entry. */
   webPasswordField?: McpConfigFieldRef;
   /** Some of `command`, `args` or `url` was masked. */
   masked: boolean;
@@ -349,7 +349,7 @@ export interface McpTestResult {
   error?: string;
   /** The last 2,000 characters a stdio server wrote to stderr, when it did not connect. */
   stderr?: string;
-  /** The server did not answer within the test's deadline, and Pi Web stopped the test. */
+  /** The server did not answer within the test's deadline, and Pi Obs stopped the test. */
   timedOut?: boolean;
   /** Another test of a server that runs a shell command held the queue past the deadline, so this one never started. */
   queueTimedOut?: boolean;
@@ -564,7 +564,7 @@ export interface McpResponse {
   servers: McpServerInfo[];
   project?: McpProjectInfo;
   /**
-   * An open session that connects none of these servers through Pi Web: the
+   * An open session that connects none of these servers through Pi Obs: the
    * one in the panel's project when there is one, else the latest reported.
    */
   hostInactive?: McpHostInactiveInfo;
@@ -580,11 +580,11 @@ export interface McpResponse {
 export type McpRefusalReason =
   /** `cwd` is empty or not an absolute path. */
   | "cwd-invalid"
-  /** `cwd` is outside the folders Pi Web may read, has a `..` segment, or does not exist. */
+  /** `cwd` is outside the folders Pi Obs may read, has a `..` segment, or does not exist. */
   | "cwd-denied"
   /** `cwd` is not a directory (anymore). */
   | "cwd-not-directory"
-  /** A mutating request that did not come from Pi Web's own page (origin or host check). */
+  /** A mutating request that did not come from Pi Obs's own page (origin or host check). */
   | "request-denied"
   /** A mutating request whose body is not sent as JSON. */
   | "content-type"
@@ -596,7 +596,7 @@ export type McpRefusalReason =
   | "session-busy"
   /** The body is not a request the route can act on. */
   | "invalid-request"
-  /** MCP is off on this server (`PI_WEB_DISABLE_MCP`, or the SDK's MCP modules cannot load), so Pi Web neither writes `mcp.json` nor connects a server. */
+  /** MCP is off on this server (`PI_OBS_DISABLE_MCP`, or the SDK's MCP modules cannot load), so Pi Obs neither writes `mcp.json` nor connects a server. */
   | "mcp-off"
   /** A project entry, and no decision trusts the project, so its `.pi/mcp.json` is neither written nor connected. */
   | "project-untrusted"
@@ -608,7 +608,7 @@ export type McpRefusalReason =
   | "server-missing"
   /** The entry is not a JSON object, so it cannot be switched on or off, only removed (`path`, `name`). */
   | "entry-not-object"
-  /** The entry references `PI_WEB_PASSWORD`, so Pi Web does not turn it on, add, test or sign in to it (`name`). */
+  /** The entry references `PI_OBS_PASSWORD`, so Pi Obs does not turn it on, add, test or sign in to it (`name`). */
   | "web-password"
   /** The SDK's validator refuses the entry (`name`; `error` is the validator's message, which names fields, never values). */
   | "server-invalid"
@@ -620,19 +620,19 @@ export type McpRefusalReason =
   | "name-taken"
   /** A project file that is a symbolic link to nothing (`path`). */
   | "link-dangling"
-  /** A project file whose real path is outside the folders Pi Web may read (`path`). */
+  /** A project file whose real path is outside the folders Pi Obs may read (`path`). */
   | "link-outside"
   /** The path is not a regular file (`path`). */
   | "not-a-file"
   /** A project file larger than 1 MiB (`path`). */
   | "too-large"
-  /** A project file that declares more than 200 servers, which Pi Web neither lists nor acts on (`path`). */
+  /** A project file that declares more than 200 servers, which Pi Obs neither lists nor acts on (`path`). */
   | "too-many-servers"
   /** Another process held the file's lock for longer than the writer waits (`path`). */
   | "locked"
   /** Sign-in or sign-out of a server that does not use OAuth: only an HTTP server without an `Authorization` header does (`name`). */
   | "sign-in-not-oauth"
-  /** No sign-in has that id: it ended over a minute ago, or Pi Web restarted (`/api/mcp/sign-in/[flowId]`). */
+  /** No sign-in has that id: it ended over a minute ago, or Pi Obs restarted (`/api/mcp/sign-in/[flowId]`). */
   | "sign-in-unknown"
   /** The sign-in is not waiting for a redirected address: not yet, or not anymore. */
   | "sign-in-not-waiting"
@@ -652,11 +652,11 @@ export type McpRefusalReason =
   | "name-invalid"
   /** `add`: the server holds a literal secret (`fields`), so it is saved only in the global `mcp.json`. */
   | "secret-global-only"
-  /** `add`: the server sends variables of the Pi Web host to a remote party (`names`); the request must confirm them. */
+  /** `add`: the server sends variables of the Pi Obs host to a remote party (`names`); the request must confirm them. */
   | "host-env-confirm"
   /** `add` with `trustFolder`: the folder is no longer fresh (a decision, or resources that need one), so it was not trusted (`trust`). */
   | "folder-not-fresh"
-  /** `add` with `trustFolder`: trusting the folder would trust more than it (`breadth`), so Pi Web does not do it by itself. */
+  /** `add` with `trustFolder`: trusting the folder would trust more than it (`breadth`), so Pi Obs does not do it by itself. */
   | "trust-too-broad"
   /** Reading failed unexpectedly; `error` says how. */
   | "internal";
@@ -741,7 +741,7 @@ export interface McpActionResponse extends McpResponse {
  *   has not produced a sign-in page yet;
  * - `authorize`: waiting for the browser, `authorizationUrl` to open; the
  *   loopback callback or a pasted redirected address finishes it;
- * - `finishing`: the code is being exchanged for tokens, then Pi Web
+ * - `finishing`: the code is being exchanged for tokens, then Pi Obs
  *   connects again with them;
  * - `done`, `failed`, `cancelled`, `expired` (not finished within the SDK's
  *   5 minutes): ended.
@@ -766,7 +766,7 @@ export interface McpSignInFlowInfo extends McpServerRef {
   phase: McpSignInPhase;
   /** `authorize`: the sign-in page to open. */
   authorizationUrl?: string;
-  /** `authorize`: where the browser is sent back, Pi Web's loopback listener on the computer running it. */
+  /** `authorize`: where the browser is sent back, Pi Obs's loopback listener on the computer running it. */
   redirectUrl?: string;
   /** How long the sign-in still waits, in milliseconds; 0 once it ended. */
   expiresInMs: number;

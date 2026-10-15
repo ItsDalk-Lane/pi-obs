@@ -24,7 +24,7 @@ export function SystemPromptPanel({ loading, prompt, translate }: Props) {
       </div>
 
       <style>{`
-        /* The panel that hosts this one (.pi-web-toppanel) is the scroller: the
+        /* The panel that hosts this one (.pi-obs-toppanel) is the scroller: the
            content only sets a floor, so a short prompt leaves the panel short
            and a long one scrolls in the host, one bar and one bar only. */
         .system-prompt-panel {

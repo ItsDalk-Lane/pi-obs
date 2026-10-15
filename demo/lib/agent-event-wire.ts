@@ -61,7 +61,7 @@ export function isSystemMessageEvent(event: AgentEventLike): boolean {
     && event.message.role === "system";
 }
 
-/** Apply pi-web's event filters plus Pi 0.84's message_update projection. */
+/** Apply pi-obs's event filters plus Pi 0.84's message_update projection. */
 export function toClientAgentEvent(
   event: AgentEventLike,
 ): AgentEventLike | ClientMessageUpdateEvent | null {

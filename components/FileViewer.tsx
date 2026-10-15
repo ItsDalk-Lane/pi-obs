@@ -1814,7 +1814,7 @@ function TextFileViewer({
                     ? resolveLocalFileHref(href, markdownDirectory, cwd ?? markdownDirectory)
                     : null;
                   if (!linkedFile || !onOpenFile) {
-                    // Like chat links: a web or app link must not replace Pi Web.
+                    // Like chat links: a web or app link must not replace Pi Obs.
                     return isExternalMarkdownHref(href)
                       ? <a href={href} {...props} target="_blank" rel="noopener noreferrer">{children}</a>
                       : <a href={href} {...props}>{children}</a>;

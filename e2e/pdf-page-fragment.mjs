@@ -74,7 +74,7 @@ function buildFixturePdf(pageCount) {
 
 const artifacts = join(root, "test-results/e2e");
 mkdirSync(artifacts, { recursive: true });
-const agentDir = mkdtempSync(join(tmpdir(), "pi-web-pdf-e2e-"));
+const agentDir = mkdtempSync(join(tmpdir(), "pi-obs-pdf-e2e-"));
 const project = join(agentDir, "project");
 const sessionDir = join(agentDir, "sessions", "pdf");
 mkdirSync(project, { recursive: true });
@@ -152,7 +152,7 @@ try {
     [join(root, "node_modules/next/dist/bin/next"), mode, "-H", "127.0.0.1", "-p", String(port)],
     {
       cwd: root,
-      env: { ...process.env, PI_CODING_AGENT_DIR: agentDir, PI_WEB_PASSWORD: "", NEXT_TELEMETRY_DISABLED: "1" },
+      env: { ...process.env, PI_CODING_AGENT_DIR: agentDir, PI_OBS_PASSWORD: "", NEXT_TELEMETRY_DISABLED: "1" },
       stdio: ["ignore", "pipe", "pipe"],
     },
   );

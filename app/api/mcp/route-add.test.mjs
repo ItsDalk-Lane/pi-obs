@@ -10,7 +10,7 @@ import { createJiti } from "jiti";
 // POST /api/mcp { action: "add" } writes the user's files and trust.json, so
 // every case runs against a PI_CODING_AGENT_DIR in a temporary folder, never
 // the real ~/.pi/agent.
-const root = realpathSync(await mkdtemp(join(tmpdir(), "pi-web-mcp-add-route-")));
+const root = realpathSync(await mkdtemp(join(tmpdir(), "pi-obs-mcp-add-route-")));
 const agentDir = join(root, "agent");
 const trusted = join(root, "trusted");
 const untrusted = join(root, "untrusted");
@@ -18,9 +18,9 @@ const fresh = join(root, "fresh");
 const outer = join(root, "outer");
 const inner = join(outer, "inner");
 const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
-const previousDisable = process.env.PI_WEB_DISABLE_MCP;
+const previousDisable = process.env.PI_OBS_DISABLE_MCP;
 process.env.PI_CODING_AGENT_DIR = agentDir;
-delete process.env.PI_WEB_DISABLE_MCP;
+delete process.env.PI_OBS_DISABLE_MCP;
 await mkdir(agentDir, { recursive: true });
 
 const jiti = createJiti(import.meta.url, { alias: { "@": process.cwd() } });
@@ -31,8 +31,8 @@ for (const folder of [trusted, untrusted, fresh, outer, inner, root]) allowFileR
 after(async () => {
   if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
   else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
-  if (previousDisable === undefined) delete process.env.PI_WEB_DISABLE_MCP;
-  else process.env.PI_WEB_DISABLE_MCP = previousDisable;
+  if (previousDisable === undefined) delete process.env.PI_OBS_DISABLE_MCP;
+  else process.env.PI_OBS_DISABLE_MCP = previousDisable;
   await rm(root, { recursive: true, force: true });
 });
 
@@ -43,7 +43,7 @@ const store = new ProjectTrustStore(agentDir);
 const globalText = `${JSON.stringify({ mcpServers: { docs: { url: "https://docs.example.com/mcp" } } }, null, 2)}\n`;
 
 beforeEach(async () => {
-  delete process.env.PI_WEB_DISABLE_MCP;
+  delete process.env.PI_OBS_DISABLE_MCP;
   await writeFile(globalPath, globalText);
   await rm(trustPath, { force: true });
   for (const folder of [trusted, untrusted, fresh, outer]) await rm(folder, { recursive: true, force: true });
@@ -110,7 +110,7 @@ test("a name the file defines is refused with a free one; an invalid one is refu
   assert.equal(await readFile(globalPath, "utf8"), globalText);
 });
 
-test("a literal secret is saved globally only, and PI_WEB_PASSWORD never", async () => {
+test("a literal secret is saved globally only, and PI_OBS_PASSWORD never", async () => {
   const text = JSON.stringify({ mcpServers: { api: { url: "https://api.example.com/mcp", headers: { Authorization: "Bearer sk-live-0123456789abcdef0123" } } } });
   const refused = await add({ text, scope: "project", cwd: trusted });
   assert.deepEqual([refused.status, refused.body.reason, refused.body.fields], [409, "secret-global-only", ["headers.Authorization"]]);
@@ -120,24 +120,24 @@ test("a literal secret is saved globally only, and PI_WEB_PASSWORD never", async
   assert.equal(global.status, 200);
   assert.ok(!JSON.stringify(global.body).includes("sk-live"), "nor in the overview");
 
-  const password = await add({ text: JSON.stringify({ mcpServers: { pw: { url: "https://pw.example.com/mcp", headers: { A: "${PI_WEB_PASSWORD}" } } } }), rawPi: true });
+  const password = await add({ text: JSON.stringify({ mcpServers: { pw: { url: "https://pw.example.com/mcp", headers: { A: "${PI_OBS_PASSWORD}" } } } }), rawPi: true });
   assert.deepEqual([password.status, password.body.reason], [409, "web-password"]);
 });
 
 test("a header that sends a variable set on the host is added only once that variable is confirmed", async (t) => {
-  process.env.PI_WEB_ADD_TEST_TOKEN = "secret-value-from-the-host";
-  t.after(() => delete process.env.PI_WEB_ADD_TEST_TOKEN);
-  const text = JSON.stringify({ mcpServers: { gh: { url: "https://api.example.com/mcp", headers: { Authorization: "Bearer ${env:PI_WEB_ADD_TEST_TOKEN}" } } } });
+  process.env.PI_OBS_ADD_TEST_TOKEN = "secret-value-from-the-host";
+  t.after(() => delete process.env.PI_OBS_ADD_TEST_TOKEN);
+  const text = JSON.stringify({ mcpServers: { gh: { url: "https://api.example.com/mcp", headers: { Authorization: "Bearer ${env:PI_OBS_ADD_TEST_TOKEN}" } } } });
   const asked = await add({ text });
-  assert.deepEqual([asked.status, asked.body.reason, asked.body.names], [409, "host-env-confirm", ["PI_WEB_ADD_TEST_TOKEN"]]);
+  assert.deepEqual([asked.status, asked.body.reason, asked.body.names], [409, "host-env-confirm", ["PI_OBS_ADD_TEST_TOKEN"]]);
   assert.ok(!JSON.stringify(asked.body).includes("secret-value-from-the-host"));
   assert.equal(await readFile(globalPath, "utf8"), globalText);
   // Where it may go is said before anything is asked: an untrusted project refuses it outright.
   const untrustedAsk = await add({ text, scope: "project", cwd: untrusted });
   assert.deepEqual([untrustedAsk.status, untrustedAsk.body.reason], [403, "project-untrusted"]);
-  const confirmed = await add({ text, confirmHostEnv: ["PI_WEB_ADD_TEST_TOKEN"] });
+  const confirmed = await add({ text, confirmHostEnv: ["PI_OBS_ADD_TEST_TOKEN"] });
   assert.equal(confirmed.status, 200);
-  assert.equal((await readJson(globalPath)).mcpServers.gh.headers.Authorization, "Bearer ${PI_WEB_ADD_TEST_TOKEN}");
+  assert.equal((await readJson(globalPath)).mcpServers.gh.headers.Authorization, "Bearer ${PI_OBS_ADD_TEST_TOKEN}");
 });
 
 test("a project server goes only to a folder a decision trusts, and the answer carries its trust", async () => {
@@ -203,7 +203,7 @@ test("a fresh folder with a link to nothing under .pi is not offered the step, a
   assert.equal(existsSync(projectPath(fresh)), false);
 });
 
-test("a fresh folder holding a project Pi Web never opened is not offered the step, and the step refuses it", async () => {
+test("a fresh folder holding a project Pi Obs never opened is not offered the step, and the step refuses it", async () => {
   // A repository cloned into the folder: trusting the folder would load its extensions with no dialog.
   const cloned = join(fresh, "cloned-repo");
   await mkdir(join(cloned, ".pi", "extensions"), { recursive: true });
@@ -217,7 +217,7 @@ test("a fresh folder holding a project Pi Web never opened is not offered the st
 });
 
 test("a folder whose trust would reach other folders is never trusted by the step", async (t) => {
-  // `outer` holds `inner`, a folder Pi Web knows (an allowed root, as a session's folder is).
+  // `outer` holds `inner`, a folder Pi Obs knows (an allowed root, as a session's folder is).
   let response = await add({ text: "npx -y @scope/lint-mcp", scope: "project", cwd: outer, trustFolder: true });
   assert.deepEqual([response.status, response.body.reason], [409, "trust-too-broad"]);
   assert.deepEqual(response.body.breadth, { kind: "contains-folder", path: inner });
@@ -290,25 +290,25 @@ test("a write that fails after trusting, whose trust cannot be taken back either
 });
 
 test("a pasted literal secret read from a host variable instead may go to the project", async (t) => {
-  process.env.PI_WEB_ADD_TEST_API_TOKEN = "secret-value-from-the-host";
-  t.after(() => delete process.env.PI_WEB_ADD_TEST_API_TOKEN);
+  process.env.PI_OBS_ADD_TEST_API_TOKEN = "secret-value-from-the-host";
+  t.after(() => delete process.env.PI_OBS_ADD_TEST_API_TOKEN);
   const text = JSON.stringify({ mcpServers: { api: { url: "https://api.example.com/mcp", headers: { Authorization: "Bearer sk-live-0123456789abcdef0123" } } } });
   const invalid = await add({ text, scope: "project", cwd: trusted, secretReferences: { "headers.Authorization": "api-token" } });
   assert.deepEqual([invalid.status, invalid.body.reason], [400, "fields-incomplete"]);
   assert.deepEqual(invalid.body.notes, [{ code: "field-reference-invalid", params: { field: "headers.Authorization", problem: "name" } }]);
   assert.deepEqual((await add({ text, secretReferences: { "headers.Authorization": 1 } })).body.reason, "invalid-request");
   // The variable is the user's own choice, so it is not asked about, though it is set on the host.
-  const added = await add({ text, scope: "project", cwd: trusted, secretReferences: { "headers.Authorization": "PI_WEB_ADD_TEST_API_TOKEN" } });
+  const added = await add({ text, scope: "project", cwd: trusted, secretReferences: { "headers.Authorization": "PI_OBS_ADD_TEST_API_TOKEN" } });
   assert.equal(added.status, 200);
   assert.deepEqual((await readJson(projectPath(trusted))).mcpServers.api, {
     url: "https://api.example.com/mcp",
-    headers: { Authorization: "Bearer ${PI_WEB_ADD_TEST_API_TOKEN}" },
+    headers: { Authorization: "Bearer ${PI_OBS_ADD_TEST_API_TOKEN}" },
   });
   assert.ok(!(await readFile(projectPath(trusted), "utf8")).includes("sk-live"), "the secret never reaches the project file");
 });
 
 test("MCP off leaves every file as it is", async () => {
-  process.env.PI_WEB_DISABLE_MCP = "1";
+  process.env.PI_OBS_DISABLE_MCP = "1";
   const { status, body } = await add({ text: "npx -y @scope/lint-mcp", scope: "project", cwd: fresh, trustFolder: true });
   assert.deepEqual([status, body.reason], [409, "mcp-off"]);
   assert.equal(await readFile(globalPath, "utf8"), globalText);

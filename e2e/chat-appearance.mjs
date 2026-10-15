@@ -87,10 +87,10 @@ export async function checkChatAppearance(page) {
   for (const viewport of [{ width: 1280, height: 600 }, { width: 320, height: 568 }]) {
     await page.setViewportSize(viewport);
     await page.locator(".settings-general").evaluate((el) => { el.scrollTop = el.scrollHeight; });
-    assert.equal(await page.locator(".settings-language-options button:last-child").evaluate((el) => {
+    assert.equal(await page.locator(".settings-select").last().evaluate((el) => {
       const rect = el.getBoundingClientRect();
       return el.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
-    }), true, "Every language option must remain reachable in a short settings panel");
+    }), true, "The language select must remain reachable in a short settings panel");
   }
   await fontSize.press("Home");
   await closeSettings();
