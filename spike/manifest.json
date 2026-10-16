@@ -1,0 +1,10 @@
+{
+  "id": "pi-obs-spike",
+  "name": "Pi Obs Spike",
+  "version": "0.0.1",
+  "minAppVersion": "1.5.0",
+  "description": "方案 C2 阶段 0 验证插件：测试 pi SDK 与 node-pty 能否在 Obsidian 进程内运行。验证完成后可删除。",
+  "author": "ItsDalk-Lane",
+  "authorUrl": "https://github.com/ItsDalk-Lane",
+  "isDesktopOnly": true
+}

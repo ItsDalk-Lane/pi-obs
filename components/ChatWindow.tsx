@@ -2,6 +2,7 @@
 import { registerAbortHandler } from "@/hooks/useKeyboardShortcuts";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { getPortalHost } from "@/lib/portal-host";
 import type { AgentMessage, AssistantContentBlock, AssistantMessage, BashExecutionMessage, BlockingExtensionUiRequest, ExtensionUiRequest, SessionInfo, SessionTreeNode, ToolResultMessage } from "@/lib/types";
 import { normalizeCustomPanelLines } from "@/lib/ansi";
 import { splitNoticeText } from "@/lib/notice-text";
@@ -1344,7 +1345,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
           )}
           </>}
         </div>,
-        document.body,
+        getPortalHost(),
       )}
 
       <div className="relative shrink-0">

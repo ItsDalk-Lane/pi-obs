@@ -35,6 +35,17 @@ const SDK_MODULES = {
 type SdkModuleName = keyof typeof SDK_MODULES | "mcpClient";
 type MemberKind = "class" | "function";
 
+/** 模块名 → 该模块的对象。打包场景（见下）也用它，避免两边各写一份映射。 */
+export type SdkInternalsModules = Record<SdkModuleName, Record<string, unknown>>;
+
+/** 打包场景下，SDK 深路径里需要收集的模块名。 */
+export const SDK_INTERNALS_MODULE_NAMES = [
+  "mcpExtension", "mcpRuntime", "mcpConfig", "mcpOAuth", "mcpServers", "configValues", "mcpClient",
+] as const satisfies readonly SdkModuleName[];
+
+/** SDK 包内的深路径。插件构建期把它们别名成绝对路径再打进 bundle。 */
+export const SDK_INTERNALS_PATHS = SDK_MODULES;
+
 const MEMBERS = {
   McpServerConnection: { module: "mcpRuntime", kind: "class" },
   createDefaultTransport: { module: "mcpRuntime", kind: "function" },
@@ -53,6 +64,9 @@ const MEMBERS = {
   getConfigValueEnvVarNames: { module: "configValues", kind: "function" },
   isCommandConfigValue: { module: "configValues", kind: "function" },
 } as const satisfies Record<string, { module: SdkModuleName; kind: MemberKind }>;
+
+/** 需要从这些模块里取出的成员。打包场景直接复用同一张表，免得两处漂移。 */
+export const SDK_INTERNALS_MEMBERS = MEMBERS;
 
 /** What a transport factory returns: pi-mcp's `McpTransport`, which the SDK root does not export. */
 export type McpTransport = ReturnType<McpTransportFactory>;
@@ -358,6 +372,51 @@ function sharesStdioTransport(internals: PiSdkInternals): boolean {
 }
 
 /**
+ * 由"已经拿到手的模块"组装 internals。
+ *
+ * 网页/服务端版由 `importPiSdkInternals()` 走文件 URL 取模块；插件版把同样这几个文件
+ * 在构建期打进 bundle 后直接传进来 —— 两条路只差模块从哪来，后面的校验完全共用。
+ */
+export function buildPiSdkInternals(
+  packageDir: string,
+  modules: SdkInternalsModules,
+): PiSdkInternalsResult {
+  // 同实例：SDK 根导出的 createMcpExtension 必须与深路径取到的是同一个函数。
+  // 打包后它们在同一条依赖链上，所以这条断言等价于"别名没有引入第二个副本"。
+  if (modules.mcpExtension.createMcpExtension !== createMcpExtension) {
+    return { ok: false, reason: `${SDK_MODULES.mcpExtension} loaded as a second copy of ${SDK_PACKAGE}` };
+  }
+  const members = sdkMembers(modules);
+  if (typeof members === "string") return { ok: false, reason: members };
+  const internals = { packageDir, ...members } as PiSdkInternals;
+  try {
+    if (!sharesStdioTransport(internals)) {
+      return { ok: false, reason: `${MCP_PACKAGE} resolved to another copy than ${SDK_MODULES.mcpRuntime} uses` };
+    }
+  } catch (error) {
+    return { ok: false, reason: `${SDK_MODULES.mcpRuntime}: ${errorMessage(error)}` };
+  }
+  return { ok: true, ...internals };
+}
+
+/**
+ * 打包场景（Obsidian 插件）的替代加载器。
+ *
+ * 插件把整个 SDK 打进了同一个 bundle：那些"未导出模块"就在同一份代码里，不必再走文件 URL，
+ * 而 `getPackageDir()` / `resolvedSdkPackageDir()` 那套基于**文件位置**的校验在插件里必然失败
+ * （插件目录下没有 SDK 的 package.json，`getPackageDir()` 只会返回插件目录本身）。
+ *
+ * 网页/服务端版不注册它，行为完全不变。
+ */
+let bundledLoader: (() => Promise<PiSdkInternalsResult>) | null = null;
+
+export function registerBundledPiSdkInternalsLoader(
+  loader: (() => Promise<PiSdkInternalsResult>) | null,
+): void {
+  bundledLoader = loader;
+}
+
+/**
  * Load the SDK internals without caching. `environment` and `cwd` exist for
  * tests; the server uses `loadPiSdkInternals()`.
  */
@@ -410,10 +469,13 @@ const INTERNALS_KEY: symbol = Symbol.for("pi-obs.piSdkInternals");
  * The SDK's unexported MCP modules, loaded once per server process. When this
  * returns `ok: false`, MCP stays off: pi-obs never falls back to transports
  * that pass the server's whole environment to MCP servers.
+ *
+ * 注册过打包加载器时优先用它：插件里没有"SDK 在磁盘上的位置"这回事，
+ * 基于文件位置的校验注定失败（见 registerBundledPiSdkInternalsLoader）。
  */
 export function loadPiSdkInternals(): Promise<PiSdkInternalsResult> {
   const store = globalThis as Record<symbol, Promise<PiSdkInternalsResult> | undefined>;
-  return store[INTERNALS_KEY] ??= importPiSdkInternals().catch((error: unknown): PiSdkInternalsResult => ({
+  return store[INTERNALS_KEY] ??= (bundledLoader ? bundledLoader() : importPiSdkInternals()).catch((error: unknown): PiSdkInternalsResult => ({
     ok: false,
     reason: errorMessage(error),
   }));

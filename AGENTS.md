@@ -7,6 +7,15 @@
 > `pi-obs`. Everything else follows upstream. Read [docs/obsidian.md](docs/obsidian.md) before
 > touching any of those files, and keep the three integration points listed there working.
 
+> **⚠️ The Obsidian plugin is being rewritten to a native, serverless plugin (plan C2).** Since
+> 2026-10-15 the `obsidian-plugin/` directory no longer runs an external server, an iframe, or a
+> `?embed=1` load: everything runs in-process, and its source of truth is
+> [docs/c2-migration-plan.md](docs/c2-migration-plan.md) plus
+> [docs/c2-phase0-spike.md](docs/c2-phase0-spike.md) and [docs/c2-phase1.md](docs/c2-phase1.md).
+> The embed-mode / `/panel/*` / `openPanel` descriptions below still apply to the *web* build and
+> are being deleted phase by phase — read the C2 docs, not the paragraphs below, before touching
+> `obsidian-plugin/`, `lib/embed-mode.ts`, or `app/panel/**`.
+
 ## Quick Start
 
 ```bash

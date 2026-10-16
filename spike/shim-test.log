@@ -1,0 +1,19 @@
+[raw] status: 200 | ms: 242 | body head: {
+  "id": "chatcmpl-5wztvsoiskolu78iw5rgo",
+  "object": "chat.completion",
+  "created": 1792072050,
+  "model": "qwen/qwen3.8-27b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "reasoning_content": "...",
+        "tool_calls": [
+[stream] status: 200 | chunks: 25 | bytes: 6543 | ms: 519
+[sdk] sessionId: 01a13fd1-6a7f-735e-a5b0-4e55d954fce6 | ms: 781
+[sdk] events: {"agent_start":1,"turn_start":1,"message_start":3,"message_end":3,"message_update":14,"turn_end":1,"agent_end":1,"agent_settled":1}
+[sdk] reply: [{"type":"thinking","thinking":"用户要求只回复两个字：\"成功\"\n","thinkingSignature":"reasoning_content"},{"type":"text","text":"成功"}]
+[sdk] 结论：通过
+[exit] code= 0

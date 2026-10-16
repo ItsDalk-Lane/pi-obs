@@ -1,0 +1,21 @@
+/* 插件样式表的入口 —— 只给 scripts/build-css.mjs 用，不参与 Next 构建。
+ *
+ * 顺序照抄 app/layout.tsx：katex → globals（内含 xterm 与 tailwindcss）→ settings → sidebar → sidebar-menu。
+ * 编译结果会被作用域化到 .pi-obs-host，再拼上 plugin-shell.css，产出 obsidian-plugin/styles.css。
+ */
+
+@import "katex/dist/katex.min.css";
+@import "../app/globals.css";
+@import "../app/settings.css";
+@import "../app/sidebar.css";
+@import "../app/sidebar-menu.css";
+
+/* Tailwind v4 默认从**构建时的 cwd** 开始扫描源文件。本脚本从 obsidian-plugin/ 启动，
+   那里没有界面源码，于是 .flex / .h-full / .overflow-hidden 这类工具类一个都不会生成 ——
+   界面会当场塌成块级堆叠（聊天列高度归零，输入框顶到最上面）。
+   Next 构建的 cwd 是仓库根，自动扫描拿得到；插件构建必须自己列出范围。
+   注意 @source 要排在 @import 之后（@import 必须在最前面）。 */
+@source "../app";
+@source "../components";
+@source "../hooks";
+@source "../lib";

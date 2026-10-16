@@ -2,6 +2,7 @@
 
 import { type CSSProperties, type FormEvent, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { getPortalHost } from "@/lib/portal-host";
 import { useI18n } from "@/hooks/useI18n";
 
 interface DirectoryEntry {
@@ -149,7 +150,7 @@ export function DirectoryPicker({ onCancel, onSelect, initialPath, busy = false,
   }, []);
 
   useEffect(() => {
-    setPortalTarget(document.body);
+    setPortalTarget(getPortalHost());
     void navigateTo(initialPath || undefined);
   }, [initialPath, navigateTo]);
 

@@ -2,6 +2,7 @@
 
 import { Children, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, type Ref, type SyntheticEvent } from "react";
 import { createPortal } from "react-dom";
+import { getPortalHost } from "@/lib/portal-host";
 import { CheckIcon } from "./SidebarIcons";
 
 /**
@@ -593,7 +594,7 @@ export function SidebarMenu({
   anchorRef.current = anchor;
 
   useEffect(() => {
-    setPortalTarget(document.body);
+    setPortalTarget(getPortalHost());
   }, []);
 
   const visible = open && portalTarget !== null && (sheet || anchor !== null);

@@ -1,0 +1,55 @@
+/* Pi Obs —— 插件自身的宿主规则。
+ *
+ * 这份文件**不经过作用域化**，原样拼在生成样式的最后（拼在 CSS 层之外，
+ * 所以永远压过 @layer 里的东西）。作用是补上"把网页界面塞进 Obsidian 标签页"这件事本身需要的东西。
+ *
+ * 上面生成的 app 样式已经全部限定在 .pi-obs-host 之下，界面外观由它们负责。
+ */
+
+/* Obsidian 给 .view-content 默认内边距；界面要的是满幅。 */
+.workspace-leaf-content[data-type="pi-obs-main"] .view-content {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* React 界面的挂载点，同时也是整套样式的根。
+ *
+ * height 必须在这里钉死成 100%：app 样式里写的是 var(--app-viewport-height, 100dvh)，
+ * 而那个变量在插件里由 useViewportHeight 设成 window.innerHeight —— 那是**整个 Obsidian 窗口**
+ * 的高度，不是标签页的高度，直接用它界面会高出视图。
+ * 视图代码会把宿主的真实高度回写到 --app-viewport-height，供菜单之类的 max-height 用。
+ *
+ * 选择器带上视图外壳是为了提高优先级：这样不必依赖"shell 拼在最后"这个顺序约定，
+ * 也能保证只作用于本插件的视图。 */
+.workspace-leaf-content[data-type="pi-obs-main"] .pi-obs-host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  /* next/font 在 Next 构建里注入这个变量；插件里没有，给一个等价的等宽字体栈，
+     否则 --font-mono-default 会因为 var() 引用不到而整条失效，代码块会退化成默认字体。 */
+  --font-noto-mono: var(--font-monospace, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+/* React 界面的挂载点。界面内部大量使用 height: 100%，所以这一层要撑满宿主。 */
+.pi-obs-mount {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* createPortal 的弹层容器（目录选择器、侧栏菜单、引用气泡）。
+ *
+ * 为什么要它：这三个弹层原本挂在 document.body 上，落在 .pi-obs-host 之外，
+ * 作用域化之后就没有任何样式了。改挂进宿主内部即可，它们自己都用 position: fixed
+ * 定位到视口，所以这个 0×0 的容器不影响它们的位置。 */
+.pi-obs-portal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+}

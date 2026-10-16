@@ -48,6 +48,7 @@
     "lint": "eslint .",
     "test:terminal": "node e2e/terminal.mjs",
     "test:e2e": "node e2e/run.mjs",
+    "test:web-smoke": "node e2e/web-smoke.mjs",
     "test": "node --experimental-strip-types --test \"app/**/*.test.mjs\" \"components/**/*.test.mjs\" \"hooks/**/*.test.mjs\" \"lib/**/*.test.mjs\" \"public/**/*.test.mjs\"",
     "build:plugin": "npm --prefix obsidian-plugin run build",
     "release": "npm version patch --no-git-tag-version && npm run build && npm run build:plugin && npm publish --access public"

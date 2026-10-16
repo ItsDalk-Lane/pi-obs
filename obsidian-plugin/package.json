@@ -4,8 +4,14 @@
   "description": "Embed the Pi Obs interface (pi coding agent) in Obsidian",
   "main": "main.js",
   "scripts": {
-    "dev": "node esbuild.config.mjs",
-    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+    "dev": "node scripts/build-css.mjs && node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node scripts/build-css.mjs && node scripts/check-css-scope.mjs && node esbuild.config.mjs production",
+    "build:css": "node scripts/build-css.mjs && node scripts/check-css-scope.mjs",
+    "smoke": "node smoke.mjs",
+    "smoke:hostile": "node smoke-hostile.mjs",
+    "ui-mount": "node ui-mount.mjs",
+    "layout": "node layout-check.mjs",
+    "e2e": "node e2e-agent.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
